@@ -1,5 +1,5 @@
 # get connection context
-$contextInfo = Get-Content ./config-v2.json | ConvertFrom-Json
+$contextInfo = Get-Content ./src/config.json | ConvertFrom-Json
 Connect-AzAccount -Tenant $contextInfo.tenantId
 $azContext = Get-AzContext
 $outFolder = "..//data/" + $contextInfo.subscriptionName

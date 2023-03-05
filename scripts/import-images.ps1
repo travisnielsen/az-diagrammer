@@ -1,7 +1,7 @@
 # moves non-monochrome SVG files from Azure PlantUML directories to a target location
 # The "Azure" prefix is removed from the destination filename
 
-$config = Get-Content ./scripts/config.json | ConvertFrom-Json
+$config = Get-Content ./src/config.json | ConvertFrom-Json
 $sourcePath = $config.sourceImagesPath
 $destinationPathRoot = $config.destinationImagesPath
 $files = Get-ChildItem -Path $sourcePath -Recurse | Where-Object Name -match "[a-zA-Z0-9].svg"

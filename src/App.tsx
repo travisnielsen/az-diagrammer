@@ -1,41 +1,11 @@
 import { Canvas, Node, NodeData, NodeProps, EdgeData } from 'reaflow';
+import prepareNode from './nodes'
+import loadData from './data'
 import './App.css';
 
 function App() {
 
-  function prepareNode(node: NodeProps) {
-    const nodeProps = node.properties;
-    switch (nodeProps.data.type) {
-      case 'service':
-        return (
-          <Node>
-              <foreignObject height={node.height} width={node.width} x={0} y={0}>
-                <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>
-                  <h3 style={{ color: 'white', margin: '6px' }}>{nodeProps.data.label}</h3>
-                  <img src={nodeProps.data.url} alt="A Function App" width="50" height="50" />
-                  <p style={{ color: 'white', margin: 0  }}>123 abc def</p>
-                </div>
-              </foreignObject>
-          </Node>
-        )
-      case 'container':
-        return (
-          <Node style={{fill: '#1b1d3c'}}>
-              <foreignObject height={node.height} width={node.width} x={0} y={0}>
-                <div style={{ padding: 5, textAlign: 'center', display: 'block'  }}>
-                  <h3 style={{ color: 'white', margin: 5 }}>{nodeProps.data.label}</h3>
-                  <img src={nodeProps.data.url} alt="A Function App" width="50" height="50" />
-                  <p style={{ color: 'white', margin: 0  }}>123 abc def</p>
-                </div>
-              </foreignObject>
-          </Node>
-        )
-      default:
-        return (
-          <Node />
-        )
-    }
-  }
+  const testData = loadData();
 
   const nodes: NodeData[] = [
     {
@@ -154,9 +124,10 @@ function App() {
     <div style={{
       position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: 'black' }}>
       <Canvas
-        // required to enable edges from/to nested nodes
         layoutOptions={{
-          'elk.hierarchyHandling': 'INCLUDE_CHILDREN', 'elk.nodeLabels.placement': 'INSIDE V_TOP H_RIGHT' }}
+          'elk.hierarchyHandling': 'INCLUDE_CHILDREN',        // required to enable edges from/to nested nodes
+          'elk.nodeLabels.placement': 'INSIDE V_TOP H_RIGHT'
+        }}
         direction='RIGHT'
         nodes={nodes}
         edges={edges}
