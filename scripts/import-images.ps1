@@ -4,10 +4,7 @@
 $config = Get-Content ./scripts/config.json | ConvertFrom-Json
 $sourcePath = $config.sourceImagesPath
 $destinationPathRoot = $config.destinationImagesPath
-
-
-$files = Get-ChildItem -Path $sourcePath -Recurse | 
-    Where-Object Name -match "[a-zA-Z0-9].svg"
+$files = Get-ChildItem -Path $sourcePath -Recurse | Where-Object Name -match "[a-zA-Z0-9].svg"
 
 foreach($file in $files) {
     $fileName = $file.Name
