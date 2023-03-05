@@ -12,7 +12,6 @@ $files = Get-ChildItem -Path $sourcePath -Recurse |
 foreach($file in $files) {
     $fileName = $file.Name
     $newFileName = ""
-    # $destinationRoot = "C:\Users\trn\repos\reaviz-azure-ts\public\images"
     
     if ($file.Name -like "Azure*") {
         $newFileName = $file.Name.Split("Azure")[1].ToLower()
