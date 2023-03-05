@@ -45,7 +45,7 @@ function App() {
       data: {
         type: 'service',
         label: 'Function App',
-        url: 'https://github.com/travisnielsen/Azure-PlantUML/raw/themesupport/dist/Compute/AzureFunction.png'
+        url: 'images/Compute/function.svg'
       }
     },
     {
