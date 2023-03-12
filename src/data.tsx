@@ -144,7 +144,7 @@ export const nodeData = () => {
         }
     ))
 
-    const gateways: NodeData[] = vnetGatewayData.filter(gw => gw.Location.includes(configData.region) && !gw.Tags.EnvType?.includes(configData.excludeTagValue)).map(gw => (
+    const gateways: NodeData[] = vnetGatewayData.filter(gw => gw.Location == configData.region && !gw.Tags.EnvType?.includes(configData.excludeTagValue)).map(gw => (
         {
             id: shortId(gw.Id),
             parent: shortId(gw.Properties.ipConfigurations[0].properties.subnet.id),
