@@ -11,7 +11,7 @@ const prepareNode = (node: NodeProps) => {
                 <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>
                     <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.data.label}</h5>
                     <img src={nodeProps.data.url} alt="A Function App" width="40" height="40" />
-                    <p style={{ color: 'white', margin: 0  }}>123 abc def</p>
+                    <p style={{ color: 'white', margin: 0  }}>{nodeProps.data.info}</p>
                 </div>
                 </foreignObject>
             </Node>
@@ -23,7 +23,7 @@ const prepareNode = (node: NodeProps) => {
                 <div style={{ padding: 5, textAlign: 'center', display: 'block'  }}>
                     <h5 style={{ color: 'white', margin: 5 }}>{nodeProps.data.label}</h5>
                     <img src={nodeProps.data.url} alt="A Function App" width="40" height="40" />
-                    <p style={{ color: 'white', margin: 0  }}>123 abc def</p>
+                        <p style={{ color: 'white', margin: 0 }}>{nodeProps.data.info}</p>
                 </div>
                 </foreignObject>
             </Node>

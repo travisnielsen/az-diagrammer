@@ -1,4 +1,4 @@
-import { Canvas, Node, NodeData, NodeProps, EdgeData } from 'reaflow';
+import { Canvas, NodeProps } from 'reaflow';
 import prepareNode from './nodes'
 import { nodeData, edgeData } from './data'
 import './App.css';
