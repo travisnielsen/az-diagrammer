@@ -1,4 +1,5 @@
 import { NodeData, EdgeData, NodeProps, ElkNodeLayoutOptions } from 'reaflow';
+import routeTableData from './data/routeTables.json'
 import vnetData from "./data/vnets.json"
 import vmssData from "./data/virtualMachineScaleSets.json"
 import databricksWorkspaceData from './data/workspaces.json'
@@ -6,6 +7,7 @@ import loadBalancerData from './data/loadBalancers.json'
 import firewallData from './data/firewalls.json'
 import vnetGatewayData from './data/vnetGateways.json'
 import configData from "./config.json"
+import { arrayBuffer } from 'stream/consumers';
 
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
@@ -18,6 +20,11 @@ const shortId = (s: string) => {
     const splitArr = s.split("/")
     return splitArr[splitArr.length -1]
 }
+
+// TODO: remove duplicates from this arraoy
+const targetFirewallIps = routeTableData.filter(routeTable => routeTable.Location.includes(configData.region))
+    .map(routeTable => routeTable.Properties.routes.filter(route => route.properties.addressPrefix.includes("0.0.0.0/0"))
+    .map(r => r.properties.nextHopIpAddress)).flat()
 
 export const nodeData = () => {
 
@@ -97,8 +104,9 @@ export const nodeData = () => {
         }
     ))
 
+    
+    // TODO: typescript issue here. not able to find properties
     /*
-    TODO: typescript issue here. not able to find properties
     const loadBalancers: NodeData[] = loadBalancerData.filter(lb => lb.Location.includes(configData.region)).map(lb => (
         {
             id: shortId(lb.Id),
@@ -115,7 +123,13 @@ export const nodeData = () => {
     ))
     */
     
-    const firewalls: NodeData[] = firewallData.filter(fw => fw.Location.includes(configData.region)).map(fw => (
+    const firewalls: NodeData[] = firewallData
+        // TODO: hard-coded tag name here (EnvType). Need to move this to config. 
+        .filter(fw => 
+            fw.Location.includes(configData.region) && 
+            targetFirewallIps.includes(fw.Properties.ipConfigurations[0].properties.privateIPAddress) && 
+            !fw.Tags.EnvType.includes(configData.excludeTagValue))
+        .map(fw => (
         {
             id: shortId(fw.Id),
             parent: shortId( fw.Properties.ipConfigurations[0].properties.subnet?.id ?? ""  ),
@@ -130,7 +144,7 @@ export const nodeData = () => {
         }
     ))
 
-    const gateways: NodeData[] = vnetGatewayData.filter(gw => gw.Location.includes(configData.region)).map(gw => (
+    const gateways: NodeData[] = vnetGatewayData.filter(gw => gw.Location.includes(configData.region) && !gw.Tags.EnvType?.includes(configData.excludeTagValue)).map(gw => (
         {
             id: shortId(gw.Id),
             parent: shortId(gw.Properties.ipConfigurations[0].properties.subnet.id),
@@ -146,8 +160,6 @@ export const nodeData = () => {
             
     ))
 
-
-    
     const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...firewalls, ...gateways]
 
     return nodeData
