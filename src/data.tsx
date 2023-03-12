@@ -18,7 +18,14 @@ const containerlayoutOptions: ElkNodeLayoutOptions = {
 
 const shortId = (s: string) => {
     const splitArr = s.split("/")
-    return splitArr[splitArr.length -1]
+    const resourceGroup = splitArr[4].replace(/_/g, "").replace(/-/g, "").toLowerCase()
+    const item = splitArr[splitArr.length -1].replace(/_/g, "").replace(/-/g, "").toLowerCase()
+    return resourceGroup + "-" + item
+}
+
+const idFromNetworkIpconfig = (s: string) => {
+    const id = s.split("/virtualMachines/")[0]
+    return id
 }
 
 // TODO: remove duplicates from this arraoy
@@ -105,9 +112,8 @@ export const nodeData = () => {
     ))
 
     
-    // TODO: typescript issue here. not able to find properties
-    /*
-    const loadBalancers: NodeData[] = loadBalancerData.filter(lb => lb.Location.includes(configData.region)).map(lb => (
+    // TODO: typescript issue here. not able to find properties. This is due to something wrong in the source json file.
+    const loadBalancers: NodeData[] = loadBalancerData.filter(lb => lb.Location == configData.region).map(lb => (
         {
             id: shortId(lb.Id),
             parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet.id),
@@ -116,12 +122,12 @@ export const nodeData = () => {
             data: {
                 type: 'service',
                 label: lb.Name,
-                info: lb.Properties.frontendIPConfigurations[0].,
+                info: lb.Properties.frontendIPConfigurations[0].properties.privateIPAddress,
                 url: 'images/Networking/loadbalancer.svg'
               }
         }
     ))
-    */
+    
     
     const firewalls: NodeData[] = firewallData
         // TODO: hard-coded tag name here (EnvType). Need to move this to config. 
@@ -160,7 +166,7 @@ export const nodeData = () => {
             
     ))
 
-    const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...firewalls, ...gateways]
+    const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancers, ...firewalls, ...gateways]
 
     return nodeData
 }
@@ -175,9 +181,20 @@ export const edgeData = () => {
             to: shortId(peering.properties.remoteVirtualNetwork.id),
             text: 'peering'
         }
-    ))).flat()
+        ))).flat()
+    
+    const loadBalancingVmss: EdgeData[] = loadBalancerData.filter(lb => lb.Location == configData.region)
+        .map(lb => lb.Properties.backendAddressPools.map(bePool => (
+            {
+                id: bePool.id,
+                parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet.id),
+                from: shortId(lb.Id),
+                to: shortId(idFromNetworkIpconfig(bePool.properties.backendIPConfigurations[0].id)),
+                text: "load balancing"
+            }
+        ))).flat()
 
-    const edgeData = [...vnetPeerings]
+    const edgeData = [...vnetPeerings, ...loadBalancingVmss ]
     return edgeData
 
 }
