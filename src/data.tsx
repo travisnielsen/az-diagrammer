@@ -3,7 +3,8 @@ import routeTableData from './data/routeTables.json'
 import vnetData from "./data/vnets.json"
 import vmssData from "./data/virtualMachineScaleSets.json"
 import databricksWorkspaceData from './data/workspaces.json'
-import loadBalancerData from './data/loadBalancers.json'
+import loadBalancerPrivateData from './data/loadBalancersPrivate.json'
+import loadBalancerPublicData from './data/loadBalancersPublic.json'
 import firewallData from './data/firewalls.json'
 import vnetGatewayData from './data/vnetGateways.json'
 import configData from "./config.json"
@@ -111,9 +112,8 @@ export const nodeData = () => {
         }
     ))
 
-    
     // TODO: typescript issue here. not able to find properties. This is due to something wrong in the source json file.
-    const loadBalancers: NodeData[] = loadBalancerData.filter(lb => lb.Location == configData.region).map(lb => (
+    const loadBalancersPrivate: NodeData[] = loadBalancerPrivateData.filter(lb => lb.Location == configData.region).map(lb => (
         {
             id: shortId(lb.Id),
             parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet.id),
@@ -127,7 +127,20 @@ export const nodeData = () => {
               }
         }
     ))
-    
+
+    const loadBalancersPublic: NodeData[] = loadBalancerPublicData.filter(lb => lb.Location == configData.region).map(lb => (
+        {
+            id: shortId(lb.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: lb.Name,
+                info: "Public",
+                url: 'images/Networking/loadbalancer.svg'
+              }
+        }
+    ))
     
     const firewalls: NodeData[] = firewallData
         // TODO: hard-coded tag name here (EnvType). Need to move this to config. 
@@ -163,10 +176,9 @@ export const nodeData = () => {
                 url: 'images/Networking/vpngateway.svg'
               }          
         }
-            
     ))
 
-    const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancers, ...firewalls, ...gateways]
+    const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways]
 
     return nodeData
 }
@@ -183,10 +195,10 @@ export const edgeData = () => {
         }
         ))).flat()
     
-    const loadBalancingVmss: EdgeData[] = loadBalancerData.filter(lb => lb.Location == configData.region)
+    const loadBalancingPrivateVmss: EdgeData[] = loadBalancerPrivateData.filter(lb => lb.Location == configData.region)
         .map(lb => lb.Properties.backendAddressPools.map(bePool => (
             {
-                id: bePool.id,
+                id: shortId(bePool.id),
                 parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet.id),
                 from: shortId(lb.Id),
                 to: shortId(idFromNetworkIpconfig(bePool.properties.backendIPConfigurations[0].id)),
@@ -194,7 +206,17 @@ export const edgeData = () => {
             }
         ))).flat()
 
-    const edgeData = [...vnetPeerings, ...loadBalancingVmss ]
+    
+    const loadBalancingPublicVmss: EdgeData[] = loadBalancerPublicData.filter(lb => lb.Location == configData.region)
+    .map(lb => lb.Properties.backendAddressPools.map(bePool => (
+        {
+            id: shortId(bePool.id),
+            from: shortId(lb.Id),
+            to: shortId(idFromNetworkIpconfig(bePool.properties.backendIPConfigurations[0].id)),
+            text: bePool.name
+        }
+    ))).flat()
+    
+    const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss]
     return edgeData
-
 }
