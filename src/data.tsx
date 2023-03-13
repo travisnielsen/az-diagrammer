@@ -208,7 +208,7 @@ export const edgeData = () => {
 
     
     const loadBalancingPublicVmss: EdgeData[] = loadBalancerPublicData.filter(lb => lb.Location == configData.region)
-    .map(lb => lb.Properties.backendAddressPools.map(bePool => (
+        .map(lb => lb.Properties.backendAddressPools.map(bePool => (
         {
             id: shortId(bePool.id),
             from: shortId(lb.Id),
