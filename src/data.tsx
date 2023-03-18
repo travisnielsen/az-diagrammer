@@ -226,14 +226,24 @@ export const edgeData = () => {
 
     
     const loadBalancingPublicVmss: EdgeData[] = loadBalancerPublicData.filter(lb => lb.Location == configData.region)
-        .map(lb => lb.Properties.backendAddressPools.map(bePool => (
-        {
-            id: shortId(bePool.id),
-            from: shortId(lb.Id),
-            to: shortId(idFromNetworkIpconfig(bePool.properties.backendIPConfigurations[0].id)),
-            text: bePool.name
-        }
-    ))).flat()
+    .map(function (lb) {
+
+        const ipconfigIds = lb.Properties.backendAddressPools.map(bePool =>
+            bePool.properties.loadBalancerBackendAddresses.map(beAddress => {
+                return beAddress.properties.networkInterfaceIPConfiguration.id
+            })).flat()
+        
+        const distinctIds = getDistinctResourceIds(ipconfigIds)
+        
+        return distinctIds.map(id => (
+            {
+                id: lb.Name + shortId(id),
+                from: shortId(lb.Id),
+                to: shortId(id),
+                text: "load balancing"
+            }
+        ));
+    }).flat()
     
     const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss]
     return edgeData
