@@ -29,6 +29,14 @@ const idFromNetworkIpconfig = (s: string) => {
     return id
 }
 
+const getDistinctResourceIds = (ipConfigs: string[]) => {
+    const parentResourceIds = ipConfigs.map(id => {
+        return id.split("/virtualMachines/",)[0]
+    }).flat();
+    return [...new Set(parentResourceIds)]
+
+}
+
 // TODO: remove duplicates from this arraoy
 const targetFirewallIps = routeTableData.filter(routeTable => routeTable.Location.includes(configData.region))
     .map(routeTable => routeTable.Properties.routes.filter(route => route.properties.addressPrefix.includes("0.0.0.0/0"))
@@ -196,15 +204,25 @@ export const edgeData = () => {
         ))).flat()
     
     const loadBalancingPrivateVmss: EdgeData[] = loadBalancerPrivateData.filter(lb => lb.Location == configData.region)
-        .map(lb => lb.Properties.backendAddressPools.map(bePool => (
-            {
-                id: shortId(bePool.id),
-                parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet.id),
-                from: shortId(lb.Id),
-                to: shortId(idFromNetworkIpconfig(bePool.properties.backendIPConfigurations[0].id)),
-                text: "load balancing"
-            }
-        ))).flat()
+        .map(function (lb) {
+
+            const ipconfigIds = lb.Properties.backendAddressPools.map(bePool =>
+                bePool.properties.loadBalancerBackendAddresses.map(beAddress => {
+                    return beAddress.properties.networkInterfaceIPConfiguration.id
+                })).flat()
+            
+            const distinctIds = getDistinctResourceIds(ipconfigIds)
+            
+            return distinctIds.map(id => (
+                {
+                    id: lb.Name + shortId(id),
+                    parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet.id),
+                    from: shortId(lb.Id),
+                    to: shortId(id),
+                    text: "load balancing"
+                }
+            ));
+        }).flat()
 
     
     const loadBalancingPublicVmss: EdgeData[] = loadBalancerPublicData.filter(lb => lb.Location == configData.region)
