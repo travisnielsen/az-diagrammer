@@ -4,17 +4,18 @@ import { nodeData, edgeData } from './data'
 import './App.css';
 import { useCallback, useRef, useState } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { notStrictEqual } from 'assert';
 
 function App() {
 
   const nodes = nodeData();
-  const edges = edgeData();
+  const edges = edgeData().filter(e => nodes.findIndex(n => n.id == e.to) > 0 );
 
   // TODO: Look at this for canvas re-sizing: https://github.com/reaviz/reaflow/issues/111
   // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
   const canvasRef = useRef<CanvasRef>(null);
   const [paneWidth, setPaneWidth] = useState(2000);
-  const [paneHeight, setPaneHeight] = useState(2000)
+  const [paneHeight, setPaneHeight] = useState(3000)
 
   const calculatePaneWidthAndHeight = useCallback(() => {
       let newHeight = 0;

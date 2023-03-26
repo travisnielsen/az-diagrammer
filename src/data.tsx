@@ -7,6 +7,8 @@ import loadBalancerPrivateData from './data/loadBalancersPrivate.json'
 import loadBalancerPublicData from './data/loadBalancersPublic.json'
 import firewallData from './data/firewalls.json'
 import vnetGatewayData from './data/vnetGateways.json'
+import storageAccountData from './data/storageAccounts.json'
+import cosmosAccountData from './data/cosmosDbAccounts.json'
 import configData from "./config.json"
 import { arrayBuffer } from 'stream/consumers';
 
@@ -35,6 +37,20 @@ const getDistinctResourceIds = (ipConfigs: string[]) => {
     }).flat();
     return [...new Set(parentResourceIds)]
 
+}
+
+const getSubscriptionGuidFromId = (resourceId: string) => {
+    const id = resourceId.split("/")[2]
+    return id
+}
+
+const getRegionIdFromFriendlyName = (name: string) => {
+    switch (name) {
+        case ("Central US"):
+            return "centralus"
+        default:
+            return ""
+    }
 }
 
 // TODO: remove duplicates from this arraoy
@@ -186,7 +202,37 @@ export const nodeData = () => {
         }
     ))
 
-    const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways]
+    const storageAccounts: NodeData[] = storageAccountData.filter(s => s.Location == configData.region).map(storage => (
+        {
+            id: shortId(storage.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: storage.Name,
+                info: storage.Sku.Name,
+                url: 'images/Storage/storage.svg'
+              }          
+        }
+    ))
+
+    const cosmosAccounts: NodeData[] = cosmosAccountData.filter(c => getRegionIdFromFriendlyName(c.Location) == configData.region).map(cosmos => (
+        {
+            id: shortId(cosmos.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: cosmos.Name,
+                info: cosmos.Properties.databaseAccountOfferType,
+                url: 'images/Databases/cosmosdb.svg'
+              }          
+        }
+    ))
+
+
+    const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
+        ...storageAccounts, ...cosmosAccounts ]
 
     return nodeData
 }
@@ -226,25 +272,54 @@ export const edgeData = () => {
 
     
     const loadBalancingPublicVmss: EdgeData[] = loadBalancerPublicData.filter(lb => lb.Location == configData.region)
-    .map(function (lb) {
+        .map(function (lb) {
 
-        const ipconfigIds = lb.Properties.backendAddressPools.map(bePool =>
-            bePool.properties.loadBalancerBackendAddresses.map(beAddress => {
-                return beAddress.properties.networkInterfaceIPConfiguration.id
-            })).flat()
-        
-        const distinctIds = getDistinctResourceIds(ipconfigIds)
-        
-        return distinctIds.map(id => (
-            {
-                id: lb.Name + shortId(id),
-                from: shortId(lb.Id),
-                to: shortId(id),
-                text: "load balancing"
-            }
-        ));
-    }).flat()
+            const ipconfigIds = lb.Properties.backendAddressPools.map(bePool =>
+                bePool.properties.loadBalancerBackendAddresses.map(beAddress => {
+                    return beAddress.properties.networkInterfaceIPConfiguration.id
+                })).flat()
+            
+            const distinctIds = getDistinctResourceIds(ipconfigIds)
+            
+            return distinctIds.map(id => (
+                {
+                    id: lb.Name + shortId(id),
+                    from: shortId(lb.Id),
+                    to: shortId(id),
+                    text: "load balancing"
+                }
+            ));
+        }).flat()
     
-    const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss]
+    
+    const storageVnetRules: EdgeData[] = storageAccountData.filter(s => s.Location.includes(configData.region))
+        .map(storage => storage.Properties.networkAcls.virtualNetworkRules
+            .filter(rule => getSubscriptionGuidFromId(rule.id) == getSubscriptionGuidFromId(storage.Id))
+            .map(vnetRule => (
+            {
+                id: shortId(storage.Id) + shortId(vnetRule.id),
+                from: shortId(storage.Id),
+                to: shortId(vnetRule.id),
+                text: 'service endpoint'
+            }
+            ))).flat()
+    
+    
+    const cosmosVnetRules: EdgeData[] = cosmosAccountData.filter(c => getRegionIdFromFriendlyName(c.Location).includes(configData.region))
+            .map(cosmos => cosmos.Properties.virtualNetworkRules
+                .filter(rule => getSubscriptionGuidFromId(rule.id) == getSubscriptionGuidFromId(cosmos.Id))
+                .map(vnetRule => (
+                {
+                    id: shortId(cosmos.Id) + shortId(vnetRule.id),
+                    from: shortId(cosmos.Id),
+                    to: shortId(vnetRule.id),
+                    text: 'service endpoint'
+                }
+                ))).flat()    
+    
+    
+    
+    
+    const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss, ...storageVnetRules, ...cosmosVnetRules]
     return edgeData
 }
