@@ -1,19 +1,46 @@
-import { Canvas, NodeProps, CanvasRef } from 'reaflow';
+import { Canvas, NodeProps, CanvasRef, NodeData } from 'reaflow';
 import prepareNode from './nodes'
 import { nodeData, edgeData } from './data'
 import './App.css';
 import { useCallback, useRef, useState } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { notStrictEqual } from 'assert';
+import { backgroundColors } from 'dracula-ui';
 
 function App() {
 
+  const nodeIsNonEmptyContainer = (node: NodeData) => {
+    let hasChildNodes = false
+    if (node.data.type == "container") {
+      hasChildNodes = nodes.findIndex(n => n.parent == node.id) > 0
+      return hasChildNodes
+    }
+
+    return false
+  }
+
   const nodes = nodeData();
-  const edges = edgeData().filter(e => nodes.findIndex(n => n.id == e.to) > 0 );
+  const edges = edgeData(); 
+    
+  // filter out unconnected items
+  const edgeIdsFrom = edges.map(e => e.from)
+  const edgeIdsTo = edges.map(e => e.to)
+  const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
+  const nodesFiltered = nodes
+    .filter(n => edgeIds.includes(n.id) || n.data.type == "container" || n.parent != null)
+    .filter(n => n.data.type == "service" || (n.data.type == "container" && nodeIsNonEmptyContainer(n) ) )
+
+
+  // remove edges that don't have valid targets
+  const edgesFiltered = edges
+    .filter(e => nodesFiltered.findIndex(n => n.id == e.to) > 0)
+    .filter(e => nodesFiltered.findIndex(n => n.id == e.from) > 0)
+  
+  // const edgesFiltered2 = edgesFiltered.filter(e => )
 
   // TODO: Look at this for canvas re-sizing: https://github.com/reaviz/reaflow/issues/111
   // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
-  const canvasRef = useRef<CanvasRef>(null);
+   const canvasRef = useRef<CanvasRef>(null);
   const [paneWidth, setPaneWidth] = useState(2000);
   const [paneHeight, setPaneHeight] = useState(3000)
 
@@ -32,7 +59,7 @@ function App() {
   return (
     <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: 'black' }}>
       <TransformWrapper wheel={{ step: 0.2 }} minScale={0.5} maxScale={8} limitToBounds={false} >
-        <TransformComponent>
+        <TransformComponent wrapperStyle={{ backgroundColor: 'black' }} >
           <div style={{ background: 'black' }}>
             <Canvas
               maxHeight={ 4000 }
@@ -41,8 +68,8 @@ function App() {
                 'elk.nodeLabels.placement': 'INSIDE V_TOP H_RIGHT'
               }}
               direction='RIGHT'
-              nodes={nodes}
-              edges={edges}
+              nodes={nodesFiltered}
+              edges={edgesFiltered}
               fit={true}
               node={(node: NodeProps) => prepareNode(node)}
               onLayoutChange={() => {

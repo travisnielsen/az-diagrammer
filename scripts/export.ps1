@@ -153,7 +153,7 @@ $dictServices.GetEnumerator() | ForEach-Object {
         "Microsoft.EventHub/namespaces" { $filename = "eventHubNamespaces"; Break }
         "Microsoft.EventHub/namespaces/NetworkRuleSets" { $filename = "eventHubNetworkRuleSets"; Break }
         "Microsoft.ApiManagement/service" { $filename = "apiManagement"; Break }
-        "Microsoft.ContainerService/managedClusters" { $filename = "apiManagement"; Break }
+        "Microsoft.ContainerService/managedClusters" { $filename = "aks"; Break }
         "Microsoft.DocumentDB/databaseAccounts" { $filename = "cosmosDbAccounts"; Break }
         "Microsoft.ContainerService/managedClusters" { $filename = "azureKubernetesService"; Break }
     }

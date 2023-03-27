@@ -6,9 +6,19 @@ import databricksWorkspaceData from './data/workspaces.json'
 import loadBalancerPrivateData from './data/loadBalancersPrivate.json'
 import loadBalancerPublicData from './data/loadBalancersPublic.json'
 import firewallData from './data/firewalls.json'
+import redisCacheData from './data/redis.json'
+import apiMgmtData from './data/apiManagement.json'
 import vnetGatewayData from './data/vnetGateways.json'
 import storageAccountData from './data/storageAccounts.json'
 import cosmosAccountData from './data/cosmosDbAccounts.json'
+import eventHubClusterData from './data/eventHubClusters.json'
+import eventHubNamespaceData from './data/eventHubNamespaces.json'
+import eventHubNetworkRuleSetData from './data/eventHubNetworkRuleSets.json'
+import serviceBusNamespacsData from './data/serviceBusNamespaces.json'
+import serviceBusNetworkRuleSetData from './data/serviceBusNetworkRuleSets.json'
+import appServicePlanData from './data/serverfarms.json'
+import appServiceData from './data/sites.json'
+
 import configData from "./config.json"
 import { arrayBuffer } from 'stream/consumers';
 
@@ -19,7 +29,10 @@ const containerlayoutOptions: ElkNodeLayoutOptions = {
     'elk.direction': 'RIGHT'
 }
 
-const shortId = (s: string) => {
+const shortId = (s: string | undefined) => {
+    if (s == undefined) {
+        return ""
+    }
     const splitArr = s.split("/")
     const resourceGroup = splitArr[4].replace(/_/g, "").replace(/-/g, "").toLowerCase()
     const item = splitArr[splitArr.length -1].replace(/_/g, "").replace(/-/g, "").toLowerCase()
@@ -28,6 +41,11 @@ const shortId = (s: string) => {
 
 const idFromNetworkIpconfig = (s: string) => {
     const id = s.split("/virtualMachines/")[0]
+    return id
+}
+
+const getParentIdForRulesetId = (s: string) => {
+    const id = s.split("/networkRuleSets/")[0]
     return id
 }
 
@@ -136,7 +154,39 @@ export const nodeData = () => {
         }
     ))
 
-    // TODO: typescript issue here. not able to find properties. This is due to something wrong in the source json file.
+    const redisCache: NodeData[] = redisCacheData.filter(r => getRegionIdFromFriendlyName(r.Location) == configData.region).map(redis => (
+        {
+            id: shortId(redis.Id),
+            parent: shortId(redis.Properties.subnetId),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: redis.Name,
+                info: "SKU: " + redis.Properties.sku.name + " Capacity: " + redis.Properties.sku.capacity,
+                url: 'images/Databases/rediscache.svg'
+              }
+        }
+    ))
+
+    const apiManagementInternal: NodeData[] = apiMgmtData.filter(a => getRegionIdFromFriendlyName(a.Location) == configData.region && a.Properties.virtualNetworkType == "Internal")
+        .map(apim => (
+        {
+            id: shortId(apim.Id),
+            parent: shortId(apim.Properties.virtualNetworkConfiguration.subnetResourceId),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: apim.Name,
+                info: "SKU: " + apim.Sku.Name + " Capacity: " + apim.Sku.Capacity,
+                url: 'images/Web/apimanagement.svg'
+              }
+        }
+    ))
+
+
+    // NOTE: Need to split load balancer source json due to schema differences between public and private configurations
     const loadBalancersPrivate: NodeData[] = loadBalancerPrivateData.filter(lb => lb.Location == configData.region).map(lb => (
         {
             id: shortId(lb.Id),
@@ -230,9 +280,70 @@ export const nodeData = () => {
         }
     ))
 
+    const eventHubClusters: NodeData[] = eventHubClusterData.filter(cluster => cluster.Location == configData.region).map(ehCluster => (
+        {
+            id: shortId(ehCluster.Id),
+            height: 200,
+            width: 300,
+            layoutOptions: containerlayoutOptions,
+            data: {
+                type: 'container',
+                label: ehCluster.Name,
+                info: ehCluster.Sku.Name + " Capacity: " + ehCluster.Sku.Capacity,
+                url: 'images/Analytics/eventhubcluster.svg'
+              }          
+        }
+    ))
+
+    const eventHuNamespacesDedicated: NodeData[] = eventHubNamespaceData.filter(n => getRegionIdFromFriendlyName(n.Location) == configData.region && (n.Properties.clusterArmId !== undefined && n.Properties.clusterArmId != null ) )
+        .map(ehNamespace => (
+        {
+            id: shortId(ehNamespace.Id),
+            parent: shortId(ehNamespace.Properties.clusterArmId),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: ehNamespace.Name,
+                info: ehNamespace.Sku.Name,
+                url: 'images/Analytics/eventhub.svg'
+              }          
+        }
+        ))
+    
+    const eventHuNamespaces: NodeData[] = eventHubNamespaceData.filter(n => getRegionIdFromFriendlyName(n.Location) == configData.region && n.Properties.clusterArmId === undefined )
+        .map(ehNamespace => (
+        {
+            id: shortId(ehNamespace.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: ehNamespace.Name,
+                info: ehNamespace.Sku.Name,
+                url: 'images/Analytics/eventhub.svg'
+              }          
+        }
+        ))
+    
+    const serviceBusNamespaces: NodeData[] = serviceBusNamespacsData.filter(sb => getRegionIdFromFriendlyName(sb.Location) == configData.region)
+        .map(sbNamespace => (
+        {
+            id: shortId(sbNamespace.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                label: sbNamespace.Name,
+                info: sbNamespace.Sku.Name,
+                url: 'images/Integration/servicebus.svg'
+              }          
+        }
+        ))
 
     const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
-        ...storageAccounts, ...cosmosAccounts ]
+        ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
+        ...apiManagementInternal]
 
     return nodeData
 }
@@ -296,12 +407,12 @@ export const edgeData = () => {
         .map(storage => storage.Properties.networkAcls.virtualNetworkRules
             .filter(rule => getSubscriptionGuidFromId(rule.id) == getSubscriptionGuidFromId(storage.Id))
             .map(vnetRule => (
-            {
-                id: shortId(storage.Id) + shortId(vnetRule.id),
-                from: shortId(storage.Id),
-                to: shortId(vnetRule.id),
-                text: 'service endpoint'
-            }
+                {
+                    id: shortId(storage.Id) + "-to-" + shortId(vnetRule.id),
+                    from: shortId(storage.Id),
+                    to: shortId(vnetRule.id),
+                    text: ''
+                }
             ))).flat()
     
     
@@ -309,17 +420,41 @@ export const edgeData = () => {
             .map(cosmos => cosmos.Properties.virtualNetworkRules
                 .filter(rule => getSubscriptionGuidFromId(rule.id) == getSubscriptionGuidFromId(cosmos.Id))
                 .map(vnetRule => (
+                    {
+                        id: shortId(cosmos.Id) + "-to-" + shortId(vnetRule.id),
+                        from: shortId(cosmos.Id),
+                        to: shortId(vnetRule.id),
+                        text: ''
+                    }
+                ))
+            ).flat()    
+    
+    const eventHubNetworkRules: EdgeData[] = eventHubNetworkRuleSetData
+        .map(ehruleset => ehruleset.VirtualNetworkRules
+            .map(rule => (
                 {
-                    id: shortId(cosmos.Id) + shortId(vnetRule.id),
-                    from: shortId(cosmos.Id),
-                    to: shortId(vnetRule.id),
-                    text: 'service endpoint'
+                    id: shortId(getParentIdForRulesetId(ehruleset.Id)) + '-to-' + shortId(rule.Subnet.Id),
+                    from: shortId(getParentIdForRulesetId(ehruleset.Id)),
+                    to: shortId(rule.Subnet.Id),
+                    text: ''
                 }
-                ))).flat()    
+            ))
+        ).flat()
     
     
+    const serviceBusNetworkRules: EdgeData[] = serviceBusNetworkRuleSetData
+        .map(sbruleset => sbruleset.VirtualNetworkRules
+            .map(rule => (
+                {
+                    id: shortId( getParentIdForRulesetId(sbruleset.Id)) + '-to-' + shortId(rule.Subnet.Id),
+                    from: shortId(getParentIdForRulesetId(sbruleset.Id)),
+                    to: shortId(rule.Subnet.Id),
+                    text: ''
+                }
+            ))
+        ).flat()    
     
     
-    const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss, ...storageVnetRules, ...cosmosVnetRules]
+    const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss, ...storageVnetRules, ...cosmosVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules]
     return edgeData
 }
