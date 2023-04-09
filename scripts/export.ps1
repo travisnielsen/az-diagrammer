@@ -1,5 +1,5 @@
 # get connection context
-$contextInfo = Get-Content ./src/config.json | ConvertFrom-Json
+$contextInfo = Get-Content config.json | ConvertFrom-Json
 Connect-AzAccount -Tenant $contextInfo.tenantId
 $azContext = Get-AzContext
 $outFolder = "..//data/" + $contextInfo.subscriptionName
@@ -156,6 +156,11 @@ $dictServices.GetEnumerator() | ForEach-Object {
         "Microsoft.ContainerService/managedClusters" { $filename = "aks"; Break }
         "Microsoft.DocumentDB/databaseAccounts" { $filename = "cosmosDbAccounts"; Break }
         "Microsoft.ContainerService/managedClusters" { $filename = "azureKubernetesService"; Break }
+        "Microsoft.Sql/servers" { $filename = "sqlServers"; Break }
+        "Microsoft.Sql/servers/databases" { $filename = "sqlDatabases"; Break }
+        "Microsoft.DataFactory/factories" { $filename = "dataFactories"; Break }
+        "Microsoft.Logic/workflows" { $filename = "logicApps"; Break }
+        "Microsoft.Web/hostingEnvironments" { $filename = "appServiceEnvironments"; Break }
     }
 
     ConvertTo-Json -InputObject $_.value -Depth 20 | Out-File "..//data/${outFolder}/${filename}.json"

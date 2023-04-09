@@ -9,32 +9,32 @@ import { backgroundColors } from 'dracula-ui';
 
 function App() {
 
+  const nodes = nodeData();
+  const edges = edgeData(); 
+
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     let hasChildNodes = false
     if (node.data.type == "container") {
-      hasChildNodes = nodes.findIndex(n => n.parent == node.id) > 0
+      hasChildNodes = nodes.findIndex(n =>  n.parent === node.id) > 0
       return hasChildNodes
     }
 
     return false
   }
-
-  const nodes = nodeData();
-  const edges = edgeData(); 
     
   // filter out unconnected items
   const edgeIdsFrom = edges.map(e => e.from)
   const edgeIdsTo = edges.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
   const nodesFiltered = nodes
-    .filter(n => edgeIds.includes(n.id) || n.data.type == "container" || n.parent != null)
-    .filter(n => n.data.type == "service" || (n.data.type == "container" && nodeIsNonEmptyContainer(n) ) )
+    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
+    .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n) ) )
 
 
   // remove edges that don't have valid targets
   const edgesFiltered = edges
-    .filter(e => nodesFiltered.findIndex(n => n.id == e.to) > 0)
-    .filter(e => nodesFiltered.findIndex(n => n.id == e.from) > 0)
+    .filter(e => nodesFiltered.findIndex(n => n.id === e.to) > 0)
+    .filter(e => nodesFiltered.findIndex(n => n.id === e.from) > 0)
   
   // const edgesFiltered2 = edgesFiltered.filter(e => )
 
@@ -42,7 +42,7 @@ function App() {
   // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
    const canvasRef = useRef<CanvasRef>(null);
   const [paneWidth, setPaneWidth] = useState(2000);
-  const [paneHeight, setPaneHeight] = useState(3000)
+  const [paneHeight, setPaneHeight] = useState(4000)
 
   const calculatePaneWidthAndHeight = useCallback(() => {
       let newHeight = 0;
@@ -62,7 +62,8 @@ function App() {
         <TransformComponent wrapperStyle={{ backgroundColor: 'black' }} >
           <div style={{ background: 'black' }}>
             <Canvas
-              maxHeight={ 4000 }
+              maxHeight={6000}
+              maxWidth={4000}
               layoutOptions={{
                 'elk.hierarchyHandling': 'INCLUDE_CHILDREN',        // required to enable edges from/to nested nodes
                 'elk.nodeLabels.placement': 'INSIDE V_TOP H_RIGHT'
