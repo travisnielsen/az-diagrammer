@@ -1,5 +1,6 @@
-import { Canvas, NodeProps, CanvasRef, NodeData } from 'reaflow';
+import { Canvas, NodeProps, CanvasRef, NodeData, EdgeProps } from 'reaflow';
 import prepareNode from './nodes'
+import prepareEdge from './edges'
 import { nodeData, edgeData } from './data'
 import './App.css';
 import { useCallback, useRef, useState } from 'react';
@@ -22,7 +23,7 @@ function App() {
     return false
   }
     
-  // filter out unconnected items
+  // remove unconnected items
   const edgeIdsFrom = edges.map(e => e.from)
   const edgeIdsTo = edges.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
@@ -30,13 +31,10 @@ function App() {
     .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
     .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n) ) )
 
-
   // remove edges that don't have valid targets
   const edgesFiltered = edges
     .filter(e => nodesFiltered.findIndex(n => n.id === e.to) > 0)
     .filter(e => nodesFiltered.findIndex(n => n.id === e.from) > 0)
-  
-  // const edgesFiltered2 = edgesFiltered.filter(e => )
 
   // TODO: Look at this for canvas re-sizing: https://github.com/reaviz/reaflow/issues/111
   // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
@@ -73,6 +71,7 @@ function App() {
               edges={edgesFiltered}
               fit={true}
               node={(node: NodeProps) => prepareNode(node)}
+              edge={(edge: EdgeProps) => prepareEdge(edge)}
               onLayoutChange={() => {
                 calculatePaneWidthAndHeight()
               }}
