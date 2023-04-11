@@ -567,7 +567,7 @@ export const edgeData = () => {
         .map(appService => (
             {
                 id: shortId(appService.Id) + '-to-' + shortId(appService.Properties.virtualNetworkSubnetId),
-                from: shortId(appService.Properties.virtualNetworkSubnetId) + "-appServiceDelegation",
+                from: shortId(appService.Properties.virtualNetworkSubnetId),
                 to: shortId(appService.Id),
                 data: {
                     type: 'vnetintegration'
