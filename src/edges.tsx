@@ -2,7 +2,7 @@ import { Console } from 'console';
 import { write } from 'fs';
 import { Edge, EdgeData, EdgeProps } from 'reaflow';
 
-const prepareEdge = (edge: any) => {
+const PrepareEdge = (edge: any) => {
 
     const edgeProps = edge.properties
 
@@ -25,4 +25,4 @@ const prepareEdge = (edge: any) => {
 
 }
 
-export default prepareEdge;
+export default PrepareEdge;

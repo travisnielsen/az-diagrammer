@@ -21,8 +21,6 @@ import appServiceData from './data/sites.json'
 import privateEndpointData from './data/privateEndpoints.json'
 import expressRouteData from './data/expressRouteCircuits.json'
 import gatewayConnectionData from './data/gatewayConnections.json'
-
-
 import configData from "./config.json"
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {

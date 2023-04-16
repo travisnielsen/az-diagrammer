@@ -1,48 +1,18 @@
 import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps } from 'reaflow';
-import prepareNode from './nodes'
-import prepareEdge from './edges'
+import PrepareNode from './nodes'
+import PrepareEdge from './edges'
 import { getNodeData, getEdgeData } from './data'
 import './App.css';
 import { useCallback, useRef, useState } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { backgroundColors } from 'dracula-ui';
-import React from 'react';
-
-
+import { loadavg } from 'os';
 
 function App() {
 
-  // LoadCanvasData();
-
-  const nodeData = getNodeData();
-  const edgeData = getEdgeData(); 
-
-  const nodeIsNonEmptyContainer = (node: NodeData) => {
-    let hasChildNodes = false
-    if (node.data.type == "container") {
-      hasChildNodes = nodeData.findIndex(n =>  n.parent === node.id) > 0
-      return hasChildNodes
-    }
-
-    return false
-  }
-    
-  // remove unconnected items
-  const edgeIdsFrom = edgeData.map(e => e.from)
-  const edgeIdsTo = edgeData.map(e => e.to)
-  const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
-  const nodesFiltered = nodeData
-    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
-    .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n) ) )
-
-  // remove edges that don't have valid targets
-  const edgesFiltered = edgeData
-    .filter(e => nodesFiltered.findIndex(n => n.id === e.to) > 0)
-    .filter(e => nodesFiltered.findIndex(n => n.id === e.from) > 0)
-  
-  
-  const [nodes, setNodes] = useState(nodesFiltered);
-  const [edges, setEdges] = useState(edgesFiltered);
+  const [nodeData, edgeData] = loadCanvasData();
+  const [nodes, setNodes] = useState(nodeData);
+  const [edges, setEdges] = useState(edgeData);
 
   function handleNodeUpdate (nodes: NodeData[], edges: EdgeData[]) {
     setNodes(nodes);
@@ -84,8 +54,8 @@ function App() {
               nodes={nodes}
               edges={edges}
               fit={true}
-              node={(node: NodeProps) => prepareNode(node, nodes, edges, handleNodeUpdate )}
-              edge={(edge: EdgeProps) => prepareEdge(edge)}
+              node={(node: NodeProps) => PrepareNode(node, nodes, edges, handleNodeUpdate )}
+              edge={(edge: EdgeProps) => PrepareEdge(edge)}
               onLayoutChange={() => {
                 calculatePaneWidthAndHeight()
               }}
@@ -95,9 +65,37 @@ function App() {
       </TransformWrapper>
     </div>
   )
-
-
-
 }
-
 export default App;
+
+
+export const loadCanvasData = () => {
+
+  const nodeData = getNodeData();
+  const edgeData = getEdgeData(); 
+
+  const nodeIsNonEmptyContainer = (node: NodeData) => {
+    let hasChildNodes = false
+    if (node.data.type == "container") {
+      hasChildNodes = nodeData.findIndex(n =>  n.parent === node.id) > 0
+      return hasChildNodes
+    }
+
+    return false
+  }
+    
+  // remove unconnected items
+  const edgeIdsFrom = edgeData.map(e => e.from)
+  const edgeIdsTo = edgeData.map(e => e.to)
+  const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
+  const nodesFiltered = nodeData
+    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
+    .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n) ) )
+
+  // remove edges that don't have valid targets
+  const edgesFiltered = edgeData
+    .filter(e => nodesFiltered.findIndex(n => n.id === e.to) > 0)
+    .filter(e => nodesFiltered.findIndex(n => n.id === e.from) > 0)
+
+  return [nodesFiltered, edgesFiltered]
+}
