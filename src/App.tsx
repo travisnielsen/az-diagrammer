@@ -6,7 +6,6 @@ import './App.css';
 import { useCallback, useRef, useState } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { backgroundColors } from 'dracula-ui';
-import { loadavg } from 'os';
 
 function App() {
 
@@ -40,11 +39,12 @@ function App() {
 
   return (
     <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: 'black' }}>
-      <TransformWrapper wheel={{ step: 0.2 }} minScale={0.5} maxScale={8} limitToBounds={false} >
+      <TransformWrapper wheel={{ step: 0.2 }} minScale={0.2} maxScale={8} limitToBounds={false} >
         <TransformComponent wrapperStyle={{ backgroundColor: 'black' }} >
           <div style={{ background: 'black' }}>
             <Canvas
-              maxHeight={6000}
+              ref={canvasRef}
+              maxHeight={10000}
               maxWidth={4000}
               layoutOptions={{
                 'elk.hierarchyHandling': 'INCLUDE_CHILDREN',        // required to enable edges from/to nested nodes
