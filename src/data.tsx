@@ -93,7 +93,7 @@ const targetFirewallIps = routeTableData.filter(routeTable => routeTable.Locatio
     .map(routeTable => routeTable.Properties.routes.filter(route => route.properties.addressPrefix.includes("0.0.0.0/0"))
     .map(r => r.properties.nextHopIpAddress)).flat()
 
-export const nodeData = () => {
+export const getNodeData = () => {
 
     const vnets: NodeData[] = vnetData.filter(vnet => vnet.Location.includes(configData.region)).map((vnet) => (
         {
@@ -457,7 +457,7 @@ export const nodeData = () => {
     return nodeData
 }
 
-export const edgeData = () => {
+export const getEdgeData = () => {
 
     const vnetPeerings: EdgeData[] = vnetData.filter(vnet => vnet.Location.includes(configData.region) && vnet.SubscriptionId.includes(configData.subscriptionId))
         .map(vnet => vnet.Properties.virtualNetworkPeerings.map(peering => (

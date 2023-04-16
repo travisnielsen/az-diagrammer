@@ -1,43 +1,47 @@
 import { css } from '@emotion/react';
-import { Node, NodeData, NodeProps } from 'reaflow';
+import { Node, NodeData, NodeProps, EdgeData, removeNode } from 'reaflow';
 import { MouseEventHandler } from 'react';
 import './App.css';
 import React from 'react';
+import { useState } from 'react';
 
-const prepareNode = (node: NodeProps) => {
 
-    const nodeProps = node.properties;
+// const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: { (nodes: NodeData<any>[], edges: EdgeData<any>[]): void; (arg0: any[]): void; } ) => {
+const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: Function ) => {
 
-    const onNodeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
-        console.log(`node clicked (${nodeProps.data.type})`, 'node:', node);
-        // setSelectedNodes([node.id]);
+  const nodeProps = node.properties;
+
+  const onNodeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
+    console.log(`node clicked (${nodeProps.data.type})`, 'node:', node);
+    const results = removeNode(nodeData, edgeData, node.properties.id);
+    handleNodeUpdate(results.nodes, results.edges);
+
+  };
+  
+  const onNodeEnter = (event: React.MouseEvent<SVGGElement, MouseEvent>, node: NodeData) => {
+      console.log('onNodeEnter', event.target);
+  
+      // @ts-ignore
+      // const isNode = event.target?.classList?.contains('node-svg-rect');
+      // if (isNode) {
+      //   // console.log('Entering node')
+      // }
     };
-    
-    const onNodeEnter = (event: React.MouseEvent<SVGGElement, MouseEvent>, node: NodeData) => {
-        console.log('onNodeEnter', event.target);
-    
-        // @ts-ignore
-        // const isNode = event.target?.classList?.contains('node-svg-rect');
-        // if (isNode) {
-        //   // console.log('Entering node')
-        // }
-      };
 
-      const onNodeLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>, node: NodeData) => {
-        console.log('onNodeLeave', event.target);
-        // console.log('containerRef?.current', containerRef?.current)
-    
-        // // @ts-ignore
-        // const isChildrenOfNodeContainer = event.target?.closest('.node-container');
-        // // @ts-ignore
-        // const isChildrenOfNodeRect = event.target?.closest('.node-svg-rect');
-        // const isNode = isChildrenOfNodeContainer || isChildrenOfNodeRect;
-        //
-        // if (isNode) {
-        //   console.log('Hovering node')
-        // }
-      };
-    
+    const onNodeLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>, node: NodeData) => {
+      console.log('onNodeLeave', event.target);
+      // console.log('containerRef?.current', containerRef?.current)
+  
+      // // @ts-ignore
+      // const isChildrenOfNodeContainer = event.target?.closest('.node-container');
+      // // @ts-ignore
+      // const isChildrenOfNodeRect = event.target?.closest('.node-svg-rect');
+      // const isNode = isChildrenOfNodeContainer || isChildrenOfNodeRect;
+      //
+      // if (isNode) {
+      //   console.log('Hovering node')
+      // }
+    };
     
 
     switch (nodeProps.data.type) {
@@ -97,8 +101,6 @@ const prepareNode = (node: NodeProps) => {
                     onClick={onNodeClick as MouseEventHandler}
                     onMouseEnter={onNodeEnter as MouseEventHandler}
                     onMouseLeave={onNodeLeave as MouseEventHandler}
-
-
                 >
                     <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>
                         <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.data.label}</h5>
@@ -127,4 +129,4 @@ const prepareNode = (node: NodeProps) => {
     }
 };
 
-export default prepareNode;
+export default PrepareNode;

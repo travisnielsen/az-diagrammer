@@ -1,22 +1,26 @@
-import { Canvas, NodeProps, CanvasRef, NodeData, EdgeProps } from 'reaflow';
+import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps } from 'reaflow';
 import prepareNode from './nodes'
 import prepareEdge from './edges'
-import { nodeData, edgeData } from './data'
+import { getNodeData, getEdgeData } from './data'
 import './App.css';
 import { useCallback, useRef, useState } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { notStrictEqual } from 'assert';
 import { backgroundColors } from 'dracula-ui';
+import React from 'react';
+
+
 
 function App() {
 
-  const nodes = nodeData();
-  const edges = edgeData(); 
+  // LoadCanvasData();
+
+  const nodeData = getNodeData();
+  const edgeData = getEdgeData(); 
 
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     let hasChildNodes = false
     if (node.data.type == "container") {
-      hasChildNodes = nodes.findIndex(n =>  n.parent === node.id) > 0
+      hasChildNodes = nodeData.findIndex(n =>  n.parent === node.id) > 0
       return hasChildNodes
     }
 
@@ -24,21 +28,31 @@ function App() {
   }
     
   // remove unconnected items
-  const edgeIdsFrom = edges.map(e => e.from)
-  const edgeIdsTo = edges.map(e => e.to)
+  const edgeIdsFrom = edgeData.map(e => e.from)
+  const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
-  const nodesFiltered = nodes
+  const nodesFiltered = nodeData
     .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
     .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n) ) )
 
   // remove edges that don't have valid targets
-  const edgesFiltered = edges
+  const edgesFiltered = edgeData
     .filter(e => nodesFiltered.findIndex(n => n.id === e.to) > 0)
     .filter(e => nodesFiltered.findIndex(n => n.id === e.from) > 0)
+  
+  
+  const [nodes, setNodes] = useState(nodesFiltered);
+  const [edges, setEdges] = useState(edgesFiltered);
+
+  function handleNodeUpdate (nodes: NodeData[], edges: EdgeData[]) {
+    setNodes(nodes);
+    setEdges(edges);
+
+  }
 
   // TODO: Look at this for canvas re-sizing: https://github.com/reaviz/reaflow/issues/111
   // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
-   const canvasRef = useRef<CanvasRef>(null);
+  const canvasRef = useRef<CanvasRef>(null);
   const [paneWidth, setPaneWidth] = useState(2000);
   const [paneHeight, setPaneHeight] = useState(4000)
 
@@ -67,10 +81,10 @@ function App() {
                 'elk.nodeLabels.placement': 'INSIDE V_TOP H_RIGHT'
               }}
               direction='RIGHT'
-              nodes={nodesFiltered}
-              edges={edgesFiltered}
+              nodes={nodes}
+              edges={edges}
               fit={true}
-              node={(node: NodeProps) => prepareNode(node)}
+              node={(node: NodeProps) => prepareNode(node, nodes, edges, handleNodeUpdate )}
               edge={(edge: EdgeProps) => prepareEdge(edge)}
               onLayoutChange={() => {
                 calculatePaneWidthAndHeight()
@@ -81,6 +95,9 @@ function App() {
       </TransformWrapper>
     </div>
   )
+
+
+
 }
 
 export default App;
