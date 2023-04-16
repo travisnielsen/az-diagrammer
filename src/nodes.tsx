@@ -3,10 +3,7 @@ import { Node, NodeData, NodeProps, EdgeData, removeNode } from 'reaflow';
 import { MouseEventHandler } from 'react';
 import './App.css';
 import React from 'react';
-import { useState } from 'react';
 
-
-// const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: { (nodes: NodeData<any>[], edges: EdgeData<any>[]): void; (arg0: any[]): void; } ) => {
 const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: Function ) => {
 
   const nodeProps = node.properties;
