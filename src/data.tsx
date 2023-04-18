@@ -1,6 +1,8 @@
 import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow';
 import routeTableData from './data/routeTables.json'
 import vnetData from "./data/vnets.json"
+import nsgData from "./data/networkSecurityGroups.json"
+import routeData from "./data/routeTables.json"
 import vmssData from "./data/virtualMachineScaleSets.json"
 import databricksWorkspaceData from './data/workspaces.json'
 import loadBalancerPrivateData from './data/loadBalancersPrivate.json'
@@ -123,6 +125,24 @@ export const getNodeData = () => {
             }
         }
     ))).flat()
+
+    const nsgs: NodeData[] = vnetData.filter(vnet => vnet.Location.includes(configData.region))
+        .map(vnet => vnet.Properties.subnets
+            .map(subnet => nsgData.filter(nsg => nsg.Id === subnet.properties.networkSecurityGroup?.id)
+                .map(securityGroup => (
+                    {
+                        id: shortId(securityGroup.Id),
+                        parent: shortId(subnet.id),
+                        height: 150,
+                        width: 250,
+                        data: {
+                            type: 'service',
+                            label: securityGroup.Name,
+                            url: 'images/Networking/nsg.svg',
+                            info: securityGroup.Properties.securityRules.length + " rules"
+                        }
+                    }
+        )))).flat().flat()
 
     const vmScaleSets: NodeData[] = vmssData.filter(vmss => vmss.Location.includes(configData.region)).map(vmss => (
         {
@@ -448,7 +468,7 @@ export const getNodeData = () => {
         }
     )).filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
 
-    const nodeData = [...vnets, ...subnets, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
+    const nodeData = [...vnets, ...subnets, ...nsgs, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
         ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations]
 
