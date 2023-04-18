@@ -144,6 +144,25 @@ export const getNodeData = () => {
                     }
         )))).flat().flat()
 
+
+    const routeTables: NodeData[] = vnetData.filter(vnet => vnet.Location.includes(configData.region))
+    .map(vnet => vnet.Properties.subnets
+        .map(subnet => routeData.filter(route => route.Id === subnet.properties.routeTable?.id)
+            .map(rt => (
+            {
+                id: shortId(rt.Id),
+                parent: shortId(subnet.id),
+                height: 150,
+                width: 250,
+                data: {
+                    type: 'service',
+                    label: rt.Name,
+                    url: 'images/Networking/routetable.svg',
+                    info: rt.Properties.routes.length + " routes"
+                }
+            }
+        )))).flat().flat()
+
     const vmScaleSets: NodeData[] = vmssData.filter(vmss => vmss.Location.includes(configData.region)).map(vmss => (
         {
             id: shortId(vmss.Id),
@@ -468,7 +487,7 @@ export const getNodeData = () => {
         }
     )).filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
 
-    const nodeData = [...vnets, ...subnets, ...nsgs, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
+    const nodeData = [...vnets, ...subnets, ...nsgs, ...routeTables, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
         ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations]
 
