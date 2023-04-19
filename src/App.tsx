@@ -77,7 +77,14 @@ export const loadCanvasData = () => {
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     let hasChildNodes = false
     if (node.data.type == "container") {
-      hasChildNodes = nodeData.findIndex(n =>  n.parent === node.id) > 0
+      hasChildNodes = nodeData.findIndex(n => n.parent === node.id) > 0
+      
+      // Do not displlay containers that have NSGs or UDRs but services
+      if (hasChildNodes) {
+        const childNodes = nodeData.filter(n => n.parent === node.id && n.data.subtype !== "networking")
+        if (childNodes.length === 0) hasChildNodes = false
+      }
+
       return hasChildNodes
     }
 

@@ -137,6 +137,7 @@ export const getNodeData = () => {
                         width: 250,
                         data: {
                             type: 'service',
+                            subtype: 'networking',
                             label: securityGroup.Name,
                             url: 'images/Networking/nsg.svg',
                             info: securityGroup.Properties.securityRules.length + " rules"
@@ -156,6 +157,7 @@ export const getNodeData = () => {
                 width: 250,
                 data: {
                     type: 'service',
+                    subtype: 'networking',
                     label: rt.Name,
                     url: 'images/Networking/routetable.svg',
                     info: rt.Properties.routes.length + " routes"
