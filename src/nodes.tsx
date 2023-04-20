@@ -14,6 +14,10 @@ const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[]
     handleNodeUpdate(results.nodes, results.edges);
 
   };
+
+  function onButtonClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    throw new Error('Function not implemented.');
+  }
   
   const onNodeEnter = (event: React.MouseEvent<SVGGElement, MouseEvent>, node: NodeData) => {
       console.log('onNodeEnter', event.target);
@@ -105,23 +109,44 @@ const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[]
                       </div>
                   </foreignObject>
               </Node>
-          )
-        case 'container':
-          return (
-              <Node style={{fill: '#1b1d3c'}}>
-                  <foreignObject id={`node-foreignObject-${node.id}`} height={node.height} width={node.width} x={0} y={0}>
-                  <div style={{ padding: 5, textAlign: 'center', display: 'block'  }}>
-                      <h5 style={{ color: 'white', margin: 5 }}>{nodeProps.data.label}</h5>
-                      <img src={nodeProps.data.url} alt="A Function App" width="40" height="40" />
-                          <p style={{ color: 'white', margin: 0 }}>{nodeProps.data.info}</p>
-                  </div>
-                  </foreignObject>
-              </Node>
-          )
-        default:
-          return (
-              <Node />
-          )
+        )
+      
+      case 'container':
+        return (
+            <Node style={{fill: '#1b1d3c'}}>
+                <foreignObject id={`node-foreignObject-${node.id}`} height={node.height} width={node.width} x={0} y={0}>
+                <div style={{ padding: 5, textAlign: 'center', display: 'block'  }}>
+                    <h5 style={{ color: 'white', margin: 5 }}>{nodeProps.data.label}</h5>
+                    <img src={nodeProps.data.url} alt="A Function App" width="40" height="40" />
+                        <p style={{ color: 'white', margin: 0 }}>{nodeProps.data.info}</p>
+                </div>
+                </foreignObject>
+            </Node>
+      )
+      
+      case 'summary':
+        return (
+          <Node>
+            <foreignObject        
+              id={`node-foreignObject-${node.id}`}
+              height={node.height}
+              width={node.width} x={0} y={0}
+                      // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
+              onClick={onNodeClick as MouseEventHandler}
+              onMouseEnter={onNodeEnter as MouseEventHandler}
+              onMouseLeave={onNodeLeave as MouseEventHandler}
+            >
+              <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
+                <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.data.label}</h5>          
+                <img src={nodeProps.data.url} alt="A Function App" width="40" height="40" />
+                <p style={{ color: 'white', margin: 0 }}>Click to expand</p>      
+              </div>
+            </foreignObject>
+          </Node>
+        )
+         
+      default:  
+        return ( <Node /> )
     }
 };
 

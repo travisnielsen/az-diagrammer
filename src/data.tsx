@@ -103,6 +103,8 @@ export const getNodeData = () => {
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
+                category: 'networking',
+                servicename: 'vnet',
                 label: vnet.Name,
                 url: 'images/Networking/virtualnetwork.svg',
                 info: vnet.Properties.addressSpace.addressPrefixes.toString()
@@ -119,6 +121,8 @@ export const getNodeData = () => {
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
+                category: 'networking',
+                servicename: 'subnet',
                 label: subnet.name,
                 url: 'images/Networking/subnet.svg',
                 info: subnet.properties.addressPrefix
@@ -137,7 +141,8 @@ export const getNodeData = () => {
                         width: 250,
                         data: {
                             type: 'service',
-                            subtype: 'networking',
+                            category: 'networking',
+                            servicename: 'nsg',
                             label: securityGroup.Name,
                             url: 'images/Networking/nsg.svg',
                             info: securityGroup.Properties.securityRules.length + " rules"
@@ -157,7 +162,8 @@ export const getNodeData = () => {
                 width: 250,
                 data: {
                     type: 'service',
-                    subtype: 'networking',
+                    category: 'networking',
+                    servicename: 'routetable',
                     label: rt.Name,
                     url: 'images/Networking/routetable.svg',
                     info: rt.Properties.routes.length + " routes"
@@ -173,6 +179,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'compute',
+                servicename: 'virtualmachinescaleset',
                 label: vmss.Name,
                 info: vmss.Properties.virtualMachineProfile.storageProfile.imageReference.publisher + " " + vmss.Properties.virtualMachineProfile.storageProfile.imageReference.version,
                 url: 'images/Compute/virtualmachinescaleset.svg'
@@ -188,6 +196,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'analytics',
+                servicename: 'databricks',
                 label: workspace.Name + " (Public)",
                 info: workspace.Sku.Name,
                 url: 'images/Analytics/databricks.svg'
@@ -203,6 +213,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'analytics',
+                servicename: 'databricks',
                 label: workspace.Name + " (Private)",
                 info: workspace.Sku.Name,
                 url: 'images/Analytics/databricks.svg'
@@ -218,6 +230,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'databases',
+                servicename: 'rediscache',
                 label: redis.Name,
                 info: "SKU: " + redis.Properties.sku.name + " Capacity: " + redis.Properties.sku.capacity,
                 url: 'images/Databases/rediscache.svg'
@@ -234,6 +248,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'web',
+                servicename: 'apimanagement',
                 label: apim.Name,
                 info: "SKU: " + apim.Sku.Name + " Capacity: " + apim.Sku.Capacity,
                 url: 'images/Web/apimanagement.svg'
@@ -251,6 +267,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'networking',
+                servicename: 'loadbalancer',
                 label: lb.Name,
                 info: lb.Properties.frontendIPConfigurations[0].properties.privateIPAddress,
                 url: 'images/Networking/loadbalancer.svg'
@@ -265,6 +283,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'networking',
+                servicename: 'loadbalancer',
                 label: lb.Name,
                 info: "Public",
                 url: 'images/Networking/loadbalancer.svg'
@@ -286,6 +306,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'networking',
+                servicename: 'firewall',
                 label: fw.Name,
                 info: fw.Properties.ipConfigurations[0].properties.privateIPAddress,
                 url: 'images/Networking/firewall.svg'
@@ -301,6 +323,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'networking',
+                servicename: 'vpngateway',
                 label: gw.Name,
                 info: gw.Properties.sku.name,
                 url: 'images/Networking/vpngateway.svg'
@@ -315,6 +339,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'storage',
+                servicename: 'storage',
                 label: storage.Name,
                 info: storage.Sku.Name,
                 url: 'images/Storage/storage.svg'
@@ -329,6 +355,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'databases',
+                servicename: 'cosmosdb',
                 label: cosmos.Name,
                 info: cosmos.Properties.databaseAccountOfferType,
                 url: 'images/Databases/cosmosdb.svg'
@@ -344,6 +372,8 @@ export const getNodeData = () => {
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
+                category: 'analytics',
+                servicename: 'eventhubcluster',
                 label: ehCluster.Name,
                 info: ehCluster.Sku.Name + " Capacity: " + ehCluster.Sku.Capacity,
                 url: 'images/Analytics/eventhubcluster.svg'
@@ -360,6 +390,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'analytics',
+                servicename: 'eventhub',
                 label: ehNamespace.Name,
                 info: ehNamespace.Sku.Name,
                 url: 'images/Analytics/eventhub.svg'
@@ -375,6 +407,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'analytics',
+                servicename: 'eventhub',
                 label: ehNamespace.Name,
                 info: ehNamespace.Sku.Name,
                 url: 'images/Analytics/eventhub.svg'
@@ -390,6 +424,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'integration',
+                servicename: 'servicebus',
                 label: sbNamespace.Name,
                 info: sbNamespace.Sku.Name,
                 url: 'images/Integration/servicebus.svg'
@@ -407,6 +443,8 @@ export const getNodeData = () => {
                 width: 300,
                 data: {
                     type: 'container',
+                    category: 'compute',
+                    servicename: 'appserviceplan',
                     label: servicePlan.Name,
                     info: servicePlan.Properties.workerSize,
                     url: 'images/Compute/appserviceplan.svg'
@@ -423,6 +461,8 @@ export const getNodeData = () => {
                 width: 250,
                 data: {
                     type: 'service',
+                    category: 'compute',
+                    servicename: 'function',
                     label: funcApp.Name,
                     info: funcApp.Properties.sku,
                     url: 'images/Compute/function.svg'
@@ -439,6 +479,8 @@ export const getNodeData = () => {
                 width: 250,
                 data: {
                     type: 'service',
+                    category: 'networking',
+                    servicename: 'networkinterface',
                     label: 'App Service Integration',
                     info: 'Outbound traffic from App Service to VNet',
                     url: 'images/Networking/networkinterface.svg'
@@ -454,6 +496,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'networking',
+                servicename: 'privatelink',
                 label: pe.Name,
                 info: "abc",
                 url: 'images/Networking/privatelink.svg'
@@ -468,6 +512,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'networking',
+                servicename: 'expressroutecircuit',
                 label: er.Name,
                 info: er.Sku.Tier + " (" + er.Properties.serviceProviderProperties.bandwidthInMbps + " Mbps)",
                 url: 'images/Networking/expressroutecircuit.svg'
@@ -482,6 +528,8 @@ export const getNodeData = () => {
             width: 250,
             data: {
                 type: 'service',
+                category: 'networking',
+                servicename: 'location',
                 label: er.Properties.serviceProviderProperties.peeringLocation,
                 info: er.Properties.serviceProviderProperties.serviceProviderName,
                 url: 'images/location.svg'
@@ -502,9 +550,12 @@ export const getEdgeData = () => {
         .map(vnet => vnet.Properties.virtualNetworkPeerings.map(peering => (
             {
                 id: peering.id,
-                from: shortId(vnet.Id),
-                to: shortId(peering.properties.remoteVirtualNetwork.id),
-                text: 'peering'
+                from: shortId(peering.properties.remoteVirtualNetwork.id),
+                to: shortId(vnet.Id),
+                text: 'peering',
+                data: {
+                    type: 'vnet-peering'
+                }
             }
         ))).flat()
     
@@ -556,9 +607,9 @@ export const getEdgeData = () => {
             .filter(rule => getSubscriptionGuidFromId(rule.id) === getSubscriptionGuidFromId(storage.Id))
             .map(vnetRule => (
                 {
-                    id: shortId(storage.Id) + "-to-" + shortId(vnetRule.id),
-                    from: shortId(storage.Id),
-                    to: shortId(vnetRule.id),
+                    id: shortId(vnetRule.id + "-to-" + shortId(storage.Id)),
+                    from: shortId(vnetRule.id),
+                    to: shortId(storage.Id),
                     text: ''
                 }
             ))).flat()
@@ -569,9 +620,9 @@ export const getEdgeData = () => {
             .filter(rule => getSubscriptionGuidFromId(rule.id) === getSubscriptionGuidFromId(cosmos.Id))
             .map(vnetRule => (
                 {
-                    id: shortId(cosmos.Id) + "-to-" + shortId(vnetRule.id),
-                    from: shortId(cosmos.Id),
-                    to: shortId(vnetRule.id),
+                    id: shortId(vnetRule.id) + "-to-" + shortId(cosmos.Id),
+                    from: shortId(vnetRule.id),
+                    to: shortId(cosmos.Id),
                     text: ''
                 }
             ))
@@ -581,9 +632,9 @@ export const getEdgeData = () => {
         .map(ehruleset => ehruleset.VirtualNetworkRules
             .map(rule => (
                 {
-                    id: shortId(getParentIdForRulesetId(ehruleset.Id)) + '-to-' + shortId(rule.Subnet.Id),
-                    from: shortId(getParentIdForRulesetId(ehruleset.Id)),
-                    to: shortId(rule.Subnet.Id),
+                    id: shortId(rule.Subnet.Id) + '-to-' + shortId(getParentIdForRulesetId(ehruleset.Id)),
+                    from: shortId(rule.Subnet.Id),
+                    to: shortId(getParentIdForRulesetId(ehruleset.Id)),
                     text: ''
                 }
             ))
@@ -594,9 +645,9 @@ export const getEdgeData = () => {
         .map(sbruleset => sbruleset.VirtualNetworkRules
             .map(rule => (
                 {
-                    id: shortId(getParentIdForRulesetId(sbruleset.Id)) + '-to-' + shortId(rule.Subnet.Id),
-                    from: shortId(getParentIdForRulesetId(sbruleset.Id)),
-                    to: shortId(rule.Subnet.Id),
+                    id: shortId(rule.Subnet.Id) + '-to-' + shortId(getParentIdForRulesetId(sbruleset.Id)),
+                    from: shortId(rule.Subnet.Id),
+                    to: shortId(getParentIdForRulesetId(sbruleset.Id)),
                     text: ''
                 }
             ))
@@ -606,8 +657,8 @@ export const getEdgeData = () => {
         .map(appService => (
             {
                 id: shortId(appService.Id) + '-to-' + shortId(appService.Properties.virtualNetworkSubnetId),
-                from: shortId(appService.Properties.virtualNetworkSubnetId),
-                to: shortId(appService.Id),
+                from: shortId(appService.Id),
+                to: shortId(appService.Properties.virtualNetworkSubnetId),
                 data: {
                     type: 'vnetintegration'
                 }
@@ -617,8 +668,8 @@ export const getEdgeData = () => {
     const expressRouteConnections: EdgeData[] = gatewayConnectionData.filter(g => g.Location === configData.region).map(conn => (
         {
             id: shortId(conn.Id),
-            from: shortId(conn.Properties.virtualNetworkGateway1.id),
-            to: shortId(conn.Properties.peer?.id),
+            from: shortId(conn.Properties.peer?.id),
+            to: shortId(conn.Properties.virtualNetworkGateway1.id),
             text: "Routing Weight: " + conn.Properties.routingWeight
         }
     ))
@@ -629,9 +680,9 @@ export const getEdgeData = () => {
         .filter((v, i, a) => a.findIndex(t => (t.Properties.peer?.id === v.Properties.peer?.id)) === i)
         .map(conn => (
         {
-            id: shortId(conn.Properties.peer?.id) + "-to-peering-location",
-            from: shortId(conn.Properties.peer?.id),
-            to: getIdFromText(expressRouteData.find(er => er.Id === conn.Properties.peer?.id)?.Properties.serviceProviderProperties.peeringLocation)
+                id: shortId(conn.Properties.peer?.id) + "-to-peering-location",
+                from: getIdFromText(expressRouteData.find(er => er.Id === conn.Properties.peer?.id)?.Properties.serviceProviderProperties.peeringLocation),
+                to: shortId(conn.Properties.peer?.id)
         }
     ))
     

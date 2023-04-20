@@ -17,6 +17,10 @@ const PrepareEdge = (edge: any) => {
             return (
                 <Edge {...edgeProps} style={{ stroke: 'blue' }} className='edge' />
             )
+        case 'vnet-peering':
+            return (
+                <Edge {...edgeProps} style={{ stroke: 'purple' }} className='edge' />
+            )         
         default:
             return (
                 <Edge {...edgeProps} />
