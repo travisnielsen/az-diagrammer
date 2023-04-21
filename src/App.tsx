@@ -133,15 +133,17 @@ export const loadCanvasData = () => {
         nodesOfType.forEach(n => {
           const edgesToCreate = edgesFiltered.filter(e => e.to === n.id)
           edgesToCreate.forEach(e => {
-            const newEdge = {
-              id: `${e.id}-suummary`,
-              from: e.from,
-              to: newNode.id,
-              data: {
-                type: "summary"
-              }
+              const newEdge = {
+                id: `${e.id}-summary`,
+                from: e.from,
+                to: newNode.id,
+                data: {
+                  type: "summary"
+                }
             }
-            edgesFiltered.push(newEdge)
+            const existingEdge = edgesFiltered.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+            if (!existingEdge)            
+              edgesFiltered.push(newEdge)
           })
         })
 
@@ -149,14 +151,17 @@ export const loadCanvasData = () => {
           const edgesToCreate = edgesFiltered.filter(e => e.from === n.id)
           edgesToCreate.forEach(e => {
             const newEdge = {
-              id: `${e.id}-suummary`,
+              id: `${e.id}-summary`,
               from: newNode.id,
               to: e.to,
               data: {
                 type: "summary"
               }
             }
-            edgesFiltered.push(newEdge)
+            // only push new edge if edgesFiltered does not contain an edge with the same values for from and to
+            const existingEdge = edgesFiltered.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+            if (!existingEdge)
+              edgesFiltered.push(newEdge)
           })
         })
 
@@ -174,9 +179,10 @@ export const loadCanvasData = () => {
           const index = nodesFiltered.findIndex(nf => nf.id === n.id)
           nodesFiltered.splice(index, 1)
         })
+
       }
     })
   })
-  
+
   return [nodesFiltered, edgesFiltered]
 }
