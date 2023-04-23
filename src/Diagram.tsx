@@ -2,12 +2,14 @@ import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps } from 'rea
 import PrepareNode from './nodes'
 import PrepareEdge from './edges'
 import { getNodeData, getEdgeData } from './data'
-import './App.css';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect, MutableRefObject, FC } from 'react';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { backgroundColors } from 'dracula-ui';
+import './App.css'
 
-function App() {
+
+const Diagram: React.FC = () => {
+
+  const canvasRef: MutableRefObject<CanvasRef | null> = useRef<CanvasRef | null>(null);
 
   const [nodeData, edgeData] = loadCanvasData();
   const [nodes, setNodes] = useState(nodeData);
@@ -16,14 +18,14 @@ function App() {
   function handleNodeUpdate (nodes: NodeData[], edges: EdgeData[]) {
     setNodes(nodes);
     setEdges(edges);
-
   }
 
   // TODO: Look at this for canvas re-sizing: https://github.com/reaviz/reaflow/issues/111
   // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
-  const canvasRef = useRef<CanvasRef>(null);
-  const [paneWidth, setPaneWidth] = useState(2000);
-  const [paneHeight, setPaneHeight] = useState(4000)
+  // TODO: https://github.com/reaviz/reaflow/issues/190
+  // TODO: For centering on node: https://github.com/reaviz/reaflow/issues/64
+  const [paneWidth, setPaneWidth] = useState(1000);
+  const [paneHeight, setPaneHeight] = useState(1000);
 
   const calculatePaneWidthAndHeight = useCallback(() => {
       let newHeight = 0;
@@ -34,18 +36,21 @@ function App() {
       });
       setPaneHeight(newHeight);
       setPaneWidth(newWidth);
-  },[]);
+  }, []);
+  
+  useEffect(() => {
+    canvasRef?.current?.fitCanvas?.();
+  }, [canvasRef])
 
 
   return (
-    <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: 'black' }}>
+    <div>
       <TransformWrapper wheel={{ step: 0.2 }} minScale={0.2} maxScale={8} limitToBounds={false} >
         <TransformComponent wrapperStyle={{ backgroundColor: 'black' }} >
-          <div style={{ background: 'black' }}>
             <Canvas
               ref={canvasRef}
-              maxHeight={10000}
-              maxWidth={4000}
+              maxHeight={8000}
+              maxWidth={3000}
               layoutOptions={{
                 'elk.hierarchyHandling': 'INCLUDE_CHILDREN',        // required to enable edges from/to nested nodes
                 'elk.nodeLabels.placement': 'INSIDE V_TOP H_RIGHT'
@@ -60,13 +65,12 @@ function App() {
                 calculatePaneWidthAndHeight()
               }}
             />
-          </div>
         </TransformComponent>
       </TransformWrapper>
     </div>
   )
 }
-export default App;
+export default Diagram;
 
 
 export const loadCanvasData = () => {

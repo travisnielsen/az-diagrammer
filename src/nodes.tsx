@@ -52,51 +52,6 @@ const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[]
                       id={`node-foreignObject-${node.id}`}
                       height={node.height}
                       width={node.width} x={0} y={0}
-                      css={css`
-                          position: relative;
-                          &.is-selected {
-                              border: 2px dashed;
-                            }
-                            // Highlights the node when it's the last created node
-                            &.is-recently-created {
-                              box-shadow: 0px 0px 10px 0px blue;
-                            }
-                            // Disabling pointer-events on top-level containers, for events to be forwarded to the underlying <rect>
-                            // Allows using events specific to the Reaflow <Node> component (onClick, onEnter, onLeave, etc.)
-                            pointer-events: none;
-                            .node,
-                            .node-header {
-                              pointer-events: none;
-                            }
-                            .node-action,
-                            .node-content {
-                              pointer-events: auto;
-                            }
-                            .node {
-                              margin: 15px;
-                              // XXX Elements within a <foreignObject> that are using the CSS "position" attribute won't be shown properly, 
-                              //  unless they're wrapped into a container using a "fixed" position.
-                              //  Solves the display of React Select element.
-                              // See https://github.com/chakra-ui/chakra-ui/issues/3288#issuecomment-776316200
-                              position: fixed;
-                              
-                              // Take full size of its parent, minus the margins (left/right)
-                              width: calc(100% - 30px); // Depends on above "margin" value
-                              height: calc(100% - 30px); // Depends on above "margin" value
-                            }
-                            .is-unreachable-warning {
-                              pointer-events: auto;
-                              color: orange;
-                              float: left;
-                              cursor: help;
-                            }
-                            // Applied to all textarea for all nodes
-                            .textarea {
-                              margin-top: 15px;
-                              background-color: #eaeaea;
-                            }
-                      `}
-                  
                       // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
                       onClick={onNodeClick as MouseEventHandler}
                       onMouseEnter={onNodeEnter as MouseEventHandler}
@@ -112,8 +67,9 @@ const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[]
         )
       
       case 'container':
+        const containerColor = nodeProps.data.servicename === 'subnet1' ? '#000000' : '#1b1d3c';
         return (
-            <Node style={{fill: '#1b1d3c'}}>
+            <Node className='node-container' >
                 <foreignObject id={`node-foreignObject-${node.id}`} height={node.height} width={node.width} x={0} y={0}>
                 <div style={{ padding: 5, textAlign: 'center', display: 'block'  }}>
                     <h5 style={{ color: 'white', margin: 5 }}>{nodeProps.data.label}</h5>
@@ -131,7 +87,7 @@ const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[]
               id={`node-foreignObject-${node.id}`}
               height={node.height}
               width={node.width} x={0} y={0}
-                      // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
+              // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
               onClick={onNodeClick as MouseEventHandler}
               onMouseEnter={onNodeEnter as MouseEventHandler}
               onMouseLeave={onNodeLeave as MouseEventHandler}
