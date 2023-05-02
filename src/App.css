@@ -37,6 +37,18 @@
   }
 }
 
+.canvas-container {
+  background-color: black;
+}
+
+.canvas-wrapper {
+  margin: auto;
+}
+
+.canvas-test {
+  background-color: black;
+}
+
 .node-container {
   background-color: #1b1d3c;
   fill: #1b1d3c !important;
