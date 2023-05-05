@@ -1,6 +1,6 @@
 import TopNav from './TopNav';
 import Diagram from './Diagram';
-import './App.css';
+import '../App.css';
 
 const Layout = () => {
 

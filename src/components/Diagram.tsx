@@ -1,26 +1,37 @@
 import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot } from 'reaflow';
-import PrepareNode from './nodes'
-import PrepareEdge from './edges'
-import { getNodeData, getEdgeData } from './data'
-import { useRef, useState } from 'react';
+import PrepareNode from './Nodes'
+import PrepareEdge from './Edges'
+import { getNodeData, getEdgeData } from '../data'
+import { useEffect, useRef } from 'react';
+import { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges } from '../features/diagramSlice'
+import { setPaneHeight, setPaneWidth } from '../features/canvasSlice';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import './App.css'
+import { useAppSelector, useAppDispatch } from '../hooks'
+import '../App.css'
 
 let selectedNodeId = '';
 
 const Diagram: React.FC = () => {
-
   const canvasRef = useRef<CanvasRef>(null);
-  const [nodeData, edgeData] = loadCanvasData();
-  const [nodes, setNodes] = useState(nodeData);
-  const [edges, setEdges] = useState(edgeData);
-  const [paneWidth, setPaneWidth] = useState(1000);
-  const [paneHeight, setPaneHeight] = useState(1000);
+
+  const paneWidth = useAppSelector((state: any) => state.canvas.value.paneWidth)
+  const paneHeight = useAppSelector((state: any) => state.canvas.value.paneHeight)
+  
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    const [initialNodeData, initialEdgeData] = loadCanvasData();
+    dispatch(setVisibleNodes(initialNodeData))
+    dispatch(setVisibleEdges(initialEdgeData))
+  }, [])
+
+  const nodes = useAppSelector((state) => state.diagram.value.nodes)
+  const edges = useAppSelector((state) => state.diagram.value.edges)
 
   function handleNodeUpdate(nodes: NodeData[], edges: EdgeData[], nodeId: string) {
     selectedNodeId = nodeId;
-    setNodes(nodes);
-    setEdges(edges);
+    dispatch(setVisibleNodes(nodes))
+    dispatch(setVisibleEdges(edges))
     centerOnSelectedNode(nodeId);
   }
 
@@ -65,8 +76,8 @@ const Diagram: React.FC = () => {
     if (newHeight < 1000) newHeight = 2000;
     if (newWidth < 1000) newWidth = 2000;
 
-    setPaneHeight(newHeight / 2);
-    setPaneWidth(newWidth / 1.5);
+    dispatch(setPaneHeight(newHeight / 2))
+    dispatch(setPaneWidth(newWidth / 1.5))
   }
 
   return (

@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { Node, NodeData, NodeProps, EdgeData, removeNode } from 'reaflow';
 import { MouseEventHandler } from 'react';
-import './App.css';
+import '../App.css';
 import React from 'react';
 
 const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: Function ) => {

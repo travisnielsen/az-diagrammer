@@ -1,4 +1,4 @@
-import { Node, NodeData, NodeProps, Edge, EdgeData, EdgeProps } from 'reaflow';
+import { NodeData, Edge, EdgeData, EdgeProps } from 'reaflow';
 
 const PrepareEdge = (edge: EdgeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: Function ) => {
 
