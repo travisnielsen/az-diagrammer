@@ -75,13 +75,15 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
         console.log(`edge entered (${edge.id})`);
       };
 
-    if (edge.properties?.data === undefined) {
+    // @ts-ignore
+    if (edge.data?.type === undefined) {
         return (
             <Edge {...edge} onClick={onEdgeClick} />
         )
     }
 
-    switch (edge.properties?.data.type) {
+    // @ts-ignore
+    switch (edge.data?.type) {
         case 'vnetintegration':
             return (
                 <Edge {...edge} style={{ stroke: 'blue' }} className='edge' onClick={onEdgeClick} />

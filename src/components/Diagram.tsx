@@ -98,8 +98,8 @@ const Diagram: React.FC = () => {
             nodes={nodes}
             edges={edges}
             fit={true}
-            node={(node: NodeProps) => PrepareNode(node, handleNodeUpdate)}
-            edge={(edge: EdgeProps) => PrepareEdge(edge, handleNodeUpdate)}
+            node={(nodeProps: NodeProps) => PrepareNode(nodeProps, handleNodeUpdate)}
+            edge={(edgeProps: EdgeProps) => PrepareEdge(edgeProps, handleNodeUpdate)}
             onLayoutChange={(layout) => { handleLayoutChange(layout) }}
           />
         </TransformComponent>
