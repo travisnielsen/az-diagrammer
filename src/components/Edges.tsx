@@ -1,6 +1,7 @@
-import { NodeData, Edge, EdgeData, EdgeProps } from 'reaflow';
+import { NodeData, Edge, EdgeProps } from 'reaflow';
+import { store } from '../store';
 
-const PrepareEdge = (edge: EdgeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: Function ) => {
+const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
 
     const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
         const parentNodes = nodeData.filter(parentNode => {
@@ -17,10 +18,12 @@ const PrepareEdge = (edge: EdgeProps, nodeData: NodeData[], edgeData: EdgeData[]
         return [...parentNodes, ...getParentNodes(parentNodes[0], nodeData)];
     }
 
-
     // returns updated nodeData and edgeData
-    const filterNodesByEdge = () => {
+    const FilterNodesByEdge = () => {
 
+        const nodeData = store.getState().diagram.value.nodes;
+        const edgeData = store.getState().diagram.value.edges;
+        
         let selectedNodeId = '';
         
         const connectedNodes = nodeData.filter(node => {
@@ -64,7 +67,7 @@ const PrepareEdge = (edge: EdgeProps, nodeData: NodeData[], edgeData: EdgeData[]
 
     const onEdgeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         console.log(`edge clicked (${edge.id})`);
-        const results = filterNodesByEdge();
+        const results = FilterNodesByEdge();
         handleNodeUpdate(results.nodes, results.edges, results.selectedNodeId);
     };
     

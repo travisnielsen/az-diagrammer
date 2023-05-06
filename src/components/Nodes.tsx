@@ -3,13 +3,16 @@ import { Node, NodeData, NodeProps, EdgeData, removeNode } from 'reaflow';
 import { MouseEventHandler } from 'react';
 import '../App.css';
 import React from 'react';
+import { store } from '../store';
 
-const PrepareNode = (node: NodeProps, nodeData: NodeData[], edgeData: EdgeData[], handleNodeUpdate: Function ) => {
+const PrepareNode = (node: NodeProps, handleNodeUpdate: Function ) => {
 
   const nodeProps = node.properties;
 
   const onNodeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
     console.log(`node clicked (${nodeProps.data.type})`, 'node:', node);
+    const nodeData = store.getState().diagram.value.nodes;
+    const edgeData = store.getState().diagram.value.edges;
     const results = removeNode(nodeData, edgeData, node.properties.id);
     handleNodeUpdate(results.nodes, results.edges);
 

@@ -14,8 +14,7 @@ let selectedNodeId = '';
 const Diagram: React.FC = () => {
   const canvasRef = useRef<CanvasRef>(null);
 
-  const paneWidth = useAppSelector((state: any) => state.canvas.value.paneWidth)
-  const paneHeight = useAppSelector((state: any) => state.canvas.value.paneHeight)
+  const [paneWidth, paneHeight] = useAppSelector((state: any) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
   
   const dispatch = useAppDispatch()
 
@@ -23,10 +22,10 @@ const Diagram: React.FC = () => {
     const [initialNodeData, initialEdgeData] = loadCanvasData();
     dispatch(setVisibleNodes(initialNodeData))
     dispatch(setVisibleEdges(initialEdgeData))
-  }, [])
+  }, [dispatch])
 
-  const nodes = useAppSelector((state) => state.diagram.value.nodes)
-  const edges = useAppSelector((state) => state.diagram.value.edges)
+  const [nodes, edges] = useAppSelector((state) => [state.diagram.value.nodes, state.diagram.value.edges])
+  // const edges = useAppSelector((state) => state.diagram.value.edges)
 
   function handleNodeUpdate(nodes: NodeData[], edges: EdgeData[], nodeId: string) {
     selectedNodeId = nodeId;
@@ -99,8 +98,8 @@ const Diagram: React.FC = () => {
             nodes={nodes}
             edges={edges}
             fit={true}
-            node={(node: NodeProps) => PrepareNode(node, nodes, edges, handleNodeUpdate)}
-            edge={(edge: EdgeProps) => PrepareEdge(edge, nodes, edges, handleNodeUpdate)}
+            node={(node: NodeProps) => PrepareNode(node, handleNodeUpdate)}
+            edge={(edge: EdgeProps) => PrepareEdge(edge, handleNodeUpdate)}
             onLayoutChange={(layout) => { handleLayoutChange(layout) }}
           />
         </TransformComponent>
