@@ -21,8 +21,8 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
     // returns updated nodeData and edgeData
     const FilterNodesByEdge = () => {
 
-        const nodeData = store.getState().diagram.value.nodes;
-        const edgeData = store.getState().diagram.value.edges;
+        const nodeData = store.getState().diagram.value.visibleNodes;
+        const edgeData = store.getState().diagram.value.visibleEdges;
         
         let selectedNodeId = '';
         

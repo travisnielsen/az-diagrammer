@@ -1,8 +1,8 @@
 import { NodeData, EdgeData } from 'reaflow';
 
 export type DiagramDataset = {
-    nodes: NodeData[],
+    visibleNodes: NodeData[],
     hiddenNodes: NodeData[],
-    edges: EdgeData[],
+    visibleEdges: EdgeData[],
     hiddenEdges: EdgeData[]
 }

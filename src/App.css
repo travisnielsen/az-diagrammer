@@ -49,10 +49,7 @@
   background-color: black;
 }
 
-.node-container {
-  background-color: #1b1d3c;
-  fill: #1b1d3c !important;
-}
+
 
 .canvas-outer-container {
   display: flex;
@@ -79,6 +76,17 @@
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.node-container {
+  background-color: #1b1d3c;
+  fill: #1b1d3c !important;
+
+  border-style: solid;
+}
+
+.node-selected {
+  stroke: aqua;
 }
 
 
