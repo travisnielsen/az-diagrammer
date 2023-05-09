@@ -1,5 +1,5 @@
 import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot } from 'reaflow';
-import NodeRouter from './NodeRouter'
+import Nodes from './Nodes'
 import PrepareEdge from './Edges'
 import { getNodeData, getEdgeData } from '../data/data'
 import { useEffect, useRef } from 'react';
@@ -88,9 +88,9 @@ const Diagram: React.FC = () => {
             nodes={nodes}
             edges={edges}
             fit={true}
-            node={(nodeProps: NodeProps) => NodeRouter(nodeProps)}
+            node={(nodeProps: NodeProps) => Nodes(nodeProps, dispatch)}
             // only renders nodes without parents!!
-            // node={ (node: NodeProps) => ( <NodeRouter nodeProps={node} />  ) }
+            // node={ (node: NodeProps) => ( <Nodes nodeProps={node} />  ) }
             edge={(edgeProps: EdgeProps) => PrepareEdge(edgeProps, handleNodeUpdate)}
             onLayoutChange={(layout) => { handleLayoutChange(layout) }}
           />

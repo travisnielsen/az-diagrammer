@@ -5,6 +5,7 @@ import { store } from '../store';
 // import { connect, ConnectedProps } from 'react-redux';
 import { useAppDispatch } from '../hooks'
 import { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges } from '../features/diagramSlice'
+import { ThunkDispatch } from '@reduxjs/toolkit';
 
 // const connector = connect(mapState, mapDispatch)
 
@@ -20,7 +21,7 @@ type Props = {
   nodeProps: NodeProps
 }
 
-const NodeRouter = (node: NodeProps) => {
+const Nodes = (node: NodeProps, dispatch: any ) => {
 // const NodeRouter: React.FunctionComponent<Props> = (props: Props) => {
 
   // const nodeProps = props.nodeProps;
@@ -28,7 +29,7 @@ const NodeRouter = (node: NodeProps) => {
   
   const nodeType = nodeProps?.properties?.data?.type;
 
-  const dispatch = useAppDispatch()
+  // const dispatch = useAppDispatch()
 
   const onNodeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
     console.log(`node clicked (${nodeType})`, 'node:', nodeProps.id);
@@ -154,14 +155,6 @@ const NodeRouter = (node: NodeProps) => {
     dispatch(setVisibleEdges(displayEdges));
     dispatch(setHiddenNodes(hiddenNodes));
     dispatch(setHiddenEdges(hiddenEdges));
-    
-    
-    /*
-    setVisibleNodes(displayNodes);
-    setVisibleEdges(displayEdges);
-    setHiddenNodes(hiddenNodes);
-    setHiddenEdges(hiddenEdges);
-    */
   }
     
     switch (nodeType) {
@@ -226,6 +219,4 @@ const NodeRouter = (node: NodeProps) => {
   
 };
 
-// export default connect(null, null)(PrepareNode);
-// export default connect(null, { setVisibleEdges, setHiddenEdges, setVisibleNodes, setHiddenNodes })(PrepareNode);
-export default NodeRouter;
+export default Nodes;
