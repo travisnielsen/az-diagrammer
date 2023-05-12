@@ -16,6 +16,7 @@ const Diagram: React.FC = () => {
   const dispatch = useAppDispatch()
   const [paneWidth, paneHeight] = useAppSelector((state: any) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
+  const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
 
   function handleNodeUpdate(nodes: NodeData[], edges: EdgeData[], nodeId: string) {
     selectedNodeId = nodeId;

@@ -49,8 +49,6 @@
   background-color: black;
 }
 
-
-
 .canvas-outer-container {
   display: flex;
   position: relative;
@@ -79,9 +77,10 @@
 }
 
 .node-container {
-  background-color: #1b1d3c;
-  fill: #1b1d3c !important;
-
+  /* background-color: #1b1d3c; */
+  /* fill: #1b1d3c !important; */
+  background-color: black;
+  border-color: purple;
   border-style: solid;
 }
 
