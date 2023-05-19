@@ -30,3 +30,6 @@ data/*
 src/data/demo/*
 
 *.json
+
+# Azurite
+__blobstorage__
