@@ -1,4 +1,7 @@
 import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow';
+
+import configData from "../config.json"
+
 import routeTableData from './demo/routeTables.json'
 import vnetData from "./demo/vnets.json"
 import nsgData from "./demo/networkSecurityGroups.json"
@@ -23,7 +26,8 @@ import appServiceData from './demo/sites.json'
 import privateEndpointData from './demo/privateEndpoints.json'
 import expressRouteData from './demo/expressRouteCircuits.json'
 import gatewayConnectionData from './demo/gatewayConnections.json'
-import configData from "../config.json"
+
+
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',

@@ -1,25 +1,28 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { getNodeData, getEdgeData } from './data'
+import { loadAzureData } from './loadAzureData';
 
 export const loadCanvasData = () => {
 
-    const nodeData = getNodeData();
-    const edgeData = getEdgeData(); 
+  const stuff = loadAzureData();
+
+  const nodeData = getNodeData();
+  const edgeData = getEdgeData(); 
   
-    const nodeIsNonEmptyContainer = (node: NodeData) => {
-      const filteredServices = ["routetable", "nsg"]
-      let hasChildNodes = false
-      if (node.data.type === "container") {
-        hasChildNodes = nodeData.findIndex(n => n.parent === node.id ) > 0
-        
-        if (hasChildNodes && node.data.servicename === "subnet") {
-          const childNodes = nodeData.filter(n => n.parent === node.id && !filteredServices.includes(n.data.servicename))
-          if (childNodes.length === 0) hasChildNodes = false
-        }
+  const nodeIsNonEmptyContainer = (node: NodeData) => {
+    const filteredServices = ["routetable", "nsg"]
+    let hasChildNodes = false
+    if (node.data.type === "container") {
+      hasChildNodes = nodeData.findIndex(n => n.parent === node.id ) > 0
+      
+      if (hasChildNodes && node.data.servicename === "subnet") {
+        const childNodes = nodeData.filter(n => n.parent === node.id && !filteredServices.includes(n.data.servicename))
+        if (childNodes.length === 0) hasChildNodes = false
       }
-  
-      return hasChildNodes
     }
+
+    return hasChildNodes
+  }
       
     // remove unconnected items
     const edgeIdsFrom = edgeData.map(e => e.from)
