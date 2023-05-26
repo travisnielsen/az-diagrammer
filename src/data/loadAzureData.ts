@@ -1,7 +1,7 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 import configData from "../config.json"
 import { Subscription, VirtualNetwork, NetworkSecurityGroup, RouteTable } from '../types/azure/AzureTypes';
-
+import { VirtualMachineScaleSet } from "../types/azure/VirtualMachineScaleSet";
 
 export const loadAzureData = async () => {
 
@@ -69,7 +69,10 @@ export const loadAzureData = async () => {
                 const routeTables: RouteTable[]  = await JSON.parse(blobString);
                 azureData.routeTables = routeTables;
                 break;
-                
+            case "virtualMachineScaleSets.json":
+                const vmss: VirtualMachineScaleSet[]  = await JSON.parse(blobString);
+                azureData.vmss = vmss;
+                break;       
                 
             default:
                 break;
