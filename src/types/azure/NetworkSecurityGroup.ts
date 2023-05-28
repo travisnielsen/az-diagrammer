@@ -1,6 +1,6 @@
-import { Tags } from "./Tags";
+import { AzureBase } from "./AzureBase";
 
-export type NetworkSecurityGroup = {
+export interface NetworkSecurityGroup extends AzureBase {
   ResourceId: string;
   Id: string;
   Identity?: null;
@@ -16,9 +16,7 @@ export type NetworkSecurityGroup = {
   ResourceGroupName: string;
   Type: string;
   ResourceType: string;
-  ExtensionResourceType?: null;
-  Sku?: null;
-  Tags: Tags;
+  ExtensionResourceinterface?: null;
   TagsTable: string;
   SubscriptionId: string;
   CreatedTime?: null;
@@ -26,7 +24,7 @@ export type NetworkSecurityGroup = {
   ETag: string;
 }
 
-export type Properties = {
+interface Properties {
   provisioningState: string;
   resourceGuid: string;
   securityRules?: (SecurityRulesEntity)[] | null;
@@ -34,7 +32,7 @@ export type Properties = {
   subnets?: (SubnetsEntity)[] | null;
 }
 
-export type SecurityRulesEntity = {
+interface SecurityRulesEntity {
   name: string;
   id: string;
   etag: string;
@@ -42,7 +40,7 @@ export type SecurityRulesEntity = {
   properties: Properties1;
 }
   
-export type Properties1 = {
+interface Properties1 {
   provisioningState: string;
   description?: string | null;
   protocol: string;
@@ -59,7 +57,7 @@ export type Properties1 = {
   destinationAddressPrefixes?: (string | null)[] | null;
 }
 
-export type DefaultSecurityRulesEntity = {
+interface DefaultSecurityRulesEntity {
   name: string;
   id: string;
   etag: string;
@@ -67,7 +65,7 @@ export type DefaultSecurityRulesEntity = {
   properties: Properties2;
 }
   
- export type Properties2 = {
+ interface Properties2 {
   provisioningState: string;
   description: string;
   protocol: string;
@@ -84,7 +82,7 @@ export type DefaultSecurityRulesEntity = {
   destinationAddressPrefixes?: (null)[] | null;
 }
   
-export type SubnetsEntity = {
+interface SubnetsEntity {
   id: string;
 }
   

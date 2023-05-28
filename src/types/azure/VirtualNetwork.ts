@@ -1,6 +1,6 @@
-import { Tags } from "./Tags";
+import { AzureBase } from "./AzureBase";
 
-export type VirtualNetwork = {
+export interface VirtualNetwork extends AzureBase {
     ResourceId: string;
     Id: string;
     Identity?: null;
@@ -16,9 +16,7 @@ export type VirtualNetwork = {
     ResourceGroupName: string;
     Type: string;
     ResourceType: string;
-    ExtensionResourceType?: null;
-    Sku?: null;
-    Tags: Tags;
+    ExtensionResourceinterface?: null;
     TagsTable: string;
     SubscriptionId: string;
     CreatedTime?: null;
@@ -26,7 +24,7 @@ export type VirtualNetwork = {
     ETag: string;
 }
 
-export type Properties = {
+interface Properties {
     provisioningState: string;
     resourceGuid: string;
     addressSpace: RemoteAddressSpaceOrRemoteVirtualNetworkAddressSpaceOrAddressSpace;
@@ -36,15 +34,15 @@ export type Properties = {
     enableDdosProtection: boolean;
 }
 
-export type RemoteAddressSpaceOrRemoteVirtualNetworkAddressSpaceOrAddressSpace = {
+interface RemoteAddressSpaceOrRemoteVirtualNetworkAddressSpaceOrAddressSpace {
     addressPrefixes?: (string)[] | null;
 }
 
-export type DhcpOptions = {
+interface DhcpOptions {
     dnsServers?: (string)[] | null;
 }
 
-export type SubnetsEntity = {
+interface SubnetsEntity {
     name: string;
     id: string;
     etag: string;
@@ -52,7 +50,7 @@ export type SubnetsEntity = {
     type: string;
 }
 
-export type Properties1 = {
+interface Properties1 {
     provisioningState: string;
     addressPrefix: string;
     networkSecurityGroup: IpConfigurationsEntityOrNetworkSecurityGroupOrRouteTableOrNetworkIntentPoliciesEntityOrRemoteGatewaysEntityOrRemoteVirtualNetwork;
@@ -65,16 +63,16 @@ export type Properties1 = {
     networkIntentPolicies?: (IpConfigurationsEntityOrNetworkSecurityGroupOrRouteTableOrNetworkIntentPoliciesEntityOrRemoteGatewaysEntityOrRemoteVirtualNetwork)[] | null;
 }
 
-export type IpConfigurationsEntityOrNetworkSecurityGroupOrRouteTableOrNetworkIntentPoliciesEntityOrRemoteGatewaysEntityOrRemoteVirtualNetwork = {
+interface IpConfigurationsEntityOrNetworkSecurityGroupOrRouteTableOrNetworkIntentPoliciesEntityOrRemoteGatewaysEntityOrRemoteVirtualNetwork {
     id: string;
 }
-export type  ServiceEndpointsEntity = {
+interface  ServiceEndpointsEntity {
     provisioningState: string;
     service: string;
     locations?: (string)[] | null;
 }
 
-export type DelegationsEntity = {
+interface DelegationsEntity {
     name: string;
     id: string;
     etag: string;
@@ -82,13 +80,13 @@ export type DelegationsEntity = {
     type: string;
 }
 
-export type Properties2 = {
+interface Properties2 {
     provisioningState: string;
     serviceName: string;
     actions?: (string)[] | null;
 }
 
-export type VirtualNetworkPeeringsEntity = {
+interface VirtualNetworkPeeringsEntity {
     name: string;
     id: string;
     etag: string;
@@ -96,7 +94,7 @@ export type VirtualNetworkPeeringsEntity = {
     type: string;
 }
 
-export type Properties3 = {
+interface Properties3 {
     provisioningState: string;
     resourceGuid: string;
     peeringState: string;
@@ -114,6 +112,4 @@ export type Properties3 = {
     routeServiceVips: RouteServiceVips;
 }
 
-export type RouteServiceVips = {}
-
-  
+ interface RouteServiceVips {}

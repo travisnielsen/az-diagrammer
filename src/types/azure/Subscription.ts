@@ -1,6 +1,6 @@
-import { Tags } from "./Tags";
+import { AzureBase } from "./AzureBase";
 
-export type Subscription = {
+export interface Subscription extends AzureBase {
     Id: string;
     Name: string;
     State: string;
@@ -13,16 +13,15 @@ export type Subscription = {
     ExtendedProperties: ExtendedProperties;
     CurrentStorageAccount?: null;
     AuthorizationSource: string;
-    Tags: Tags;
 }
 
-export type SubscriptionPolicies = {   
+interface SubscriptionPolicies {   
     LocationPlacementId: string;
     QuotaId: string;
     SpendingLimit: string;
 }
 
-export type ExtendedProperties = {
+interface ExtendedProperties {
     SubscriptionPolices: string;
     Environment: string;
     Tags: string;

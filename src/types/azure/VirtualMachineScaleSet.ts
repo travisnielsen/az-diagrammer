@@ -1,6 +1,6 @@
-import { Tags } from "./Tags";
+import { AzureBase } from "./AzureBase";
 
-export type VirtualMachineScaleSet = {
+export interface VirtualMachineScaleSet extends AzureBase {
     ResourceId: string;
     Id: string;
     Identity: Identity;
@@ -15,10 +15,8 @@ export type VirtualMachineScaleSet = {
     Properties: Properties;
     ResourceGroupName: string;
     Type: string;
-    ResourceType: string;
-    ExtensionResourceType?: null;
-    Sku: Sku;
-    Tags: Tags;
+    Resourceinterface: string;
+    ExtensionResourceinterface?: null;
     TagsTable: string;
     SubscriptionId: string;
     CreatedTime?: null;
@@ -26,14 +24,14 @@ export type VirtualMachineScaleSet = {
     ETag?: null;
   }
 
-export type Identity = {
+interface Identity {
     PrincipalId: string;
     TenantId: string;
-    Type: string;
+    interface: string;
     UserAssignedIdentities?: null;
 }
 
-export type Properties = {
+interface Properties {
     singlePlacementGroup: boolean;
     orchestrationMode: string;
     upgradePolicy: UpgradePolicy;
@@ -45,11 +43,11 @@ export type Properties = {
     timeCreated: string;
 }
 
-export type UpgradePolicy = {
+interface UpgradePolicy {
     mode: string;
 }
 
-export type VirtualMachineProfile = {
+interface VirtualMachineProfile {
     osProfile: OsProfile;
     storageProfile: StorageProfile;
     networkProfile: NetworkProfile;
@@ -57,7 +55,7 @@ export type VirtualMachineProfile = {
     extensionProfile: ExtensionProfile;
 }
 
-export type OsProfile = {
+interface OsProfile {
     computerNamePrefix: string;
     adminUsername: string;
     linuxConfiguration: LinuxConfiguration;
@@ -66,45 +64,45 @@ export type OsProfile = {
     requireGuestProvisionSignal: boolean;
 }
 
-export type LinuxConfiguration = {
+interface LinuxConfiguration {
     disablePasswordAuthentication: boolean;
     provisionVMAgent: boolean;
 }
 
-export type StorageProfile = {
+interface StorageProfile {
     osDisk: OsDisk;
     imageReference: ImageReference;
 }
 
-export type OsDisk = {
-    osType: string;
+interface OsDisk {
+    osinterface: string;
     createOption: string;
     caching: string;
     managedDisk: ManagedDisk;
     diskSizeGB: number;
 }
 
-export type ManagedDisk = {
-    storageAccountType: string;
+interface ManagedDisk {
+    storageAccountinterface: string;
 }
 
-export type ImageReference = {
+interface ImageReference {
     publisher: string;
     offer: string;
     sku: string;
     version: string;
 }
 
-export type NetworkProfile = {
-    networktypeConfigurations?: (NetworktypeConfigurationsEntity)[] | null;
+interface NetworkProfile {
+    networkinterfaceConfigurations?: (NetworkinterfaceConfigurationsEntity)[] | null;
 }
 
-export type NetworktypeConfigurationsEntity = {
+interface NetworkinterfaceConfigurationsEntity {
     name: string;
     properties: Properties1;
 }
 
-export type Properties1 = {
+interface Properties1 {
     primary: boolean;
     enableAcceleratedNetworking: boolean;
     dnsSettings: DnsSettings;
@@ -112,53 +110,53 @@ export type Properties1 = {
     ipConfigurations?: (IpConfigurationsEntity)[] | null;
 }
 
-export type DnsSettings = {
+interface DnsSettings {
     dnsServers?: (null)[] | null;
 }
 
-export type IpConfigurationsEntity = {
+interface IpConfigurationsEntity {
     name: string;
     properties: Properties2;
 }
 
-export type Properties2 = {
+interface Properties2 {
     subnet: LoadBalancerBackendAddressPoolsEntityOrSubnet;
     privateIPAddressVersion: string;
     loadBalancerBackendAddressPools?: (LoadBalancerBackendAddressPoolsEntityOrSubnet)[] | null;
 }
 
-export type LoadBalancerBackendAddressPoolsEntityOrSubnet = {
+interface LoadBalancerBackendAddressPoolsEntityOrSubnet {
     id: string;
 }
 
-export type DiagnosticsProfile = {
+interface DiagnosticsProfile {
     bootDiagnostics: BootDiagnostics;
 }
 
-export type BootDiagnostics = {
+interface BootDiagnostics {
     enabled: boolean;
     storageUri: string;
 }
 
-export type ExtensionProfile = {
+interface ExtensionProfile {
     extensions?: (ExtensionsEntity)[] | null;
 }
 
-export type ExtensionsEntity = {
+interface ExtensionsEntity {
     name: string;
     properties: Properties3;
 }
 
-export type Properties3 = {
+interface Properties3 {
     autoUpgradeMinorVersion: boolean;
     publisher: string;
-    type: string;
-    typeHandlerVersion: string;
+    interface: string;
+    interfaceHandlerVersion: string;
     settings: Settings;
     provisionAfterExtensions?: (string)[] | null;
 }
 
-export type Settings = {
+interface Settings {
     chef_daemon_interval?: string | null;
     autoUpgradeMinorVersion?: boolean | null;
     daemon?: string | null;
@@ -169,24 +167,15 @@ export type Settings = {
     validation_key_format?: string | null;
 }
 
-export type CustomJsonAttr = {
+interface CustomJsonAttr {
     tags?: (string)[] | null;
 }
 
-export type BootstrapOptions = {
+interface BootstrapOptions {
     chef_server_url: string;
     node_ssl_verify_mode: string;
     node_verify_api_cert: string;
     environment: string;
     validation_client_name: string;
 
-}
-
-export type Sku = {
-    Name: string;
-    Tier: string;
-    Size?: null;
-    Family?: null;
-    Model?: null;
-    Capacity: number;
 }

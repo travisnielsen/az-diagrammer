@@ -1,6 +1,7 @@
-import { Tags } from "./Tags";
+import { TypeFlags } from "typescript";
+import { AzureBase } from "./AzureBase";
 
-export type RouteTable = {
+export interface RouteTable extends AzureBase {
     ResourceId: string;
     Id: string;
     Identity?: null;
@@ -16,9 +17,7 @@ export type RouteTable = {
     ResourceGroupName: string;
     Type: string;
     ResourceType: string;
-    ExtensionResourceType?: null;
-    Sku?: null;
-    Tags: Tags;
+    ExtensionResourceinterface?: null;
     TagsTable: string;
     SubscriptionId: string;
     CreatedTime?: null;
@@ -26,7 +25,7 @@ export type RouteTable = {
     ETag: string;
 }
 
-export type Properties = {
+interface Properties {
     provisioningState: string;
     resourceGuid: string;
     disableBgpRoutePropagation: boolean;
@@ -34,15 +33,15 @@ export type Properties = {
     subnets?: (SubnetsEntity)[] | null;
 }
   
-export type RoutesEntity = {
+interface RoutesEntity {
     name: string;
     id: string;
     etag: string;
     properties: Properties1;
-    type: string;
+    TypeFlags: string;
 }
   
-  export type Properties1 = {
+interface Properties1 {
     provisioningState: string;
     addressPrefix: string;
     nextHopType: string;
@@ -50,7 +49,7 @@ export type RoutesEntity = {
     hasBgpOverride: boolean;
 }
 
-export type SubnetsEntity = {
+interface SubnetsEntity {
     id: string;
 }
 
