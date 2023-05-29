@@ -16,7 +16,7 @@ export interface NetworkRuleSet extends AzureBase {
     SystemDataLastModifiedByType?: string | null;
     TrustedServiceAccessEnabled: boolean;
     Type: string;
-    VirtualNetworkRule: (VirtualNetworkRuleEntity)[];
+    VirtualNetworkRules: (VirtualNetworkRuleEntity)[];
 }
 
 interface IPRuleEntity {

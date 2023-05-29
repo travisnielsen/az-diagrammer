@@ -2,34 +2,6 @@ import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow';
 import configData from "../config.json"
 import { AzureData } from '../types/azure/AzureData';
 
-/*
-import routeTableData from './demo/routeTables.json'
-import vnetData from "./demo/vnets.json"
-import nsgData from "./demo/networkSecurityGroups.json"
-import routeData from "./demo/routeTables.json"
-import vmssData from "./demo/virtualMachineScaleSets.json"
-import databricksWorkspaceData from './demo/workspaces.json'
-import loadBalancerPrivateData from './demo/loadBalancersPrivate.json'
-import loadBalancerPublicData from './demo/loadBalancersPublic.json'
-import firewallData from './demo/firewalls.json'
-import redisCacheData from './demo/redis.json'
-import apiMgmtData from './demo/apiManagement.json'
-import vnetGatewayData from './demo/vnetGateways.json'
-import storageAccountData from './demo/storageAccounts.json'
-import cosmosAccountData from './demo/cosmosDbAccounts.json'
-import eventHubClusterData from './demo/eventHubClusters.json'
-import eventHubNamespaceData from './demo/eventHubNamespaces.json'
-import eventHubNetworkRuleSetData from './demo/eventHubNetworkRuleSets.json'
-import serviceBusNamespacsData from './demo/serviceBusNamespaces.json'
-import serviceBusNetworkRuleSetData from './demo/serviceBusNetworkRuleSets.json'
-import appServicePlanData from './demo/serverfarms.json'
-import appServiceData from './demo/sites.json'
-import privateEndpointData from './demo/privateEndpoints.json'
-import expressRouteData from './demo/expressRouteCircuits.json'
-import gatewayConnectionData from './demo/gatewayConnections.json'
-*/
-
-
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
     'elk.padding': '[top=150,left=25,bottom=25,right=25]',
@@ -638,7 +610,7 @@ export const getEdgeData = (azureData: AzureData) => {
             ))
         ).flat()
     
-    const eventHubNetworkRules: EdgeData[] = azureData.eventHubNetworkRuleSets.map((ehruleset) => ehruleset.VirtualNetworkRule
+    const eventHubNetworkRules: EdgeData[] = azureData.eventHubNetworkRuleSets.map((ehruleset) => ehruleset.VirtualNetworkRules
         .map((rule) => (
             {
                 id: shortId(rule.SubnetId) + '-to-' + shortId(getParentIdForRulesetId(ehruleset.Id)),
@@ -649,7 +621,7 @@ export const getEdgeData = (azureData: AzureData) => {
         ))
     ).flat()
     
-    const serviceBusNetworkRules: EdgeData[] = azureData.serviceBusNetworkRuleSets.map((sbruleset) => sbruleset.VirtualNetworkRule
+    const serviceBusNetworkRules: EdgeData[] = azureData.serviceBusNetworkRuleSets.map((sbruleset) => sbruleset.VirtualNetworkRules
         .map((rule) => (
             {
                 id: shortId(rule.SubnetId) + '-to-' + shortId(getParentIdForRulesetId(sbruleset.Id)),
