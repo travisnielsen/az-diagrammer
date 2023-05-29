@@ -46,4 +46,5 @@ interface Properties {
     dpdTimeoutSeconds: number;
     connectionMode: string;
     gatewayCustomBgpIpAddresses?: (null)[] | null;
+    peer: { id: string; };
 }

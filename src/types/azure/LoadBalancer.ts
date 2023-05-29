@@ -27,7 +27,7 @@ export interface LoadBalancer extends AzureBase {
 interface Properties {
     provisioningState: string;
     resourceGuid: string;
-    frontendIPConfigurations?: (FrontendIPConfigurationsEntity)[] | null;
+    frontendIPConfigurations: (FrontendIPConfigurationsEntity)[];
     backendAddressPools?: (BackendAddressPoolsEntity)[] | null;
     loadBalancingRules?: (LoadBalancingRulesEntity)[] | null;
     probes?: (ProbesEntity)[] | null;
@@ -85,7 +85,7 @@ interface LoadBalancerBackendAddressesEntity {
 
 interface Properties3 {
     provisioningState: string;
-    networkinterfaceIPConfiguration: PropertyTargetResourceId;
+    networkInterfaceIPConfiguration: PropertyTargetResourceId;
 }
 
 interface LoadBalancingRulesEntity {

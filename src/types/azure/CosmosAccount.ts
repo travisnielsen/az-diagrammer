@@ -40,7 +40,7 @@ interface Properties {
     enableMultipleWriteLocations: boolean;
     enablePartitionKeyMonitor: boolean;
     isVirtualNetworkFilterEnabled: boolean;
-    virtualNetworkRules?: (VirtualNetworkRulesEntity)[] | null;
+    virtualNetworkRules: (VirtualNetworkRulesEntity)[];
     EnabledApiTypes: string;
     disableKeyBasedMetadataWriteAccess: boolean;
     enableFreeTier: boolean;

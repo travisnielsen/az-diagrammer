@@ -82,7 +82,7 @@ interface PrivateLinkServiceConnectionState {
 interface NetworkAcls {
     resourceAccessRules?: (null)[] | null;
     bypass: string;
-    virtualNetworkRules?: (VirtualNetworkRulesEntity)[] | null;
+    virtualNetworkRules: (VirtualNetworkRulesEntity)[];
     ipRules?: (IpRulesEntity)[] | null;
     defaultAction: string;
 }

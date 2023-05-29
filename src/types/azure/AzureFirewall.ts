@@ -29,7 +29,7 @@ interface Properties {
     sku: { [key: string]: string; };
     threatIntelMode: string;
     additionalProperties: AdditionalProperties;
-    ipConfigurations?: (IpConfigurationsEntity)[] | null;
+    ipConfigurations: (IpConfigurationsEntity)[];
     networkRuleCollections?: (NetworkRuleCollectionsEntity)[] | null;
     applicationRuleCollections?: (ApplicationRuleCollectionsEntity)[] | null;
     natRuleCollections?: (null)[] | null; 

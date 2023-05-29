@@ -30,7 +30,7 @@ export interface AppService extends AzureBase {
 }
   
 interface Properties {
-    serverFarmId: number;
+    serverFarmId: string;
     name: string;
     workerSize: string;
     workerSizeId: number;
@@ -73,6 +73,8 @@ interface Properties {
     existingServerFarmIds?: null;
     kubeEnvironmentProfile?: null;
     zoneRedundant: boolean;
+    sku: string | null;
+    virtualNetworkSubnetId?: string | null;
 }
   
 

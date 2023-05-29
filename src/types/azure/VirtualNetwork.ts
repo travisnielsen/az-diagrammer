@@ -29,8 +29,8 @@ interface Properties {
     resourceGuid: string;
     addressSpace: RemoteAddressSpaceOrRemoteVirtualNetworkAddressSpaceOrAddressSpace;
     dhcpOptions: DhcpOptions;
-    subnets?: (SubnetsEntity)[] | null;
-    virtualNetworkPeerings?: (VirtualNetworkPeeringsEntity)[] | null;
+    subnets: (SubnetsEntity)[];
+    virtualNetworkPeerings: (VirtualNetworkPeeringsEntity)[];
     enableDdosProtection: boolean;
 }
 

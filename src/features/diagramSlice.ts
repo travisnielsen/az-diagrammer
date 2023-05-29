@@ -7,11 +7,11 @@ interface DiagramNodes {
     value: DiagramDataset
 }
 
-const [initialNodeData, initialEdgeData] = loadCanvasData();
+// const [initialNodeData, initialEdgeData] = await loadCanvasData();
 
 const initialState: DiagramNodes = {
-    
-    value: { visibleNodes: initialNodeData, hiddenNodes: [], visibleEdges: initialEdgeData, hiddenEdges: [] }
+    value: { visibleNodes: [], hiddenNodes: [], visibleEdges: [], hiddenEdges: [] }
+    // value: { visibleNodes: initialNodeData, hiddenNodes: [], visibleEdges: initialEdgeData, hiddenEdges: [] }
 }
 
 export const diagramSlice = createSlice({

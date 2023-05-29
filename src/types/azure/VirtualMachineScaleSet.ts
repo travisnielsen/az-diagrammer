@@ -94,6 +94,7 @@ interface ImageReference {
 }
 
 interface NetworkProfile {
+    [x: string]: any;
     networkinterfaceConfigurations?: (NetworkinterfaceConfigurationsEntity)[] | null;
 }
 

@@ -4,7 +4,7 @@ export interface PrivateEndpoint extends AzureBase {
     ResourceId: string;
     Id: string;
     Identity?: null;
-    Kind: string;
+    Kind?: null;
     Location: string;
     ManagedBy?: null;
     ResourceName: string;
@@ -21,51 +21,44 @@ export interface PrivateEndpoint extends AzureBase {
     SubscriptionId: string;
     CreatedTime?: null;
     ChangedTime?: null;
-    ETag?: null;
+    ETag: string;
 }
   
-interface Properties {
-    serverFarmId: number;
-    name: string;
-    workerSize: string;
-    workerSizeId: number;
-    workerTierName?: null;
-    numberOfWorkers: number;
-    currentWorkerSize: string;
-    currentWorkerSizeId: number;
-    currentNumberOfWorkers: number;
-    status: string;
-    webSpace: string;
-    subscription: string;
-    adminSiteName?: null;
-    hostingEnvironment?: null;
-    hostingEnvironmentProfile?: null;
-    maximumNumberOfWorkers: number;
-    planName: string;
-    adminRuntimeSiteName?: null;
-    computeMode: string;
-    siteMode?: null;
-    geoRegion: string;
-    perSiteScaling: boolean;
-    elasticScaleEnabled: boolean;
-    maximumElasticWorkerCount: number;
-    numberOfSites: number;
-    hostingEnvironmentId?: null;
-    isSpot: boolean;
-    spotExpirationTime?: null;
-    freeOfferExpirationTime?: null;
-    tags: AzureBase["Tags"];
-    kind: string;
-    resourceGroup: string;
-    reserved: boolean;
-    isXenon: boolean;
-    hyperV: boolean;
-    mdmId: string;
-    targetWorkerCount: number;
-    targetWorkerSizeId: number;
+ interface Properties {
     provisioningState: string;
-    webSiteId?: null;
-    existingServerFarmIds?: null;
-    kubeEnvironmentProfile?: null;
-    zoneRedundant: boolean;
+    resourceGuid: string;
+    privateLinkServiceConnections?: (null)[] | null;
+    manualPrivateLinkServiceConnections?: (ManualPrivateLinkServiceConnectionsEntity)[] | null;
+    customNetworkInterfaceName: string;
+    subnet: NetworkInterfacesEntityOrSubnet;
+    ipConfigurations?: (null)[] | null;
+    networkInterfaces?: (NetworkInterfacesEntityOrSubnet)[] | null;
+    customDnsConfigs?: (null)[] | null;
 }
+  
+interface ManualPrivateLinkServiceConnectionsEntity {
+    name: string;
+    id: string;
+    etag: string;
+    properties: Properties1;
+    type: string;
+}
+  
+ interface Properties1 {
+    provisioningState: string;
+    privateLinkServiceId: string;
+    groupIds?: (null)[] | null;
+    requestMessage: string;
+    privateLinkServiceConnectionState: PrivateLinkServiceConnectionState;
+}
+  
+interface PrivateLinkServiceConnectionState {
+    status: string;
+    description: string;
+    actionsRequired: string;
+}
+  
+interface NetworkInterfacesEntityOrSubnet {
+    id: string;
+}
+  

@@ -1,7 +1,8 @@
 import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot } from 'reaflow';
 import Nodes from './Nodes'
 import PrepareEdge from './Edges'
-import { getNodeData, getEdgeData } from '../data/data'
+// import { getNodeData, getEdgeData } from '../data/canvasData'
+import { loadCanvasData } from '../data/loadCanvasData';
 import { useEffect, useRef } from 'react';
 import { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges } from '../features/diagramSlice'
 import { setPaneHeight, setPaneWidth } from '../features/canvasSlice';
@@ -18,6 +19,27 @@ const Diagram: React.FC = () => {
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
   const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
 
+  /**
+   * initial load of nodes and edges
+   * TODO: Will likely need to be refactored as more application data is loaded in other components
+   */
+  useEffect(() => {
+    const fetchData = async () => {
+      const [canvasNodes, canvasEdges] = await loadCanvasData();
+      dispatch(setVisibleNodes(canvasNodes));
+      dispatch(setVisibleEdges(canvasEdges));
+    }
+
+    fetchData();
+
+  }, [dispatch])
+
+  /**
+   * 
+   * @param nodes The visible nodes to be shown
+   * @param edges The visible edges to be shown
+   * @param nodeId sets the visible and hidden nodes when called. Inovkes a method to center on the selected node.
+   */
   function handleNodeUpdate(nodes: NodeData[], edges: EdgeData[], nodeId: string) {
     selectedNodeId = nodeId;
     dispatch(setVisibleNodes(nodes))

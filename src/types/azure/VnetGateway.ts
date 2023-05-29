@@ -30,7 +30,7 @@ interface Properties {
     packetCaptureDiagnosticState: string;
     enablePrivateIpAddress: boolean;
     isMigrateToCSES: boolean;
-    ipConfigurations?: (IpConfigurationsEntity)[] | null;
+    ipConfigurations: (IpConfigurationsEntity)[];
     natRules?: (NatRulesEntity)[] | null;
     virtualNetworkGatewayPolicyGroups?: (null)[] | null;
     enableBgpRouteTranslationForNat: boolean;
