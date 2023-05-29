@@ -593,7 +593,7 @@ export const getEdgeData = (azureData: AzureData) => {
         }).flat()
 
     
-    const loadBalancingPublicVmss: EdgeData[] = azureData.loadBalancers.filter((lb: { Location: string; }) => lb.Location === configData.region)
+    const loadBalancingPublicVmss: EdgeData[] = azureData.loadBalancers.filter((lb) => lb.Location === configData.region && lb.Properties.frontendIPConfigurations[0].properties.publicIPAddress != null)
         .map(function (lb) {
             const ipconfigIds = lb.Properties.backendAddressPools?.map((bePool) =>
                 bePool.properties.loadBalancerBackendAddresses?.map((beAddress) => {

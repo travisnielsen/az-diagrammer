@@ -19,6 +19,8 @@ const Diagram: React.FC = () => {
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
   const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
 
+  const containerWidth = canvasRef.current?.containerWidth;
+
   /**
    * initial load of nodes and edges
    * TODO: Will likely need to be refactored as more application data is loaded in other components
@@ -55,17 +57,23 @@ const Diagram: React.FC = () => {
 
     if (canvasWidth && canvasHeight) {
 
+      // TODO: Canvas item may be a child of a child.
       const canvasItem = canvasRef.current?.layout.children?.find((item) => item.id === nodeId);
-      const { x, y, width, height } = canvasItem;
-      const canvasCenterX = canvasWidth / 2;
-      const canvasCenterY = canvasHeight / 2;
-      const canvasItemCenterX = x + (width / 2);
-      const canvasItemCenterY = y + (height / 2);
-      // const offsetX = canvasCenterX - canvasItemCenterX;
-      // const offsetY = canvasCenterY - canvasItemCenterY;
 
-      if (canvasRef?.current?.setScrollXY) {
-        canvasRef?.current?.setScrollXY([x, y]);
+      if (canvasItem) {
+
+        const { x, y, width, height } = canvasItem;
+        const canvasCenterX = canvasWidth / 2;
+        const canvasCenterY = canvasHeight / 2;
+        const canvasItemCenterX = x + (width / 2);
+        const canvasItemCenterY = y + (height / 2);
+        // const offsetX = canvasCenterX - canvasItemCenterX;
+        // const offsetY = canvasCenterY - canvasItemCenterY;
+  
+        if (canvasRef?.current?.setScrollXY) {
+          canvasRef?.current?.setScrollXY([x, y]);
+        }
+
       }
 
     }
@@ -88,8 +96,13 @@ const Diagram: React.FC = () => {
     if (newHeight < 1000) newHeight = 2000;
     if (newWidth < 1000) newWidth = 2000;
 
-    dispatch(setPaneHeight(newHeight / 2))
-    dispatch(setPaneWidth(newWidth / 1.5))
+    const canvasContainerWidth = canvasRef.current?.containerWidth;
+
+    dispatch(setPaneHeight(newHeight))
+    dispatch(setPaneWidth(newWidth))
+
+    // dispatch(setPaneHeight(newHeight / 2))
+    // dispatch(setPaneWidth(newWidth / 1.5))
   }
 
   return (
