@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import SignInAccountButton from './SignInAccountButton';
 
 const TopNav = () => {
 
@@ -41,9 +42,7 @@ const TopNav = () => {
           </Navbar.Collapse>
 
           <Navbar.Collapse className="justify-content-end">
-            <Navbar.Text>
-              Signed in as: <a href="#login">Demo User</a>
-            </Navbar.Text>
+            <SignInAccountButton />
           </Navbar.Collapse>
 
         </Navbar.Collapse>
