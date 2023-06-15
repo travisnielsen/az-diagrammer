@@ -1,17 +1,13 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { DiagramDataset } from '../types/DiagramDataset';
-import { loadCanvasData } from '../data/loadCanvasData';
 
 interface DiagramNodes {
     value: DiagramDataset
 }
 
-// const [initialNodeData, initialEdgeData] = await loadCanvasData();
-
 const initialState: DiagramNodes = {
     value: { visibleNodes: [], hiddenNodes: [], visibleEdges: [], hiddenEdges: [] }
-    // value: { visibleNodes: initialNodeData, hiddenNodes: [], visibleEdges: initialEdgeData, hiddenEdges: [] }
 }
 
 export const diagramSlice = createSlice({
