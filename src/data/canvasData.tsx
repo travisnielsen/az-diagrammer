@@ -610,7 +610,7 @@ export const getEdgeData = (azureData: AzureData) => {
             ))
         ).flat()
     
-    const eventHubNetworkRules: EdgeData[] = azureData.eventHubNetworkRuleSets.map((ehruleset) => ehruleset.VirtualNetworkRules
+    const eventHubNetworkRules: EdgeData[] = azureData.eventHubNetworkRuleSets.map((ehruleset) => ehruleset.VirtualNetworkRule
         .map((rule) => (
             {
                 id: shortId(rule.SubnetId) + '-to-' + shortId(getParentIdForRulesetId(ehruleset.Id)),
@@ -621,7 +621,7 @@ export const getEdgeData = (azureData: AzureData) => {
         ))
     ).flat()
     
-    const serviceBusNetworkRules: EdgeData[] = azureData.serviceBusNetworkRuleSets.map((sbruleset) => sbruleset.VirtualNetworkRules
+    const serviceBusNetworkRules: EdgeData[] = azureData.serviceBusNetworkRuleSets.map((sbruleset) => sbruleset.VirtualNetworkRule
         .map((rule) => (
             {
                 id: shortId(rule.SubnetId) + '-to-' + shortId(getParentIdForRulesetId(sbruleset.Id)),
