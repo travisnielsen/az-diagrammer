@@ -18,9 +18,17 @@ export const connectionsSlice = createSlice({
         },
         removeConnection: (state, action: PayloadAction<StorageAccountConnection>) => {
             state.value = state.value.filter((connection: StorageAccountConnection) => connection.name !== action.payload.name)
+        },
+        updateConnection: (state, action: PayloadAction<StorageAccountConnection>) => {
+            state.value = state.value.map((connection: StorageAccountConnection) => {
+                if (connection.name === action.payload.name) {
+                    return action.payload
+                }
+                return connection
+            })
         }
     }
 })
 
-export const { addConnection, removeConnection } = connectionsSlice.actions
+export const { addConnection, removeConnection, updateConnection } = connectionsSlice.actions
 export default connectionsSlice.reducer

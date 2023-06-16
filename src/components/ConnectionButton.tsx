@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import AddConnection from './AddConnection';
+import EditConnections from './EditConnections';
 import { useAppSelector } from '../hooks';
 import { StorageAccountConnection } from '../types/StorageAccountConnection';
 
@@ -9,6 +10,7 @@ const ConnectionButton = () => {
 
     const [name, setName] = useState("Select connection...");
     const [modalShow, setModalShow] = useState(false);
+    const [editConnectionModel, setModalShowEditConnections] = useState(false);
 
     const connections: StorageAccountConnection[] = useAppSelector((state: any) => state.connections.value)
 
@@ -32,12 +34,13 @@ const ConnectionButton = () => {
                 <Dropdown.Menu variant="dark">
                     {renderedListItems}
                     <Dropdown.Divider />
-                    <Dropdown.Item href="#/action-1" onClick={() => setModalShow(true)}>Add</Dropdown.Item>
-                    <Dropdown.Item href="#/action-2">Edit</Dropdown.Item>
+                    <Dropdown.Item key="addConnection" href="#/action-1" onClick={() => setModalShow(true)}>Add</Dropdown.Item>
+                    <Dropdown.Item key="editConnections" href="#/action-2" onClick={() => setModalShowEditConnections(true)}>Edit</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
 
             <AddConnection setmodalshow={setModalShow} show={modalShow} onHide={() => setModalShow(false)}/>
+            <EditConnections setmodalshow={setModalShowEditConnections} show={editConnectionModel} onHide={() => setModalShowEditConnections(false)}/>
         </>
     )
 

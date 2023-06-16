@@ -39,8 +39,8 @@ const AddConnection = (props: ModalProps ) => {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-          <Button onClick={handleSave}>Save</Button>
-            <Button onClick={props.onHide}>Cancel</Button>
+          <Button onClick={props.onHide} variant="outline-secondary">Cancel</Button>
+            <Button onClick={handleSave}>Save</Button>
           </Modal.Footer>
         </Modal>
       );
