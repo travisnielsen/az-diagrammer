@@ -1,6 +1,6 @@
 import { Button, Form, Modal, ModalProps } from "react-bootstrap";
 import { addConnection } from "../features/connectionsSlice";
-import { useAppSelector, useAppDispatch } from '../hooks'
+import { useAppDispatch } from '../hooks'
 import { useState } from "react";
 
 const AddConnection = (props: ModalProps ) => {
@@ -12,6 +12,7 @@ const AddConnection = (props: ModalProps ) => {
 
     function handleSave() {
         dispatch(addConnection({name: connectionName, connectionString: connectionString, containerName: containerName}));
+        props.setmodalshow(false);
     }
 
     return (

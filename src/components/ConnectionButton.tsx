@@ -1,19 +1,27 @@
 
-import { Interpolation, Theme } from '@emotion/react';
-import { JSX } from '@emotion/react/jsx-runtime';
-import { DetailedHTMLProps, HTMLAttributes, ReactNode, RefObject, useState } from 'react';
-import Button from 'react-bootstrap/Button';
+import { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Modal, { ModalProps } from 'react-bootstrap/Modal';
-import { Omit, BsPrefixProps } from 'react-bootstrap/esm/helpers';
 import AddConnection from './AddConnection';
-
+import { useAppSelector } from '../hooks';
+import { StorageAccountConnection } from '../types/StorageAccountConnection';
 
 const ConnectionButton = () => {
 
+    const [name, setName] = useState("Select connection...");
     const [modalShow, setModalShow] = useState(false);
 
-    const name = "Select connection...";
+    const connections: StorageAccountConnection[] = useAppSelector((state: any) => state.connections.value)
+
+
+    function handleSelect(e: any) {
+        setName(e.target.innerHTML);
+    }
+
+    const renderedListItems = connections.map(connection => {
+        const href = "#/" + connection.name.replace(" ", "-");
+        const key = connection.name.replace(" ", "-");
+        return <Dropdown.Item href={href} key={key} onClick={handleSelect}>{connection.name}</Dropdown.Item>
+    })
 
     return (
         <>
@@ -21,18 +29,15 @@ const ConnectionButton = () => {
                 <Dropdown.Toggle id="dropdown-button-dark-example1" variant="dark">
                 {name}
                 </Dropdown.Toggle>
-
                 <Dropdown.Menu variant="dark">
-                    <Dropdown.Item href="#/action-1">Connection #1</Dropdown.Item>
-                    <Dropdown.Item href="#/action-2">Connection #2</Dropdown.Item>
+                    {renderedListItems}
                     <Dropdown.Divider />
-                    <Dropdown.Item href="#/action-3" onClick={() => setModalShow(true)}>Add</Dropdown.Item>
-                    <Dropdown.Item href="#/action-3">Edit</Dropdown.Item>
+                    <Dropdown.Item href="#/action-1" onClick={() => setModalShow(true)}>Add</Dropdown.Item>
+                    <Dropdown.Item href="#/action-2">Edit</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
 
-            <AddConnection show={modalShow} onHide={() => setModalShow(false)}/>
-
+            <AddConnection setmodalshow={setModalShow} show={modalShow} onHide={() => setModalShow(false)}/>
         </>
     )
 
