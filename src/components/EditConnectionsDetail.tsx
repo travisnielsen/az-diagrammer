@@ -5,7 +5,7 @@ import { removeConnection, updateConnection } from "../features/connectionsSlice
 import { useAppDispatch } from "../hooks";
 
 
-const ConnectionDetails = (props: ModalProps) => {
+const EditConnectionsDetail = (props: ModalProps) => {
 
     const dispatch = useAppDispatch()
     const [connectionName, setConnectionName] = useState(props.connection.name);
@@ -46,4 +46,4 @@ const ConnectionDetails = (props: ModalProps) => {
     )
 }
 
-export default ConnectionDetails;
+export default EditConnectionsDetail;

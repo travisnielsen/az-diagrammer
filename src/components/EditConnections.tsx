@@ -2,7 +2,7 @@ import { Modal, ModalProps, ListGroup, Container, Row, Col} from "react-bootstra
 import { useAppSelector } from '../hooks';
 import { StorageAccountConnection } from '../types/StorageAccountConnection';
 import { useState } from "react";
-import ConnectionDetails from "./ConnectionDetails";
+import EditConnectionsDetail from "./EditConnectionsDetail";
 
 const EditConnections = (props: ModalProps) => {
 
@@ -31,7 +31,7 @@ const EditConnections = (props: ModalProps) => {
                         </ListGroup>
                     </Col>
                     <Col xs={8}>
-                        { selectedConnection ? <ConnectionDetails key={selectedConnection.name} connection={selectedConnection} /> : <></> }
+                {selectedConnection ? <EditConnectionsDetail key={selectedConnection.name} connection={selectedConnection} setmodalshow={props.setmodalshow} /> : <></> }
                     </Col>
                 </Row>
             </Container>
