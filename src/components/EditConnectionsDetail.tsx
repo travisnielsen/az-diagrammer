@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { StorageAccountConnection } from "../types/StorageAccountConnection";
 import { Button, Form, ModalProps } from "react-bootstrap";
 import { removeConnection, updateConnection } from "../features/connectionsSlice";
 import { useAppDispatch } from "../hooks";
@@ -13,13 +12,12 @@ const EditConnectionsDetail = (props: ModalProps) => {
     const [containerName, setContainerName] = useState(props.connection.containerName);
 
     function handleUpdate() {
-        dispatch(updateConnection({name: connectionName, connectionString: connectionString, containerName: containerName}));
+        dispatch(updateConnection({id: props.connection.id, name: connectionName, connectionString: connectionString, containerName: containerName, selected: props.connection.selected}));
         props.setmodalshow(false);
     }
 
     function handleDelete() {
-        dispatch(removeConnection({name: connectionName, connectionString: connectionString, containerName: containerName}));
-        props.setmodalshow(false);
+        dispatch(removeConnection({id: props.connection.id, name: connectionName, connectionString: connectionString, containerName: containerName, selected: props.connection.selected}));
     }
 
     return (

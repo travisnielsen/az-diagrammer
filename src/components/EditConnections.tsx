@@ -31,7 +31,7 @@ const EditConnections = (props: ModalProps) => {
                         </ListGroup>
                     </Col>
                     <Col xs={8}>
-                {selectedConnection ? <EditConnectionsDetail key={selectedConnection.name} connection={selectedConnection} setmodalshow={props.setmodalshow} /> : <></> }
+                      {selectedConnection ? <EditConnectionsDetail key={selectedConnection.name} connection={selectedConnection} setmodalshow={props.setmodalshow} /> : <></> }
                     </Col>
                 </Row>
             </Container>

@@ -11,7 +11,7 @@ const AddConnection = (props: ModalProps ) => {
     const [containerName, setContainerName] = useState("");
 
     function handleSave() {
-        dispatch(addConnection({name: connectionName, connectionString: connectionString, containerName: containerName}));
+        dispatch(addConnection({id: window.crypto.randomUUID(), name: connectionName, connectionString: connectionString, containerName: containerName, selected: false}));
         props.setmodalshow(false);
     }
 
