@@ -9,9 +9,17 @@ const AddConnection = (props: ModalProps ) => {
     const [connectionName, setConnectionName] = useState("");
     const [connectionString, setConnectionString] = useState("");
     const [containerName, setContainerName] = useState("");
+    const [folderName, setFolderName] = useState("");
 
     function handleSave() {
-        dispatch(addConnection({id: window.crypto.randomUUID(), name: connectionName, connectionString: connectionString, containerName: containerName, selected: false}));
+      dispatch(addConnection({
+        id: window.crypto.randomUUID(),
+        name: connectionName,
+        connectionString: connectionString,
+        containerName: containerName,
+        folderName: folderName,
+        selected: false
+      }));
         props.setmodalshow(false);
     }
 
@@ -35,6 +43,10 @@ const AddConnection = (props: ModalProps ) => {
                 <Form.Group className="mb-3" controlId="formStorageAcctContainer">
                     <Form.Label>Container</Form.Label>
                     <Form.Control type="text" placeholder="Storage Account container" onChange={e => setContainerName(e.target.value)}/>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formFolderName">
+                    <Form.Label>Folder</Form.Label>
+                    <Form.Control type="text" placeholder="folder name" defaultValue={folderName} onChange={e => setFolderName(e.target.value)}/>
                 </Form.Group>
             </Form>
           </Modal.Body>

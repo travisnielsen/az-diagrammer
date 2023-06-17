@@ -19,6 +19,13 @@ const Diagram: React.FC = () => {
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
   const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
 
+  const [connectionString, containerName] = useAppSelector((state: any) => {
+    if (state.connections.value.filter((c: { selected: any; }) => c.selected).length === 0) {
+        return [null, null];
+    }
+    return [state.connections.value.filter((c: { selected: any; }) => c.selected)[0].connectionString, state.connections.value.filter((c: { selected: any; }) => c.selected)[0].containerName]
+  })
+
   const containerWidth = canvasRef.current?.containerWidth;
 
   /**
@@ -26,14 +33,16 @@ const Diagram: React.FC = () => {
    * TODO: Will likely need to be refactored as more application data is loaded in other components
    */
   useEffect(() => {
-    const fetchData = async () => {
-      const [canvasNodes, canvasEdges] = await loadCanvasData();
-      dispatch(setVisibleNodes(canvasNodes));
-      dispatch(setVisibleEdges(canvasEdges));
+    if (connectionString || containerName) {
+      const fetchData = async () => {
+        const [canvasNodes, canvasEdges] = await loadCanvasData(connectionString, containerName);
+        dispatch(setVisibleNodes(canvasNodes));
+        dispatch(setVisibleEdges(canvasEdges));
+      }
+      fetchData();
+    } else {
+      console.log("connection string found")
     }
-
-    fetchData();
-
   }, [dispatch])
 
   /**

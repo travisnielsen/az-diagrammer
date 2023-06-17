@@ -4,5 +4,6 @@ export type StorageAccountConnection = {
     name: string,
     connectionString: string,
     containerName: string,
+    folderName: string,
     selected: boolean
 }

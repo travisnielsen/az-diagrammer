@@ -1,14 +1,12 @@
 import { BlobServiceClient } from "@azure/storage-blob";
-import configData from "../config.json"
 import * as AzureTypes from '../types/azure/AzureTypes';
 import { AzureData }  from "../types/azure/AzureData";
 
-export const loadAzureData = async () => {
+export const LoadAzureData = async (connectionString: string, containerName: string) => {
 
-    const STORAGE_CONNECTION_STRING = configData.storageConnectionString
-    const blobServiceClient = BlobServiceClient.fromConnectionString(STORAGE_CONNECTION_STRING)
-    const containerClient = blobServiceClient.getContainerClient(configData.storageContainerName);
-    // const azureData: { [key: string]: any } = {};
+    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    
     let azureData: AzureData = {
         subscriptions: [],
         virtualNetworks: [],
@@ -34,7 +32,6 @@ export const loadAzureData = async () => {
         serviceBusNamespaces: [],
         serviceBusNetworkRuleSets: [],
     };
-
     
     const fileNames = await getBlobFiles().catch((err) => {
         console.error(err);

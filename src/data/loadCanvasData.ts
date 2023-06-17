@@ -1,10 +1,18 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { getNodeData, getEdgeData } from './canvasData'
-import { loadAzureData } from './loadAzureData';
+import { LoadAzureData } from './LoadAzureData'
 
-export const loadCanvasData = async () => {
+export const loadCanvasData = async (connectionString: string, containerName: string) => {
 
-  const azureData = await loadAzureData();
+  const azureData = await LoadAzureData(connectionString, containerName);
+
+  if (!azureData) {
+    console.log("no azure data found");
+    const nodeData: NodeData[] = []
+    const edgeData: EdgeData[] = []
+    return [nodeData, edgeData]
+  }
+
   const nodeData = getNodeData(azureData);
   const edgeData = getEdgeData(azureData); 
   
