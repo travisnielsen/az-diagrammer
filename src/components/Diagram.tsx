@@ -10,6 +10,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useAppSelector, useAppDispatch } from '../hooks'
 import '../App.css'
 
+
 let selectedNodeId = '';
 
 const Diagram: React.FC = () => {
@@ -18,20 +19,22 @@ const Diagram: React.FC = () => {
   const [paneWidth, paneHeight] = useAppSelector((state: any) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
   const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
+  const containerWidth = canvasRef.current?.containerWidth;
 
+  /*
   const [connectionString, containerName] = useAppSelector((state: any) => {
     if (state.connections.value.filter((c: { selected: any; }) => c.selected).length === 0) {
         return [null, null];
     }
     return [state.connections.value.filter((c: { selected: any; }) => c.selected)[0].connectionString, state.connections.value.filter((c: { selected: any; }) => c.selected)[0].containerName]
   })
-
-  const containerWidth = canvasRef.current?.containerWidth;
+  */
 
   /**
    * initial load of nodes and edges
    * TODO: Will likely need to be refactored as more application data is loaded in other components
    */
+  /*
   useEffect(() => {
     if (connectionString || containerName) {
       const fetchData = async () => {
@@ -44,6 +47,8 @@ const Diagram: React.FC = () => {
       console.log("connection string found")
     }
   }, [dispatch])
+  */
+
 
   /**
    * 

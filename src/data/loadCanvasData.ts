@@ -1,6 +1,6 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { getNodeData, getEdgeData } from './canvasData'
-import { LoadAzureData } from './LoadAzureData'
+import { LoadAzureData } from './loadAzureData'
 
 export const loadCanvasData = async (connectionString: string, containerName: string) => {
 

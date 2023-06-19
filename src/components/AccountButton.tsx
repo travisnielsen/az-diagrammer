@@ -4,7 +4,6 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useMsal, useAccount } from "@azure/msal-react";
 
-
 export const AccountButton = () => {
     const { instance, accounts } = useMsal();
     const account = useAccount(accounts[0] || {});
@@ -13,11 +12,11 @@ export const AccountButton = () => {
     useEffect(() => {
         if (account && account.name) {
             setName(account.name);
-        } else {
-            setName("");
         }
+         else {
+            setName("");
+        }  
     }, [account]);
-
 
     const handleLogout = (logoutType: string) => {
 
