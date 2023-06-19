@@ -2,14 +2,12 @@ import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot } 
 import Nodes from './Nodes'
 import PrepareEdge from './Edges'
 // import { getNodeData, getEdgeData } from '../data/canvasData'
-import { loadCanvasData } from '../data/loadCanvasData';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges } from '../features/diagramSlice'
 import { setPaneHeight, setPaneWidth } from '../features/canvasSlice';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useAppSelector, useAppDispatch } from '../hooks'
 import '../App.css'
-
 
 let selectedNodeId = '';
 
@@ -20,35 +18,6 @@ const Diagram: React.FC = () => {
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
   const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
   const containerWidth = canvasRef.current?.containerWidth;
-
-  /*
-  const [connectionString, containerName] = useAppSelector((state: any) => {
-    if (state.connections.value.filter((c: { selected: any; }) => c.selected).length === 0) {
-        return [null, null];
-    }
-    return [state.connections.value.filter((c: { selected: any; }) => c.selected)[0].connectionString, state.connections.value.filter((c: { selected: any; }) => c.selected)[0].containerName]
-  })
-  */
-
-  /**
-   * initial load of nodes and edges
-   * TODO: Will likely need to be refactored as more application data is loaded in other components
-   */
-  /*
-  useEffect(() => {
-    if (connectionString || containerName) {
-      const fetchData = async () => {
-        const [canvasNodes, canvasEdges] = await loadCanvasData(connectionString, containerName);
-        dispatch(setVisibleNodes(canvasNodes));
-        dispatch(setVisibleEdges(canvasEdges));
-      }
-      fetchData();
-    } else {
-      console.log("connection string found")
-    }
-  }, [dispatch])
-  */
-
 
   /**
    * 
