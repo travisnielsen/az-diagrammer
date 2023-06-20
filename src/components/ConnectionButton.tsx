@@ -7,7 +7,6 @@ import { StorageAccountConnection } from '../types/StorageAccountConnection';
 import { setSelectedConnection } from '../features/connectionsSlice';
 import { setVisibleNodes, setVisibleEdges } from '../features/diagramSlice'
 import { loadCanvasData } from '../data/loadCanvasData';
-
 import { useMsal, useAccount } from "@azure/msal-react";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 
@@ -45,6 +44,11 @@ const ConnectionButton = () => {
         
         if (selectedConnection.name !== "Select connection...") {
 
+            if (selectedConnection.connectionString.includes("SharedAccessSignature") && inProgress === "none") {
+                fetchData();
+                return;
+            }
+
             if (account && account.name) {
 
                 let accessToken = "";
@@ -71,7 +75,6 @@ const ConnectionButton = () => {
                         }
                     }
                 });
-
             }
         }
 
