@@ -41,8 +41,9 @@ const ConnectionButton = () => {
                 scopes: ["https://storage.azure.com/user_impersonation"],
             }
         }
+
         
-        if (selectedConnection.name !== "Select connection...") {
+        if (selectedConnection.name && selectedConnection.name !== "Select connection...") {
 
             if (selectedConnection.connectionString.includes("SharedAccessSignature") && inProgress === "none") {
                 fetchData();
@@ -95,7 +96,7 @@ const ConnectionButton = () => {
     return (
         <>
             <Dropdown>
-                <Dropdown.Toggle id="dropdown-button-dark-example1" variant="dark">
+                <Dropdown.Toggle id="dropdown-button-dark-example1" variant="dark" size='sm'>
                 {selectedConnection.name}
                 </Dropdown.Toggle>
                 <Dropdown.Menu variant="dark">

@@ -6,39 +6,55 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import ConnectionButton from './ConnectionButton';
 import SignInAccountButton from './SignInAccountButton';
+import RegionFilterButton from './RegionFilterButton';
+import { FormControl } from 'react-bootstrap';
+import '../App.css';
 
 const TopNav = () => {
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg" fixed="top">
+    <Container>
+      <Navbar.Brand href="#home">Azure Diagrammer</Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      
       <Container>
-        <Navbar.Brand href="#home">Azure Diagrammer</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        
-        <Navbar.Collapse id="basic-navbar-nav">
 
-          <ConnectionButton />
+      <Navbar.Collapse id="basic-navbar-nav">
 
-          <Navbar.Collapse className="justify-content-end">
-            <Form className="d-flex">
-              <Form.Control
-                type="search"
-                placeholder="Search"
-                className="me-2"
-                aria-label="Search"
-              />
-              <Button variant="outline-success">Search</Button>
-            </Form>
-          </Navbar.Collapse>
-
-          <Navbar.Collapse className="justify-content-end">
-            <SignInAccountButton />
-          </Navbar.Collapse>
-
+        <Navbar.Collapse className="justify-content-end">
+          <SignInAccountButton />
         </Navbar.Collapse>
+      </Navbar.Collapse>
+
+      <Navbar.Collapse className="navbar-row-2" id="basic-navbar-nav">
+
+        <span className="navbar-row-2-label">Connection:</span>
+        <ConnectionButton />
+        <span className="navbar-row-2-spacer"></span>
+        <span className="navbar-row-2-label">Regions:</span>
+        <RegionFilterButton />
+
+        <Navbar.Collapse className="justify-content-end">
+          <Form className="d-flex">
+            <Form.Control
+              type="search"
+              placeholder="Search"
+              className="me-2"
+              aria-label="Search"
+              size="sm"
+            />
+            <Button variant="outline-success" size='sm'>Search</Button>
+          </Form>
+        </Navbar.Collapse>
+
+      </Navbar.Collapse>
+
       </Container>
-    </Navbar>
-  );
+
+    </Container>
+  </Navbar>
+  )
 
 }
 
