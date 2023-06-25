@@ -30,11 +30,14 @@ const TopNav = () => {
       <Navbar.Collapse className="navbar-row-2" id="basic-navbar-nav">
 
         <span className="navbar-row-2-label">Connection:</span>
-        <ConnectionButton />
-        <span className="navbar-row-2-spacer"></span>
-        <span className="navbar-row-2-label">Regions:</span>
-        <RegionFilterButton />
-
+          <ConnectionButton />
+            
+        <Navbar.Collapse>
+          <span className="navbar-row-2-spacer"></span>
+          <span className="navbar-row-2-label">Regions:</span>
+          <RegionFilterButton />
+        </Navbar.Collapse>
+            
         <Navbar.Collapse className="justify-content-end">
           <Form className="d-flex">
             <Form.Control

@@ -107,8 +107,8 @@ const ConnectionButton = () => {
                 </Dropdown.Menu>
             </Dropdown>
 
-            <AddConnection setmodalshow={setModalShow} show={modalShow} onHide={() => setModalShow(false)}/>
-            <EditConnections setmodalshow={setModalShowEditConnections} show={editConnectionModel} onHide={() => setModalShowEditConnections(false)}/>
+            <AddConnection show={modalShow} onHide={() => setModalShow(false)}/>
+            <EditConnections show={editConnectionModel} onHide={() => setModalShowEditConnections(false)}/>
         </>
     )
 

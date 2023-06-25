@@ -24,7 +24,8 @@ const EditConnectionsDetail = (props: ModalProps) => {
             selected: props.connection.selected,
             folderName: folderName
         }));
-        props.setmodalshow(false);
+
+        if (props.onHide) {props.onHide(); }
     }
 
     function handleDelete() {

@@ -20,7 +20,9 @@ const AddConnection = (props: ModalProps ) => {
         folderName: folderName,
         selected: false
       }));
-        props.setmodalshow(false);
+      if (props.onHide) {
+        props.onHide();
+      }
     }
 
     return (

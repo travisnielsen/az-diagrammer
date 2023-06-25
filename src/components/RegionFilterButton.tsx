@@ -35,7 +35,7 @@ const MultiSelectDropdown = () => {
     <div className={`dropdown ${isOpen ? 'show' : ''}`}>
       <Button
         size="sm"
-        style={{width:"20%"}}
+        style={{width:"100%"}}
         className="btn btn-secondary dropdown-toggle"
         type="button"
         id="multiSelectDropdown"
@@ -43,7 +43,7 @@ const MultiSelectDropdown = () => {
       >
         {selectedLabel ? selectedLabel : 'Select options'}
       </Button>
-      <div style={{width:"20%"}} className={`dropdown-menu ${isOpen ? 'show' : ''}`} aria-labelledby="multiSelectDropdown">
+      <div style={{width:"100%"}} className={`dropdown-menu ${isOpen ? 'show' : ''}`} aria-labelledby="multiSelectDropdown">
         {options.map((option) => (
           <Form.Check
           style={{marginLeft:"10%"}}
@@ -57,7 +57,6 @@ const MultiSelectDropdown = () => {
           />
         ))}
       </div>
-      {JSON.stringify(selectedOptions)}
     </div>
   );
 };
