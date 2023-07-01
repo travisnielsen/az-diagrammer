@@ -1,35 +1,12 @@
 import { Node, NodeData, NodeProps, EdgeData, removeNode } from 'reaflow';
 import { MouseEventHandler } from 'react';
 import '../App.css';
-import { store } from '../store';
-// import { connect, ConnectedProps } from 'react-redux';
-import { useAppDispatch } from '../hooks'
-import { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges } from '../features/diagramSlice'
-import { ThunkDispatch } from '@reduxjs/toolkit';
-
-// const connector = connect(mapState, mapDispatch)
-
-// type PropsFromRedux = ConnectedProps<typeof connector>
-
-/*
-interface Props extends PropsFromRedux {
-  node: NodeProps
-}
-*/
-
-type Props = {
-  nodeProps: NodeProps
-}
+import { filterOnSelectedNode } from '../features/diagramSlice'
 
 const Nodes = (node: NodeProps, dispatch: any ) => {
-// const NodeRouter: React.FunctionComponent<Props> = (props: Props) => {
 
-  // const nodeProps = props.nodeProps;
   const nodeProps = node;
-  
   const nodeType = nodeProps?.properties?.data?.type;
-
-  // const dispatch = useAppDispatch()
 
   const onNodeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
     console.log(`node clicked (${nodeType})`, 'node:', nodeProps.id);
@@ -45,10 +22,9 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
       rectangle?.classList.add('node-selected');
     }
 
-    FilterOnSelectedService(nodeProps.id);
+    dispatch(filterOnSelectedNode(nodeProps.id));
   
   };
-
 
   function onButtonClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
     throw new Error('Function not implemented.');
@@ -77,86 +53,8 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
       // if (isNode) {
       //   console.log('Hovering node')
       // }
-  };
+    };
 
-  const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
-    const parentNodes = nodeData.filter(parentNode => {
-        if (parentNode.id === node.parent) {
-            return true;
-        }
-        return false;
-    });
-
-    if (parentNodes.length === 0) {
-        return [];
-    }
-
-    return [...parentNodes, ...getParentNodes(parentNodes[0], nodeData)];
-  }
-
-
-  const getNodesFromEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
-
-    const connectedNodes = edges.map(edge => {
-        const connectedNode = nodeData.filter(node => {
-            if (node.id === edge.from || node.id === edge.to) {
-                return true;
-            }
-            return false;
-        });
-        return connectedNode;
-    }).flat();
-
-    return connectedNodes;
-
-  }
-  
-  const FilterOnSelectedService = (selectedNodeId: string) => {
-    const nodeData = store.getState().diagram.value.visibleNodes;
-    const edgeData = store.getState().diagram.value.visibleEdges;
-    // handleNodeUpdate(results.nodes, results.edges);
-
-    const connectedEdges = edgeData.filter(edge => edge.to === selectedNodeId || edge.from === selectedNodeId);
-
-    // return all nodes that are part of the connected edges
-    const connectedNodes = nodeData.filter(node => {
-        if (node.id === selectedNodeId) {
-            return true;
-        }
-        if (connectedEdges.some(edge => edge.from === node.id || edge.to === node.id)) {
-            return true;
-        }
-        return false;
-    });
-
-    const parentNodes = getParentNodes(nodeProps.properties, nodeData);
-
-    let parentEdges: EdgeData<any>[] = []
-
-    if (parentNodes) {
-      parentEdges = edgeData.filter(edge => {
-        if (parentNodes.some((parentNode: { id: string | undefined; }) => parentNode.id === edge.from || parentNode.id === edge.to)) {
-          return true;
-        }
-        return false;
-      });
-    }
-
-    const nodesFromParentEdges = getNodesFromEdges(parentEdges, nodeData);
-
-    const displayNodes = [...parentNodes, ...connectedNodes, ...nodesFromParentEdges].filter((node, index, self) => self.findIndex(n => n.id === node.id) === index)
-    const displayEdges = [...connectedEdges, ...parentEdges]
-
-    // get nodes that are not in the displayNodes array
-    const hiddenNodes = nodeData.filter(node => !displayNodes.some(n => n.id === node.id));
-    const hiddenEdges = edgeData.filter(edge => !displayEdges.some(e => e.id === edge.id));
-
-    dispatch(setVisibleNodes(displayNodes));
-    dispatch(setVisibleEdges(displayEdges));
-    dispatch(setHiddenNodes(hiddenNodes));
-    dispatch(setHiddenEdges(hiddenEdges));
-  }
-    
     switch (nodeType) {
         case 'service':
           return (
