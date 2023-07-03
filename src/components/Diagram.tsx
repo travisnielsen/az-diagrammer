@@ -1,4 +1,4 @@
-import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot } from 'reaflow';
+import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot, useSelection, SelectionResult, CanvasPosition } from 'reaflow';
 import Nodes from './Nodes'
 import PrepareEdge from './Edges'
 // import { getNodeData, getEdgeData } from '../data/canvasData'
@@ -31,6 +31,16 @@ const Diagram: React.FC = () => {
     dispatch(setVisibleEdges(edges))
     centerOnSelectedNode(nodeId);
   }
+
+  const selections: SelectionResult = useSelection({
+    nodes,
+    edges,
+    selections: [''],
+    onSelection: s => {
+      console.log('onSelection', s);
+    }
+
+  });
 
   // TOTO: This needs research.  It's not working as expected.
   function centerOnSelectedNode(nodeId: string) {
@@ -94,7 +104,7 @@ const Diagram: React.FC = () => {
         <TransformComponent wrapperStyle={{ backgroundColor: 'black', margin: 'auto' }} wrapperClass={'canvas-wrapper'} >
           <Canvas
             className='canvas-test'
-            ref={canvasRef}            
+            ref={canvasRef}
             maxHeight={paneHeight}
             maxWidth={paneWidth}
             // height={paneHeight}
@@ -112,6 +122,8 @@ const Diagram: React.FC = () => {
             // node={ (node: NodeProps) => ( <Nodes nodeProps={node} />  ) }
             edge={(edgeProps: EdgeProps) => PrepareEdge(edgeProps, handleNodeUpdate)}
             onLayoutChange={(layout) => { handleLayoutChange(layout) }}
+            defaultPosition={CanvasPosition.TOP}
+            // selections={selections}
           />
         </TransformComponent>
       </TransformWrapper>

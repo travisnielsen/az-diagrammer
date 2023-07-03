@@ -1,4 +1,4 @@
-import { Node, NodeData, NodeProps, EdgeData, removeNode } from 'reaflow';
+import { Node, NodeData, NodeProps } from 'reaflow';
 import { MouseEventHandler } from 'react';
 import '../App.css';
 import { filterOnSelectedNode } from '../features/diagramSlice'

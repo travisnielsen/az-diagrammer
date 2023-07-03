@@ -173,7 +173,7 @@ export const getNodeData = (azureData: AzureData) => {
 
     const dataBricksPublic: NodeData[] = azureData.databricksWorkspaces.filter((workspace) => workspace.Location.includes(configData.region)).map((workspace) => (
         {
-            id: shortId(workspace.Id),
+            id: shortId(workspace.Id) + "-public",
             parent: shortId(workspace.Properties.parameters.customVirtualNetworkId.value + "/subnets/" + workspace.Properties.parameters.customPublicSubnetName.value),
             height: 150,
             width: 250,
@@ -190,7 +190,7 @@ export const getNodeData = (azureData: AzureData) => {
 
     const dataBricksPrivate: NodeData[] = azureData.databricksWorkspaces.filter((workspace) => workspace.Location.includes(configData.region)).map((workspace) => (
         {
-            id: shortId(workspace.Id),
+            id: shortId(workspace.Id) + "-private",
             parent: shortId(workspace.Properties.parameters.customVirtualNetworkId.value + "/subnets/" + workspace.Properties.parameters.customPrivateSubnetName.value),
             height: 150,
             width: 250,
