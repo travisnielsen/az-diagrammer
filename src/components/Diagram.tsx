@@ -43,7 +43,7 @@ const Diagram: React.FC = () => {
 
   });
 
-  // TOTO: This needs research.  It's not working as expected.
+  // TOTO: Centering on node is complicated by the use of the transform wrapper (react zoom pan pinch)
   function centerOnSelectedNode(nodeId: string) {
 
     const canvasWidth = canvasRef?.current?.canvasWidth;
@@ -76,11 +76,6 @@ const Diagram: React.FC = () => {
     setCursorXY([event?.clientX, event?.clientY]);
   }
 
-
-  // TODO: Look at this for canvas re-sizing: https://github.com/reaviz/reaflow/issues/111
-  // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
-  // TODO: https://github.com/reaviz/reaflow/issues/190
-  // TODO: For centering on node: https://github.com/reaviz/reaflow/issues/64
   function handleLayoutChange(layout: ElkRoot) {
 
     let newHeight = 0;
@@ -97,39 +92,28 @@ const Diagram: React.FC = () => {
     // if (newHeight < screenHeight) newHeight = screenHeight;
     if (newWidth < screenWidth) newWidth = screenWidth;
 
-    // const canvasContainerWidth = canvasRef.current?.containerRef?.current?.parentNode?.parentNode?.parentNode?.?.toString();
-
-    /*
-    const parentDiv: HTMLDivElement = canvasRef.current?.containerRef?.current?.parentNode as HTMLDivElement;
-    let transformCss = parentDiv.style.cssText;
-
-    if (transformCss != "transform: translate(0px, 0px) scale(1);") {
-      parentDiv.style.cssText = "transform: translate(0px, 0px) scale(1);";
-    }
-
-    if (canvasRef?.current?.setScrollXY) {
-      
-      // canvasRef?.current?.setScrollXY([1000, 500]);
-    }
-    */
-
     dispatch(setPaneHeight(newHeight));
     dispatch(setPaneWidth(newWidth));
     
     if (canvasRef?.current?.positionCanvas) {
       canvasRef?.current?.positionCanvas(CanvasPosition.CENTER);
     }
-    
+
+    if (transformComponentRef.current?.instance) {
+      const transformState = transformComponentRef.current.instance.transformState;
+      console.log('newHeight', newHeight);
+      console.log('transformState', transformState);
+    }
   }
 
   var onTransformed = (panPinchRef: ReactZoomPanPinchRef, transformState: { scale: number, positionX: number, positionY: number }) => {
-    // This is a hack to prevent the diagram from being dragged too far up. However, I'm unable to get the actual diagram height.
-    let canvasHeight = canvasRef.current?.canvasHeight || 0;
+    // This is a hack to prevent the diagram from being dragged too far up.
+    const canvasHeight = canvasRef.current?.canvasHeight || 0;
 
-    if (canvasHeight != 0 && canvasHeight < window.screen.height) {
+    if (canvasHeight != 0 && canvasHeight < 2000) {
       if (transformState.positionY < 0) {
         console.log('onTransformed', transformState);
-        panPinchRef.instance.transformState = { positionX: transformState.positionX, positionY: 125, scale: .5, previousScale: transformState.scale };
+        panPinchRef.instance.transformState = { positionX: transformState.positionX, positionY: 150, scale: .4, previousScale: transformState.scale };
         panPinchRef.instance.applyTransformation();
       }
     }
@@ -137,7 +121,7 @@ const Diagram: React.FC = () => {
 
   return (
     <div className='canvas-container'>
-      <TransformWrapper wheel={{ step: 0.2 }} minScale={0.2} maxScale={8} limitToBounds={false} centerOnInit={true} minPositionY={200} onTransformed={onTransformed} ref={transformComponentRef} >
+      <TransformWrapper wheel={{ step: 0.2 }} minScale={0.2} maxScale={8} limitToBounds={false} centerOnInit={false} ref={transformComponentRef} initialScale={0.3} onTransformed={onTransformed} >
         <TransformComponent wrapperStyle={{ backgroundColor: 'black', margin: 'auto', minHeight: '1000px' }} wrapperClass={'canvas-wrapper'} >
           <Canvas
             className='canvas-test'
@@ -165,11 +149,7 @@ const Diagram: React.FC = () => {
           />
         </TransformComponent>
       </TransformWrapper>
-      <div
-        style={{ position: 'absolute', bottom: 10, left: 20, zIndex: 999 }}
-      >
-        X: {cursorXY?.[0]} | Y: {cursorXY?.[1]}
-      </div>
+      <div style={{ position: 'absolute', bottom: 10, left: 20, zIndex: 999 }} >X: {cursorXY?.[0]} | Y: {cursorXY?.[1]}</div>
     </div>
   )
 }

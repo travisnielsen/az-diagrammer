@@ -103,12 +103,12 @@ const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: NodeData[
     const connectedParentNodeEdges: EdgeData[] = getEdgesFromNodes(parentNodes, edges);
     const connectedNodes: NodeData[] = getNodesFromEdges(connectedParentNodeEdges, nodes);
 
-    // const connectedNodesParentNodes: NodeData[] =  connectedNodes.map(node => getParentNodes(node, nodes)).flat();
+    const connectedNodesParentNodes: NodeData[] =  connectedNodes.map(node => getParentNodes(node, nodes)).flat();
 
     const connectedVnetNodes = connectedNodes.filter(node => node.data.servicename === 'vnet').filter((node: { id: string; }) => !parentNodes.some((parentNode: { id: string; }) => parentNode.id === node.id));
     const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(connectedVnetNodes, nodes, edges);
 
-    const filteredNodes = [selectedNode, ...parentNodes, ...peerNodes, ...connectedNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes].flat();
+    const filteredNodes = [selectedNode, ...parentNodes, ...peerNodes, ...connectedNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes].flat();
     const filteredNodesUnique = [...new Set(filteredNodes)];
 
     const filteredEdges = [connectedParentNodeEdges, ...hybridNetworkingEdges, ...connectedSelectedNodeEdges].flat();
