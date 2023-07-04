@@ -1,11 +1,10 @@
 import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot, useSelection, SelectionResult, CanvasPosition } from 'reaflow';
 import Nodes from './Nodes'
 import PrepareEdge from './Edges'
-// import { getNodeData, getEdgeData } from '../data/canvasData'
-import { useRef } from 'react';
-import { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges } from '../features/diagramSlice'
+import { useEffect, useRef, useState } from 'react';
+import { setVisibleNodes, setVisibleEdges } from '../features/diagramSlice'
 import { setPaneHeight, setPaneWidth } from '../features/canvasSlice';
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformWrapper, TransformComponent, ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { useAppSelector, useAppDispatch } from '../hooks'
 import '../App.css'
 
@@ -13,11 +12,13 @@ let selectedNodeId = '';
 
 const Diagram: React.FC = () => {
   const canvasRef = useRef<CanvasRef>(null);
+  const transformComponentRef = useRef<ReactZoomPanPinchRef| null>(null);
   const dispatch = useAppDispatch()
   const [paneWidth, paneHeight] = useAppSelector((state: any) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
   const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
   const containerWidth = canvasRef.current?.containerWidth;
+  const [cursorXY, setCursorXY] = useState<[number, number]>([0, 0]);
 
   /**
    * 
@@ -60,8 +61,6 @@ const Diagram: React.FC = () => {
         const canvasCenterY = canvasHeight / 2;
         const canvasItemCenterX = x + (width / 2);
         const canvasItemCenterY = y + (height / 2);
-        // const offsetX = canvasCenterX - canvasItemCenterX;
-        // const offsetY = canvasCenterY - canvasItemCenterY;
   
         if (canvasRef?.current?.setScrollXY) {
           canvasRef?.current?.setScrollXY([x, y]);
@@ -71,7 +70,13 @@ const Diagram: React.FC = () => {
 
     }
   }
-  
+
+  const onCanvasClick = (event: React.MouseEvent<SVGGElement, MouseEvent>): void => {
+    console.log('onCanvasClick', event);
+    setCursorXY([event?.clientX, event?.clientY]);
+  }
+
+
   // TODO: Look at this for canvas re-sizing: https://github.com/reaviz/reaflow/issues/111
   // TODO: Also see: https://github.com/reaviz/reaflow/issues/190
   // TODO: https://github.com/reaviz/reaflow/issues/190
@@ -85,23 +90,55 @@ const Diagram: React.FC = () => {
       if (node.x + node.width > newWidth) newWidth = node.x + node.width;
     });
 
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+
     // keep a minimum pane size
-    if (newHeight < 1000) newHeight = 2000;
-    if (newWidth < 1000) newWidth = 2000;
+    // if (newHeight < screenHeight) newHeight = screenHeight;
+    if (newWidth < screenWidth) newWidth = screenWidth;
 
-    const canvasContainerWidth = canvasRef.current?.containerWidth;
+    // const canvasContainerWidth = canvasRef.current?.containerRef?.current?.parentNode?.parentNode?.parentNode?.?.toString();
 
-    dispatch(setPaneHeight(newHeight))
-    dispatch(setPaneWidth(newWidth))
+    /*
+    const parentDiv: HTMLDivElement = canvasRef.current?.containerRef?.current?.parentNode as HTMLDivElement;
+    let transformCss = parentDiv.style.cssText;
 
-    // dispatch(setPaneHeight(newHeight / 2))
-    // dispatch(setPaneWidth(newWidth / 1.5))
+    if (transformCss != "transform: translate(0px, 0px) scale(1);") {
+      parentDiv.style.cssText = "transform: translate(0px, 0px) scale(1);";
+    }
+
+    if (canvasRef?.current?.setScrollXY) {
+      
+      // canvasRef?.current?.setScrollXY([1000, 500]);
+    }
+    */
+
+    dispatch(setPaneHeight(newHeight));
+    dispatch(setPaneWidth(newWidth));
+    
+    if (canvasRef?.current?.positionCanvas) {
+      canvasRef?.current?.positionCanvas(CanvasPosition.CENTER);
+    }
+    
+  }
+
+  var onTransformed = (panPinchRef: ReactZoomPanPinchRef, transformState: { scale: number, positionX: number, positionY: number }) => {
+    // This is a hack to prevent the diagram from being dragged too far up. However, I'm unable to get the actual diagram height.
+    let canvasHeight = canvasRef.current?.canvasHeight || 0;
+
+    if (canvasHeight != 0 && canvasHeight < window.screen.height) {
+      if (transformState.positionY < 0) {
+        console.log('onTransformed', transformState);
+        panPinchRef.instance.transformState = { positionX: transformState.positionX, positionY: 125, scale: .5, previousScale: transformState.scale };
+        panPinchRef.instance.applyTransformation();
+      }
+    }
   }
 
   return (
     <div className='canvas-container'>
-      <TransformWrapper wheel={{ step: 0.2 }} minScale={0.2} maxScale={8} limitToBounds={false} centerOnInit={true} >
-        <TransformComponent wrapperStyle={{ backgroundColor: 'black', margin: 'auto' }} wrapperClass={'canvas-wrapper'} >
+      <TransformWrapper wheel={{ step: 0.2 }} minScale={0.2} maxScale={8} limitToBounds={false} centerOnInit={true} minPositionY={200} onTransformed={onTransformed} ref={transformComponentRef} >
+        <TransformComponent wrapperStyle={{ backgroundColor: 'black', margin: 'auto', minHeight: '1000px' }} wrapperClass={'canvas-wrapper'} >
           <Canvas
             className='canvas-test'
             ref={canvasRef}
@@ -123,10 +160,16 @@ const Diagram: React.FC = () => {
             edge={(edgeProps: EdgeProps) => PrepareEdge(edgeProps, handleNodeUpdate)}
             onLayoutChange={(layout) => { handleLayoutChange(layout) }}
             defaultPosition={CanvasPosition.TOP}
+            onCanvasClick={onCanvasClick}
             // selections={selections}
           />
         </TransformComponent>
       </TransformWrapper>
+      <div
+        style={{ position: 'absolute', bottom: 10, left: 20, zIndex: 999 }}
+      >
+        X: {cursorXY?.[0]} | Y: {cursorXY?.[1]}
+      </div>
     </div>
   )
 }

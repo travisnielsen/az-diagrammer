@@ -39,6 +39,7 @@
 
 .canvas-container {
   background-color: black;
+  padding-top: 100px;
 }
 
 .canvas-wrapper {
@@ -47,6 +48,9 @@
 
 .canvas-test {
   background-color: black;
+  /* background-size: 50px 50px;
+  background-image: radial-gradient(circle, #FFFFFF 1px, rgba(0, 0, 0, 0) 1px);
+  */
 }
 
 .canvas-outer-container {
