@@ -201,9 +201,29 @@ export const diagramSlice = createSlice({
                 state.value.visibleEdges = displayEdges;
                 return;
             }
+        },
+        expandCollapseContainer: (state, action: PayloadAction<string>) => {
+            const selectedNodeId = action.payload;
+            const selectedNode: NodeData = state.value.visibleNodes.find(node => node.id === selectedNodeId) || { id: '' };
+
+            const nodesToHide = getChildrenNodes(selectedNode, state.value.visibleNodes);
+            const hiddenNodes = [...state.value.hiddenNodes, ...nodesToHide];
+            const displayNodes = state.value.visibleNodes.filter(node => !nodesToHide.some((n: { id: string; }) => n.id === node.id));
+
+            const edgesToHide = getEdgesFromNodes(nodesToHide, state.value.visibleEdges);
+            const hiddenEdges = [...state.value.hiddenEdges, ...edgesToHide];
+            const displayEdges = state.value.visibleEdges.filter(edge => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
+
+            state.value.hiddenNodes = hiddenNodes;
+            state.value.visibleNodes = displayNodes;
+            state.value.hiddenEdges = hiddenEdges;
+            state.value.visibleEdges = displayEdges;
+
+
+
         }
     }
 })
 
-export const { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges, filterOnSelectedNode } = diagramSlice.actions
+export const { setVisibleNodes, setHiddenNodes, setVisibleEdges, setHiddenEdges, filterOnSelectedNode, expandCollapseContainer } = diagramSlice.actions
 export default diagramSlice.reducer

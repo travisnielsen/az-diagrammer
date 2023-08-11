@@ -144,7 +144,7 @@ const Diagram: React.FC = () => {
             edge={(edgeProps: EdgeProps) => PrepareEdge(edgeProps, handleNodeUpdate)}
             onLayoutChange={(layout) => { handleLayoutChange(layout) }}
             defaultPosition={CanvasPosition.TOP}
-            onCanvasClick={onCanvasClick}
+            // onCanvasClick={onCanvasClick}
             // selections={selections}
           />
         </TransformComponent>

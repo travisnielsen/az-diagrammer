@@ -1,7 +1,7 @@
 import { Node, NodeData, NodeProps } from 'reaflow';
 import { MouseEventHandler } from 'react';
 import '../App.css';
-import { filterOnSelectedNode } from '../features/diagramSlice'
+import { filterOnSelectedNode, expandCollapseContainer } from '../features/diagramSlice'
 
 const Nodes = (node: NodeProps, dispatch: any ) => {
 
@@ -22,7 +22,14 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
       rectangle?.classList.add('node-selected');
     }
 
-    dispatch(filterOnSelectedNode(nodeProps.id));
+    if (nodeType === 'container') {
+      dispatch(expandCollapseContainer(nodeProps.id));
+    }
+    else {
+      dispatch(filterOnSelectedNode(nodeProps.id));
+    }
+
+    
   
   };
 
@@ -80,13 +87,18 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
       case 'container':
         return (
             <Node className='node-container' >
-                <foreignObject id={`node-foreignObject-${nodeProps.id}`} height={nodeProps.height} width={nodeProps.width} x={0} y={0} className='node-container'>
-                <div style={{ padding: 5, textAlign: 'center', display: 'block'  }}>
-                    <h5 style={{ color: 'white', margin: 5 }}>{nodeProps.properties.data.label}</h5>
-                    <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
-                        <p style={{ color: 'white', margin: 0 }}>{nodeProps.properties.data.info}</p>
-                </div>
-                </foreignObject>
+              <foreignObject id={`node-foreignObject-${nodeProps.id}`}
+                height={nodeProps.height}
+                width={nodeProps.width} x={0} y={0}
+                className='node-container'
+                onClick={onNodeClick as MouseEventHandler}
+              >
+                  <div style={{ padding: 5, textAlign: 'center', display: 'block'  }}>
+                      <h5 style={{ color: 'white', margin: 5 }}>{nodeProps.properties.data.label}</h5>
+                      <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
+                          <p style={{ color: 'white', margin: 0 }}>{nodeProps.properties.data.info}</p>
+                  </div>
+              </foreignObject>
             </Node>
       )
       
