@@ -96,13 +96,21 @@
 
 }
 
-
 .node-container {
   /* background-color: #1b1d3c; */
   /* fill: #1b1d3c !important; */
   background-color: black;
   border-color: purple;
   border-style: solid;
+}
+
+.node-container-wrapper {
+  padding: 5px;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  display: block;
+  position: absolute;
 }
 
 .node-selected {
