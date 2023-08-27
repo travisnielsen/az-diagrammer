@@ -36,9 +36,12 @@ const ConnectionButton = () => {
             dispatch(setVisibleEdges(canvasEdges));
 
             // set all container nodes to closed
+            /*
             canvasNodes.filter((node: NodeData) => node.data?.type === "container").forEach((node: NodeData) => {
                 dispatch(expandCollapseContainer(node.id));
             });
+            */
+            
         }
 
         const protectedResources = {

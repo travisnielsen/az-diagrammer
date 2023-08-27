@@ -59,6 +59,10 @@ const getRegionIdFromFriendlyName = (name: string) => {
     switch (name) {
         case ("Central US"):
             return "centralus"
+        case ("East US2"):
+            return "eastus2"
+        case ("East US"):
+            return "eastus"
         default:
             return ""
     }
@@ -71,7 +75,7 @@ const hasTagFilterMatch = (s: string | undefined) => {
     return configData.excludeTagValues.includes(s)
 }
 
-const diagramContainerLevels = ['hybrid', 'private-network', 'paas']
+const diagramContainerLevels = ['internet', 'hybrid', 'private-network', 'paas']
 
 const diagramSections: NodeData[] = diagramContainerLevels.map((value: string) => (
     {
@@ -106,7 +110,8 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'container',
                 category: 'networking',
-                tier: '',
+                tier: 'private-network',
+                region: vnet.Location,
                 servicename: 'vnet',
                 label: vnet.Name,
                 url: 'images/Networking/virtualnetwork.svg',
@@ -126,6 +131,8 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'container',
                 category: 'networking',
+                tier: 'private-network',
+                region: vnet.Location,
                 servicename: 'subnet',
                 label: subnet.name,
                 url: 'images/Networking/subnet.svg',
@@ -147,6 +154,8 @@ export const getNodeData = (azureData: AzureData) => {
                         data: {
                             type: 'service',
                             category: 'networking',
+                            tier: 'private-network',
+                            region: securityGroup.Location,
                             servicename: 'nsg',
                             label: securityGroup.Name,
                             url: 'images/Networking/nsg.svg',
@@ -168,6 +177,8 @@ export const getNodeData = (azureData: AzureData) => {
                 data: {
                     type: 'service',
                     category: 'networking',
+                    tier: 'private-network',
+                    region: rt.Location,
                     servicename: 'routetable',
                     label: rt.Name,
                     url: 'images/Networking/routetable.svg',
@@ -185,6 +196,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'compute',
+                region: vmss.Location,
                 servicename: 'virtualmachinescaleset',
                 label: vmss.Name,
                 info: vmss.Properties.virtualMachineProfile.storageProfile.imageReference.publisher + " " + vmss.Properties.virtualMachineProfile.storageProfile.imageReference.version,
@@ -202,6 +214,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'analytics',
+                region: workspace.Location,
                 servicename: 'databricks',
                 label: workspace.Name + " (Public)",
                 info: workspace.Sku?.Name,
@@ -219,6 +232,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'analytics',
+                region: workspace.Location,
                 servicename: 'databricks',
                 label: workspace.Name + " (Private)",
                 info: workspace.Sku?.Name,
@@ -236,6 +250,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'databases',
+                region: getRegionIdFromFriendlyName(redis.Location),
                 servicename: 'rediscache',
                 label: redis.Name,
                 info: "SKU: " + redis.Properties.sku.name + " Capacity: " + redis.Properties.sku.capacity,
@@ -254,6 +269,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'web',
+                region: getRegionIdFromFriendlyName(apim.Location),
                 servicename: 'apimanagement',
                 label: apim.Name,
                 info: "SKU: " + apim.Sku?.Name + " Capacity: " + apim.Sku?.Capacity,
@@ -273,6 +289,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                region: lb.Location,
                 servicename: 'loadbalancer',
                 label: lb.Name,
                 info: lb.Properties.frontendIPConfigurations[0].properties.privateIPAddress,
@@ -289,6 +306,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                region: lb.Location,
                 servicename: 'loadbalancer',
                 label: lb.Name,
                 info: "Public",
@@ -310,6 +328,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                region: firewall.Location,
                 servicename: 'firewall',
                 label: firewall.Name,
                 info: firewall.Properties.ipConfigurations[0].properties.privateIPAddress,
@@ -327,6 +346,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                region: gw.Location,
                 servicename: 'vpngateway',
                 label: gw.Name,
                 info: gw.Properties.sku?.Name,
@@ -344,6 +364,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'storage',
+                region: storage.Location,
                 servicename: 'storage',
                 label: storage.Name,
                 info: storage.Sku?.Name,
@@ -361,6 +382,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'databases',
+                region: getRegionIdFromFriendlyName(cosmos.Location),
                 servicename: 'cosmosdb',
                 label: cosmos.Name,
                 info: cosmos.Properties.databaseAccountOfferType,
@@ -379,6 +401,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'container',
                 category: 'analytics',
+                region: ehCluster.Location,
                 servicename: 'eventhubcluster',
                 label: ehCluster.Name,
                 info: ehCluster.Sku?.Name + " Capacity: " + ehCluster.Sku?.Capacity,
@@ -397,6 +420,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'analytics',
+                region: getRegionIdFromFriendlyName(ehNamespace.Location),
                 servicename: 'eventhub',
                 label: ehNamespace.Name,
                 info: ehNamespace.Sku?.Name,
@@ -415,6 +439,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'analytics',
+                region: getRegionIdFromFriendlyName(ehNamespace.Location),
                 servicename: 'eventhub',
                 label: ehNamespace.Name,
                 info: ehNamespace.Sku?.Name,
@@ -433,6 +458,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'integration',
+                region: getRegionIdFromFriendlyName(sbNamespace.Location),
                 servicename: 'servicebus',
                 label: sbNamespace.Name,
                 info: sbNamespace.Sku?.Name,
@@ -452,6 +478,7 @@ export const getNodeData = (azureData: AzureData) => {
                 data: {
                     type: 'container',
                     category: 'compute',
+                    region: getRegionIdFromFriendlyName(servicePlan.Location),
                     servicename: 'appserviceplan',
                     label: servicePlan.Name,
                     info: servicePlan.Properties.workerSize,
@@ -470,6 +497,7 @@ export const getNodeData = (azureData: AzureData) => {
                 data: {
                     type: 'service',
                     category: 'compute',
+                    region: getRegionIdFromFriendlyName(funcApp.Location),
                     servicename: 'function',
                     label: funcApp.Name,
                     info: funcApp.Properties.sku,
@@ -488,6 +516,7 @@ export const getNodeData = (azureData: AzureData) => {
                 data: {
                     type: 'service',
                     category: 'networking',
+                    region: getRegionIdFromFriendlyName(appService.Location),
                     servicename: 'networkinterface',
                     label: 'App Service Integration',
                     info: 'Outbound traffic from App Service to VNet',
@@ -505,6 +534,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                region: pe.Location,
                 servicename: 'privatelink',
                 label: pe.Name,
                 info: "abc",
@@ -521,6 +551,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                region: 'global',
                 servicename: 'expressroutecircuit',
                 label: er.Name,
                 info: er.Sku?.Tier + " (" + er.Properties.serviceProviderProperties.bandwidthInMbps + " Mbps)",
@@ -538,6 +569,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                region: 'global',
                 servicename: 'location',
                 label: er.Properties.serviceProviderProperties.peeringLocation,
                 info: er.Properties.serviceProviderProperties.serviceProviderName,

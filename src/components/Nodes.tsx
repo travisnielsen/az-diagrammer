@@ -138,6 +138,20 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
           </Node>
         )     
       
+      case 'region':
+        return (
+          <Node >
+          <foreignObject        
+            id={`node-foreignObject-${nodeProps.id}`}
+            height={nodeProps.height}
+            width={nodeProps.width} x={0} y={0}
+          >
+            <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
+              <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>              
+            </div>
+          </foreignObject>
+        </Node>   
+        )
          
       default:  
         return ( <Node /> )

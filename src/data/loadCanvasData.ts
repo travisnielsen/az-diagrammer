@@ -30,15 +30,46 @@ export const loadCanvasData = async (connectionString: string, containerName: st
 
     return hasChildNodes
   }
+
+  // get distinct list of regions from nodeData
+  const regions = [...new Set(nodeData.map(n => n.data.region))]
+
+  // add nodes for regions
+  regions.forEach(region => {
+    const existingNode = nodeData.find(n => n.data.type === "region" && n.data.region === region)
+    if (!existingNode && region !== "global") {
+      const newNode = {
+        id: region,
+        data: {
+          type: "region",
+          region: region,
+          label: region,
+          url: ""
+        }
+      }
+      nodeData.push(newNode)
+    }
+  })
+
+  // add nodes without parent to region
+  const nodesWithoutParent = nodeData.filter(n => n.parent == null)
+  nodesWithoutParent.forEach(n => {
+    const regionNode = nodeData.find(nf => nf.data.type === "region" && nf.data.region === n.data.region)
+    if (regionNode) {
+      if (regionNode.id !== n.id) {
+        n.parent = regionNode.id
+      }
+    }
+  })
   
   // remove unconnected items
+  
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
   const canvasNodes = nodeData
-    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
-    .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
-  
+    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.data.type === "region" || n.parent != null)
+    .filter(n => n.data.type === "service" || n.data.type === "region" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
   // add nodes with type 'layout' to canvasNodes
   /*
@@ -54,6 +85,8 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   const canvasEdges = edgeData
     .filter(e => canvasNodes.findIndex(n => n.id === e.to) > 0)
     .filter(e => canvasNodes.findIndex(n => n.id === e.from) > 0)
+
+
   
   // if there are > 3 items of the same type within a container, replace them with a substitute node
   
