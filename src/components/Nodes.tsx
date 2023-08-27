@@ -63,26 +63,26 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
     };
 
     switch (nodeType) {
-        case 'service':
-          return (
-            <Node>
-              <foreignObject
-                id={`node-foreignObject-${nodeProps.id}`}
-                height={nodeProps.height}
-                width={nodeProps.width} x={0} y={0}
-                // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
-                onClick={onNodeClick as MouseEventHandler}
-                onMouseEnter={onNodeEnter as MouseEventHandler}
-                onMouseLeave={onNodeLeave as MouseEventHandler}
-              >
-                <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>
-                    <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>
-                    <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
-                    <p style={{ color: 'white', margin: 0  }}>{nodeProps.properties.data.info}</p>
-                </div>
-              </foreignObject>
-            </Node>
-        )
+      case 'service':
+        return (
+          <Node>
+            <foreignObject
+              id={`node-foreignObject-${nodeProps.id}`}
+              height={nodeProps.height}
+              width={nodeProps.width} x={0} y={0}
+              // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
+              onClick={onNodeClick as MouseEventHandler}
+              onMouseEnter={onNodeEnter as MouseEventHandler}
+              onMouseLeave={onNodeLeave as MouseEventHandler}
+            >
+              <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>
+                  <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>
+                  <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
+                  <p style={{ color: 'white', margin: 0  }}>{nodeProps.properties.data.info}</p>
+              </div>
+            </foreignObject>
+          </Node>
+      )
       
       case 'container':
         return (
@@ -122,6 +122,22 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
             </foreignObject>
           </Node>
         )
+      
+      case 'layout':
+        return (
+          <Node >
+            <foreignObject        
+              id={`node-foreignObject-${nodeProps.id}`}
+              height={nodeProps.height}
+              width={nodeProps.width} x={0} y={0}
+            >
+              <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
+                <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>              
+              </div>
+            </foreignObject>
+          </Node>
+        )     
+      
          
       default:  
         return ( <Node /> )

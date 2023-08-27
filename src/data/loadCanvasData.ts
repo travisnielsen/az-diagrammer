@@ -2,7 +2,7 @@ import { NodeData, EdgeData } from 'reaflow';
 import { getNodeData, getEdgeData } from './canvasData'
 import { LoadAzureData } from './loadAzureData'
 
-export const loadCanvasData = async (connectionString: string, containerName: string) => {
+export const loadCanvasData = async (connectionString: string, containerName: string): Promise<[NodeData<any>[], EdgeData<any>[]]> => {
 
   const azureData = await LoadAzureData(connectionString, containerName);
 
@@ -37,7 +37,18 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
   const canvasNodes = nodeData
     .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
-    .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n) ) )
+    .filter(n => n.data.type == "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
+  
+  
+  // add nodes with type 'layout' to canvasNodes
+  /*
+  const layoutNodes = nodeData.filter(n => n.data.type === "layout")
+  layoutNodes.forEach(n => {
+    const existingNode = canvasNodes.find(nf => nf.id === n.id)
+    if (!existingNode)
+      canvasNodes.push(n)
+  })
+  */
 
   // remove edges that don't have valid targets
   const canvasEdges = edgeData

@@ -71,6 +71,24 @@ const hasTagFilterMatch = (s: string | undefined) => {
     return configData.excludeTagValues.includes(s)
 }
 
+const diagramContainerLevels = ['hybrid', 'private-network', 'paas']
+
+const diagramSections: NodeData[] = diagramContainerLevels.map((value: string) => (
+    {
+        id: value,
+        height: 200,
+        width: 800,
+        layoutOptions: containerlayoutOptions,
+        data: {
+            type: 'layout',
+            category: 'section',
+            servicename: '',
+            label: value,
+            url: ''
+        }
+    }
+ ));
+
 export const getNodeData = (azureData: AzureData) => {
 
     // TODO: remove duplicates from this arraoy
@@ -81,16 +99,19 @@ export const getNodeData = (azureData: AzureData) => {
     const vnets: NodeData[] = azureData.virtualNetworks.filter((vnet) => vnet.Location.includes(configData.region)).map((vnet) => (
         {
             id: shortId(vnet.Id),
+            // parent: 'private-network',
             height: 200,
-            width: 300,
+            width: 750,
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
                 category: 'networking',
+                tier: '',
                 servicename: 'vnet',
                 label: vnet.Name,
                 url: 'images/Networking/virtualnetwork.svg',
-                info: vnet.Properties.addressSpace.addressPrefixes?.toString()
+                info: vnet.Properties.addressSpace.addressPrefixes?.toString(),
+                status: 'open'
             }
         }
     ))
@@ -100,7 +121,7 @@ export const getNodeData = (azureData: AzureData) => {
             id: shortId(subnet.id),
             parent: shortId(vnet.Id),
             height: 200,
-            width: 280,
+            width: 700,
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
@@ -108,7 +129,8 @@ export const getNodeData = (azureData: AzureData) => {
                 servicename: 'subnet',
                 label: subnet.name,
                 url: 'images/Networking/subnet.svg',
-                info: subnet.properties.addressPrefix
+                info: subnet.properties.addressPrefix,
+                status: 'open'
             }
         }
     ))).flat()
@@ -316,6 +338,7 @@ export const getNodeData = (azureData: AzureData) => {
     const storageAccounts: NodeData[] = azureData.storageAccounts.filter((s) => s.Location === configData.region).map((storage) => (
         {
             id: shortId(storage.Id),
+            // parent: 'paas',
             height: 150,
             width: 250,
             data: {
@@ -332,6 +355,7 @@ export const getNodeData = (azureData: AzureData) => {
     const cosmosAccounts: NodeData[] = azureData.cosmosAccounts.filter((c) => getRegionIdFromFriendlyName(c.Location) === configData.region).map((cosmos) => (
         {
             id: shortId(cosmos.Id),
+            // parent: 'paas',
             height: 150,
             width: 250,
             data: {
@@ -348,6 +372,7 @@ export const getNodeData = (azureData: AzureData) => {
     const eventHubClusters: NodeData[] = azureData.eventHubClusters.filter((cluster) => cluster.Location === configData.region).map((ehCluster) => (
         {
             id: shortId(ehCluster.Id),
+            // parent: 'paas',
             height: 200,
             width: 300,
             layoutOptions: containerlayoutOptions,
@@ -384,6 +409,7 @@ export const getNodeData = (azureData: AzureData) => {
         .map((ehNamespace) => (
         {
             id: shortId(ehNamespace.Id),
+            // parent: 'paas',
             height: 150,
             width: 250,
             data: {
@@ -401,6 +427,7 @@ export const getNodeData = (azureData: AzureData) => {
         .map((sbNamespace) => (
         {
             id: shortId(sbNamespace.Id),
+            // parent: 'paas',
             height: 150,
             width: 250,
             data: {
@@ -505,6 +532,7 @@ export const getNodeData = (azureData: AzureData) => {
     const peeringLocations: NodeData[] = azureData.expressRouteCircuits.map((er) => (
         {
             id: getIdFromText(er.Properties.serviceProviderProperties.peeringLocation),
+            // parent: 'hybrid',
             height: 150,
             width: 250,
             data: {

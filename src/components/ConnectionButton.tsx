@@ -5,10 +5,11 @@ import EditConnections from './EditConnections';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { StorageAccountConnection } from '../types/StorageAccountConnection';
 import { setSelectedConnection } from '../features/connectionsSlice';
-import { setVisibleNodes, setVisibleEdges } from '../features/diagramSlice'
+import { setVisibleNodes, setVisibleEdges, expandCollapseContainer } from '../features/diagramSlice'
 import { loadCanvasData } from '../data/loadCanvasData';
 import { useMsal, useAccount } from "@azure/msal-react";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
+import { NodeData } from 'reaflow';
 
 const ConnectionButton = () => {
 
@@ -33,6 +34,11 @@ const ConnectionButton = () => {
             const [canvasNodes, canvasEdges] = await loadCanvasData(selectedConnection.connectionString, selectedConnection.containerName);
             dispatch(setVisibleNodes(canvasNodes));
             dispatch(setVisibleEdges(canvasEdges));
+
+            // set all container nodes to closed
+            canvasNodes.filter((node: NodeData) => node.data?.type === "container").forEach((node: NodeData) => {
+                dispatch(expandCollapseContainer(node.id));
+            });
         }
 
         const protectedResources = {
