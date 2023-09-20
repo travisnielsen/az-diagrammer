@@ -5,7 +5,7 @@ import EditConnections from './EditConnections';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { StorageAccountConnection } from '../types/StorageAccountConnection';
 import { setSelectedConnection } from '../features/connectionsSlice';
-import { setVisibleNodes, setVisibleEdges, expandCollapseContainer } from '../features/diagramSlice'
+import { setVisibleNodes, setVisibleEdges, setHiddenNodes, setHiddenEdges } from '../features/diagramSlice'
 import { loadCanvasData } from '../data/loadCanvasData';
 import { useMsal, useAccount } from "@azure/msal-react";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
@@ -31,9 +31,11 @@ const ConnectionButton = () => {
     useEffect(() => {
         
         const fetchData = async () => {
-            const [canvasNodes, canvasEdges] = await loadCanvasData(selectedConnection.connectionString, selectedConnection.containerName);
-            dispatch(setVisibleNodes(canvasNodes));
-            dispatch(setVisibleEdges(canvasEdges));
+            const [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = await loadCanvasData(selectedConnection.connectionString, selectedConnection.containerName);
+            dispatch(setVisibleNodes(canvasNodesVisible));
+            dispatch(setVisibleEdges(canvasEdgesVisible));
+            dispatch(setHiddenNodes(canvasNodesHidden));
+            dispatch(setHiddenEdges(canvasEdgesHidden));
 
             // set all container nodes to closed
             /*

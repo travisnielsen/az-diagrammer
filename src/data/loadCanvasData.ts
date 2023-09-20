@@ -1,16 +1,19 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { getNodeData, getEdgeData } from './canvasData'
 import { LoadAzureData } from './loadAzureData'
+import { getConnectionGraphPaaS, getConnectionGraphVnetInjected, getChildrenNodes, getEdgesFromNodes } from '../utility/diagramUtils';
 
-export const loadCanvasData = async (connectionString: string, containerName: string): Promise<[NodeData<any>[], EdgeData<any>[]]> => {
+export const loadCanvasData = async (connectionString: string, containerName: string): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
 
   const azureData = await LoadAzureData(connectionString, containerName);
 
   if (!azureData) {
     console.log("no azure data found");
-    const nodeData: NodeData[] = []
-    const edgeData: EdgeData[] = []
-    return [nodeData, edgeData]
+    const nodeDataVisible: NodeData[] = []
+    const nodeDataHidden: NodeData[] = []
+    const edgeDataVisible: EdgeData[] = []
+    const edgeDataHidden: EdgeData[] = []
+    return [nodeDataVisible, nodeDataHidden, edgeDataVisible, edgeDataHidden]
   }
 
   const nodeData = getNodeData(azureData);
@@ -32,9 +35,10 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   }
 
   // get distinct list of regions from nodeData
-  const regions = [...new Set(nodeData.map(n => n.data.region))]
+  // const regions = [...new Set(nodeData.map(n => n.data.region))]
 
-  // add nodes for regions
+  // add container nodes for regions
+  /*
   regions.forEach(region => {
     const existingNode = nodeData.find(n => n.data.type === "region" && n.data.region === region)
     if (!existingNode && region !== "global") {
@@ -50,8 +54,10 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       nodeData.push(newNode)
     }
   })
+  */
 
   // add nodes without parent to region
+  /*
   const nodesWithoutParent = nodeData.filter(n => n.parent == null)
   nodesWithoutParent.forEach(n => {
     const regionNode = nodeData.find(nf => nf.data.type === "region" && nf.data.region === n.data.region)
@@ -61,38 +67,40 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       }
     }
   })
+  */
   
   // remove unconnected items
   
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
-  const canvasNodes = nodeData
+  const canvasNodesVisible = nodeData
     .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.data.type === "region" || n.parent != null)
     .filter(n => n.data.type === "service" || n.data.type === "region" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
-  // add nodes with type 'layout' to canvasNodes
+  // add nodes with type 'layout' to canvasNodesVisible
   /*
   const layoutNodes = nodeData.filter(n => n.data.type === "layout")
   layoutNodes.forEach(n => {
-    const existingNode = canvasNodes.find(nf => nf.id === n.id)
+    const existingNode = canvasNodesVisible.find(nf => nf.id === n.id)
     if (!existingNode)
-      canvasNodes.push(n)
+      canvasNodesVisible.push(n)
   })
   */
 
   // remove edges that don't have valid targets
-  const canvasEdges = edgeData
-    .filter(e => canvasNodes.findIndex(n => n.id === e.to) > 0)
-    .filter(e => canvasNodes.findIndex(n => n.id === e.from) > 0)
+  const canvasEdgesVisible = edgeData
+    .filter(e => canvasNodesVisible.findIndex(n => n.id === e.to) > 0)
+    .filter(e => canvasNodesVisible.findIndex(n => n.id === e.from) > 0)
 
-
+  const canvasNodesHidden: NodeData[] = []
+  const canvasEdgesHidden: EdgeData[] = []
   
   // if there are > 3 items of the same type within a container, replace them with a substitute node
   
-  const containerIds = canvasNodes.filter(n => n.data.type === "container" && n.data.servicename !== "vnet").map(n => n.id)
+  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && n.data.servicename !== "vnet").map(n => n.id)
   containerIds.forEach(id => {
-    const childNodes = canvasNodes.filter(n => n.parent === id)
+    const childNodes = canvasNodesVisible.filter(n => n.parent === id)
     const childNodeServiceNames = [...new Set(childNodes.map(n => n.data.servicename))]
     childNodeServiceNames.forEach(servicename => {
       const nodesOfType = childNodes.filter(n => n.data.servicename === servicename)
@@ -112,12 +120,12 @@ export const loadCanvasData = async (connectionString: string, containerName: st
             isSubstitute: true
           }
         }
-        canvasNodes.push(newNode)
+        canvasNodesVisible.push(newNode)
      
         // create edges from nodesOfType to newNode
         // exampple: collapsed PaaS intem with vnet service endpoint from subnets
         nodesOfType.forEach(n => {
-          const edgesToCreate = canvasEdges.filter(e => e.to === n.id)
+          const edgesToCreate = canvasEdgesVisible.filter(e => e.to === n.id)
           edgesToCreate.forEach(e => {
               const newEdge = {
                 id: `${e.id}-summary`,
@@ -127,14 +135,14 @@ export const loadCanvasData = async (connectionString: string, containerName: st
                   type: "summary"
                 }
             }
-            const existingEdge = canvasEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+            const existingEdge = canvasEdgesVisible.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
             if (!existingEdge)            
-              canvasEdges.push(newEdge)
+              canvasEdgesVisible.push(newEdge)
           })
         })
   
         nodesOfType.forEach(n => {
-          const edgesToCreate = canvasEdges.filter(e => e.from === n.id)
+          const edgesToCreate = canvasEdgesVisible.filter(e => e.from === n.id)
           edgesToCreate.forEach(e => {
             const newEdge = {
               id: `${e.id}-summary`,
@@ -144,31 +152,31 @@ export const loadCanvasData = async (connectionString: string, containerName: st
                 type: "summary"
               }
             }
-            // only push new edge if canvasEdges does not contain an edge with the same values for from and to
-            const existingEdge = canvasEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+            // only push new edge if canvasEdgesVisible does not contain an edge with the same values for from and to
+            const existingEdge = canvasEdgesVisible.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
             if (!existingEdge)
-              canvasEdges.push(newEdge)
+              canvasEdgesVisible.push(newEdge)
           })
         })
 
         // remove edges from nodesOfType
         nodesOfType.forEach(n => {
-          const edgesToRemove = canvasEdges.filter(e => e.from === n.id || e.to === n.id)
+          const edgesToRemove = canvasEdgesVisible.filter(e => e.from === n.id || e.to === n.id)
           edgesToRemove.forEach(e => {
-            const index = canvasEdges.findIndex(ef => ef.id === e.id)
-            canvasEdges.splice(index, 1)
+            const index = canvasEdgesVisible.findIndex(ef => ef.id === e.id)
+            canvasEdgesVisible.splice(index, 1)
           })
         })
         
-        // remove nodesOfType from canvasNodes
+        // remove nodesOfType from canvasNodesVisible
         nodesOfType.forEach(n => {
-          const index = canvasNodes.findIndex(nf => nf.id === n.id)
-          canvasNodes.splice(index, 1)
+          const index = canvasNodesVisible.findIndex(nf => nf.id === n.id)
+          canvasNodesVisible.splice(index, 1)
         })
   
       }
     })
   })
   
-  return [canvasNodes, canvasEdges]
+  return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }

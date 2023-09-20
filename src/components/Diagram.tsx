@@ -133,6 +133,8 @@ const Diagram: React.FC = () => {
             layoutOptions={{
               'elk.hierarchyHandling': 'INCLUDE_CHILDREN',        // required to enable edges from/to nested nodes
               'elk.nodeLabels.placement': 'INSIDE V_TOP H_RIGHT'
+              // 'elk.algorithm': 'layered',
+              // 'elk.partitioning.activate': 'true'
             }}
             direction='RIGHT'
             nodes={nodes}

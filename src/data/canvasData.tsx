@@ -1,6 +1,6 @@
-import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow';
+import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow'
 import configData from "../config.json"
-import { AzureData } from '../types/azure/AzureData';
+import { AzureData } from '../types/azure/AzureData'
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
@@ -74,24 +74,6 @@ const hasTagFilterMatch = (s: string | undefined) => {
     }
     return configData.excludeTagValues.includes(s)
 }
-
-const diagramContainerLevels = ['internet', 'hybrid', 'private-network', 'paas']
-
-const diagramSections: NodeData[] = diagramContainerLevels.map((value: string) => (
-    {
-        id: value,
-        height: 200,
-        width: 800,
-        layoutOptions: containerlayoutOptions,
-        data: {
-            type: 'layout',
-            category: 'section',
-            servicename: '',
-            label: value,
-            url: ''
-        }
-    }
- ));
 
 export const getNodeData = (azureData: AzureData) => {
 
@@ -311,7 +293,7 @@ export const getNodeData = (azureData: AzureData) => {
                 label: lb.Name,
                 info: "Public",
                 url: 'images/Networking/loadbalancer.svg'
-              }
+            }
         }
     ))
     
@@ -472,9 +454,9 @@ export const getNodeData = (azureData: AzureData) => {
         .map((servicePlan) => (
             {
                 id: shortId(servicePlan.Id),
-                layoutOptions: containerlayoutOptions,
                 height: 200,
                 width: 300,
+                layoutOptions: containerlayoutOptions,
                 data: {
                     type: 'container',
                     category: 'compute',
