@@ -107,7 +107,7 @@ export const getNodeData = (azureData: AzureData) => {
         {
             id: shortId(subnet.id),
             parent: shortId(vnet.Id),
-            height: 200,
+            height: 120,
             width: 700,
             layoutOptions: containerlayoutOptions,
             data: {
