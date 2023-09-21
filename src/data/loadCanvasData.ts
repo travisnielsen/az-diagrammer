@@ -1,7 +1,7 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { getNodeData, getEdgeData } from './canvasData'
 import { LoadAzureData } from './loadAzureData'
-import { getConnectionGraphPaaS, getConnectionGraphVnetInjected, getChildrenNodes, getEdgesFromNodes } from '../utility/diagramUtils';
+import { collapseContainer } from '../utility/diagramUtils';
 
 export const loadCanvasData = async (connectionString: string, containerName: string): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
 
@@ -74,7 +74,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
-  const canvasNodesVisible = nodeData
+  var canvasNodesVisible = nodeData
     .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.data.type === "region" || n.parent != null)
     .filter(n => n.data.type === "service" || n.data.type === "region" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
@@ -89,13 +89,20 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   */
 
   // remove edges that don't have valid targets
-  const canvasEdgesVisible = edgeData
+  var canvasEdgesVisible = edgeData
     .filter(e => canvasNodesVisible.findIndex(n => n.id === e.to) > 0)
     .filter(e => canvasNodesVisible.findIndex(n => n.id === e.from) > 0)
 
-  const canvasNodesHidden: NodeData[] = []
-  const canvasEdgesHidden: EdgeData[] = []
-  
+  var canvasNodesHidden: NodeData[] = []
+  var canvasEdgesHidden: EdgeData[] = []
+
+  // iterate through all subnets and set data.status to 'closed'.
+  const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
+  subnetNodes.forEach(n => {
+    [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = collapseContainer(n, canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden)
+    n.data.status = "closed"
+  })
+
   // if there are > 3 items of the same type within a container, replace them with a substitute node
   
   const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && n.data.servicename !== "vnet").map(n => n.id)

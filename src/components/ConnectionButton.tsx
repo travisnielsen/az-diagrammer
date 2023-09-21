@@ -35,15 +35,7 @@ const ConnectionButton = () => {
             dispatch(setVisibleNodes(canvasNodesVisible));
             dispatch(setVisibleEdges(canvasEdgesVisible));
             dispatch(setHiddenNodes(canvasNodesHidden));
-            dispatch(setHiddenEdges(canvasEdgesHidden));
-
-            // set all container nodes to closed
-            /*
-            canvasNodes.filter((node: NodeData) => node.data?.type === "container").forEach((node: NodeData) => {
-                dispatch(expandCollapseContainer(node.id));
-            });
-            */
-            
+            dispatch(setHiddenEdges(canvasEdgesHidden));        
         }
 
         const protectedResources = {

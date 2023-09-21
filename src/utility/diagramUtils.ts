@@ -1,71 +1,47 @@
 import { NodeData, EdgeData } from 'reaflow';
 
+/**
+ * 
+ * @param node 
+ * @param nodeDataVisible 
+ * @param nodeDataHidden 
+ * @param edgeDataVisible 
+ * @param edgeDataHidden 
+ * @returns 
+ */
+export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
+    const childNodesToHide = getChildrenNodes(node, nodeDataVisible);
+    const hiddenNodes = [...nodeDataHidden, ...childNodesToHide];
+    const displayNodes = nodeDataVisible.filter(node => !childNodesToHide.some((n: { id: string; }) => n.id === node.id));
 
-export const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
-    const parentNodes = nodeData.filter(parentNode => {
-        if (parentNode.id === node.parent) {
-            return true;
-        }
-        return false;
-    });
+    const edgesToHide = getEdgesFromNodes(childNodesToHide, edgeDataVisible);
+    const hiddenEdges = [...edgeDataHidden, ...edgesToHide];
+    const displayEdges = edgeDataVisible.filter(edge => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
 
-    if (parentNodes.length === 0) {
-        return [];
-    }
-
-    return [...parentNodes, ...getParentNodes(parentNodes[0], nodeData)];
+    return [displayNodes, hiddenNodes, displayEdges, hiddenEdges];
 }
 
-export const getChildrenNodes: any = (node: NodeData, nodeData: NodeData[]) => {
-    const childrenNodes = nodeData.filter(childNode => {
-        if (childNode.parent === node.id) {
-            return true;
-        }
-        return false;
-    });
+/**
+ * 
+ * @param node 
+ * @param nodeDataVisible 
+ * @param nodeDataHidden 
+ * @param edgeDataVisible 
+ * @param edgeDataHidden 
+ * @returns 
+ */
+export const expandContainer: any = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
-    if (childrenNodes.length === 0) {
-        return [];
-    }
+    const childNodesToDisplay = getChildrenNodes(node, nodeDataHidden);
+    const hiddenNodes = nodeDataHidden.filter(node => !childNodesToDisplay.some((n: { id: string; }) => n.id === node.id));
+    const displayNodes = [...nodeDataVisible, ...childNodesToDisplay];
 
-    for (let i = 0; i < childrenNodes.length; i++) {
-        const childNode = childrenNodes[i];
-        const childNodeChildren = getChildrenNodes(childNode, nodeData);
-        childrenNodes.push(...childNodeChildren);
-    }
+    const edgesToDisplay = getEdgesFromNodes(childNodesToDisplay, edgeDataHidden);
+    const hiddenEdges = edgeDataHidden.filter(edge => !edgesToDisplay.some((e: { id: string; }) => e.id === edge.id));
+    const displayEdges = [...edgeDataVisible, ...edgesToDisplay];
 
-    return childrenNodes
-
-    // return [...childrenNodes, ...getChildrenNodes(childrenNodes[0], nodeData)];
-}
-
-export const getNodesFromEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
-    const connectedNodes = edges.map(edge => {
-        const connectedNode = nodeData.filter(node => {
-            if (node.id === edge.from || node.id === edge.to) {
-                return true;
-            }
-            return false;
-        });
-        return connectedNode;
-    }).flat();
-
-    return [...new Set(connectedNodes)];
-}
-
-export const getEdgesFromNodes: any = (nodes: NodeData[], edgeData: EdgeData[]) => {
-    const connectedEdges = nodes.map(node => {
-        const connectedEdge = edgeData.filter(edge => {
-            if (edge.from === node.id || edge.to === node.id) {
-                return true;
-            }
-            return false;
-        });
-        return connectedEdge;
-    }).flat();
-
-    return [...new Set(connectedEdges)];
+    return [displayNodes, hiddenNodes, displayEdges, hiddenEdges];
 }
 
 /**
@@ -87,9 +63,14 @@ export const getConnectionGraphPaaS = (selectedNode: NodeData, nodes: NodeData[]
     return [filteredNodes, filteredEdges];
 }
 
-
+/**
+ * Returns the connection graph for a selected VNet injected service
+ * @param selectedNode 
+ * @param nodes 
+ * @param edges 
+ * @returns A tuple containing the filtered nodes and edges
+ */
 export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: NodeData[], edges: EdgeData[]) => {
-
     const connectedSelectedNodeEdges: EdgeData[] = getEdgesFromNodes([selectedNode], edges);
     const connectedSelectedNodeNodes: NodeData[] = getNodesFromEdges(connectedSelectedNodeEdges, nodes);
 
@@ -114,7 +95,73 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: No
     return [filteredNodesUnique, filteredEdges];
 }
 
-export const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], edges: EdgeData[]) => {
+const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
+    const parentNodes = nodeData.filter(parentNode => {
+        if (parentNode.id === node.parent) {
+            return true;
+        }
+        return false;
+    });
+
+    if (parentNodes.length === 0) {
+        return [];
+    }
+
+    return [...parentNodes, ...getParentNodes(parentNodes[0], nodeData)];
+}
+
+const getChildrenNodes: any = (node: NodeData, nodeData: NodeData[]) => {
+    const childrenNodes = nodeData.filter(childNode => {
+        if (childNode.parent === node.id) {
+            return true;
+        }
+        return false;
+    });
+
+    if (childrenNodes.length === 0) {
+        return [];
+    }
+
+    for (let i = 0; i < childrenNodes.length; i++) {
+        const childNode = childrenNodes[i];
+        const childNodeChildren = getChildrenNodes(childNode, nodeData);
+        childrenNodes.push(...childNodeChildren);
+    }
+
+    return childrenNodes
+
+    // return [...childrenNodes, ...getChildrenNodes(childrenNodes[0], nodeData)];
+}
+
+const getNodesFromEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
+    const connectedNodes = edges.map(edge => {
+        const connectedNode = nodeData.filter(node => {
+            if (node.id === edge.from || node.id === edge.to) {
+                return true;
+            }
+            return false;
+        });
+        return connectedNode;
+    }).flat();
+
+    return [...new Set(connectedNodes)];
+}
+
+const getEdgesFromNodes: any = (nodes: NodeData[], edgeData: EdgeData[]) => {
+    const connectedEdges = nodes.map(node => {
+        const connectedEdge = edgeData.filter(edge => {
+            if (edge.from === node.id || edge.to === node.id) {
+                return true;
+            }
+            return false;
+        });
+        return connectedEdge;
+    }).flat();
+
+    return [...new Set(connectedEdges)];
+}
+
+const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], edges: EdgeData[]) => {
 
     let hubVnetNodes: NodeData[] = [];
     let hubVnetEdges: EdgeData[] = [];

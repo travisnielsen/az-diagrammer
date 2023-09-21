@@ -1,7 +1,7 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { DiagramDataset } from '../types/DiagramDataset';
-import { getConnectionGraphPaaS, getConnectionGraphVnetInjected, getChildrenNodes, getEdgesFromNodes } from '../utility/diagramUtils';
+import { getConnectionGraphPaaS, getConnectionGraphVnetInjected, collapseContainer, expandContainer } from '../utility/diagramUtils';
 
 interface DiagramNodes {
     value: DiagramDataset
@@ -58,41 +58,35 @@ export const diagramSlice = createSlice({
             const selectedNode: NodeData = state.value.visibleNodes.find(node => node.id === selectedNodeId) || { id: '' };
 
             if (selectedNode.data.status === 'open') {
-                const childNodesToHide = getChildrenNodes(selectedNode, state.value.visibleNodes);
-                const hiddenNodes = [...state.value.hiddenNodes, ...childNodesToHide];
-                const displayNodes = state.value.visibleNodes.filter(node => !childNodesToHide.some((n: { id: string; }) => n.id === node.id));
-    
-                const edgesToHide = getEdgesFromNodes(childNodesToHide, state.value.visibleEdges);
-                const hiddenEdges = [...state.value.hiddenEdges, ...edgesToHide];
-                const displayEdges = state.value.visibleEdges.filter(edge => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
-    
+                const [displayNodes, hiddenNodes, displayEdges, hiddenEdges] = collapseContainer(
+                    selectedNode, 
+                    state.value.visibleNodes, 
+                    state.value.hiddenNodes, 
+                    state.value.visibleEdges, 
+                    state.value.hiddenEdges);
+
                 state.value.hiddenNodes = hiddenNodes;
                 state.value.visibleNodes = displayNodes;
                 state.value.hiddenEdges = hiddenEdges;
                 state.value.visibleEdges = displayEdges;
-
                 selectedNode.data.status = 'closed';
-
                 return;
             }
 
             if (selectedNode.data.status === 'closed') {
-
-                const childNodesToDisplay = getChildrenNodes(selectedNode, state.value.hiddenNodes);
-                const hiddenNodes = state.value.hiddenNodes.filter(node => !childNodesToDisplay.some((n: { id: string; }) => n.id === node.id));
-                const displayNodes = [...state.value.visibleNodes, ...childNodesToDisplay];
-    
-                const edgesToDisplay = getEdgesFromNodes(childNodesToDisplay, state.value.hiddenEdges);
-                const hiddenEdges = state.value.hiddenEdges.filter(edge => !edgesToDisplay.some((e: { id: string; }) => e.id === edge.id));
-                const displayEdges = [...state.value.visibleEdges, ...edgesToDisplay];
+                const [displayNodes, hiddenNodes, displayEdges, hiddenEdges] = expandContainer(
+                    selectedNode, 
+                    state.value.visibleNodes,
+                    state.value.hiddenNodes, 
+                    state.value.visibleEdges,
+                    state.value.hiddenEdges
+                    );
     
                 state.value.hiddenNodes = hiddenNodes;
                 state.value.visibleNodes = displayNodes;
                 state.value.hiddenEdges = hiddenEdges;
                 state.value.visibleEdges = displayEdges;
-
                 selectedNode.data.status = 'open';
-
                 return;
             }
 
