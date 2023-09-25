@@ -1,7 +1,8 @@
-import { NodeData, EdgeData } from 'reaflow';
+import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow';
 import { getNodeData, getEdgeData } from './canvasData'
 import { LoadAzureData } from './loadAzureData'
 import { collapseContainer } from '../utility/diagramUtils';
+import { LayoutZone } from '../types/LayoutZone';
 
 export const loadCanvasData = async (connectionString: string, containerName: string): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
 
@@ -34,49 +35,59 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     return hasChildNodes
   }
 
-  // get distinct list of regions from nodeData
-  // const regions = [...new Set(nodeData.map(n => n.data.region))]
+  const containerlayoutOptions: ElkNodeLayoutOptions = {
+    'portConstraints': 'FREE',
+    'elk.padding': '[top=150,left=25,bottom=25,right=25]',
+    'elk.direction': 'RIGHT'
+}
 
-  // add container nodes for regions
-  /*
-  regions.forEach(region => {
-    const existingNode = nodeData.find(n => n.data.type === "region" && n.data.region === region)
-    if (!existingNode && region !== "global") {
-      const newNode = {
-        id: region,
-        data: {
-          type: "region",
-          region: region,
-          label: region,
-          url: ""
-        }
-      }
-      nodeData.push(newNode)
+  // add layout containers
+ nodeData.push( {
+    id: 'container-network-workload',
+    layoutOptions: containerlayoutOptions,
+    data: {
+      type: 'layout',
+      url: ""
     }
   })
-  */
-
-  // add nodes without parent to region
-  /*
-  const nodesWithoutParent = nodeData.filter(n => n.parent == null)
-  nodesWithoutParent.forEach(n => {
-    const regionNode = nodeData.find(nf => nf.data.type === "region" && nf.data.region === n.data.region)
-    if (regionNode) {
-      if (regionNode.id !== n.id) {
-        n.parent = regionNode.id
-      }
+  nodeData.push( {
+    id: 'container-paas',
+    layoutOptions: containerlayoutOptions,
+    data: {
+      type: 'layout',
+      url: ""
     }
   })
-  */
-  
+
+  // separate vnets into core (hub) and workload (spoke) vnets. Add spoke vnets as child nodes to 'container-network-workload' for layout purposes
+  const vnetNodes = nodeData.filter(n => n.data.servicename === "vnet")
+  vnetNodes.forEach(n => {
+
+    const childNodes = nodeData.filter(nf => nf.parent === n.id)
+    const hasGatewaySubnet = childNodes.findIndex(nf => nf.data.label === "GatewaySubnet") > 0
+
+    if (hasGatewaySubnet) {
+      n.data.tier = LayoutZone.NETWORKCORE
+    } else {
+      n.data.tier = LayoutZone.NETWORKWORKLOAD
+      n.parent = 'container-network-workload'
+    }
+
+  })
+
+  const paasNodes = nodeData.filter(n => n.data.tier === LayoutZone.PAAS)
+  paasNodes.forEach(n => {
+      if (!n.parent)  // set top nodes only
+        n.parent = 'container-paas'
+    })
+
   // remove unconnected items
-  
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
   var canvasNodesVisible = nodeData
-    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.data.type === "region" || n.parent != null)
-    .filter(n => n.data.type === "service" || n.data.type === "region" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
+    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.data.type === "layout" || n.data.type === "region" || n.parent != null)
+    .filter(n => n.data.type === "service" || n.data.type === "region" || n.data.type === "layout" ||  (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
   // add nodes with type 'layout' to canvasNodesVisible
   /*
@@ -99,8 +110,13 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   // iterate through all subnets and set data.status to 'closed'.
   const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
   subnetNodes.forEach(n => {
-    [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = collapseContainer(n, canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden)
-    n.data.status = "closed"
+    
+    // collapse subnets except for hub vnets
+    const parent = canvasNodesVisible.find(nf => nf.id === n.parent)
+    if (parent && parent.data.tier !== LayoutZone.NETWORKCORE) {
+      [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = collapseContainer(n, canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden)
+      n.data.status = "closed"
+    }
   })
 
   // if there are > 3 items of the same type within a container, replace them with a substitute node
@@ -121,6 +137,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
           data: {
             type: "summary",
             category: "summary",
+            tier: 'paas',
             serviceName: node.data.servicename,
             label: `${nodesOfType.length} ${node.data.servicename}s`,
             url: node.data.url,

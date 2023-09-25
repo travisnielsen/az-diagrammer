@@ -96,6 +96,11 @@
 
 }
 
+.layout-container {
+  border-style: solid;
+  border-color: black; 
+}
+
 .node-container {
   /* background-color: #1b1d3c; */
   /* fill: #1b1d3c !important; */

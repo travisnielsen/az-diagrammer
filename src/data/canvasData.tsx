@@ -1,6 +1,7 @@
 import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow'
 import configData from "../config.json"
 import { AzureData } from '../types/azure/AzureData'
+import { LayoutZone } from '../types/LayoutZone'
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
@@ -92,7 +93,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'container',
                 category: 'networking',
-                tier: 'private-network',
+                tier: LayoutZone.NETWORKCORE,
                 region: vnet.Location,
                 servicename: 'vnet',
                 label: vnet.Name,
@@ -113,7 +114,6 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'container',
                 category: 'networking',
-                tier: 'private-network',
                 region: vnet.Location,
                 servicename: 'subnet',
                 label: subnet.name,
@@ -136,7 +136,6 @@ export const getNodeData = (azureData: AzureData) => {
                         data: {
                             type: 'service',
                             category: 'networking',
-                            tier: 'private-network',
                             region: securityGroup.Location,
                             servicename: 'nsg',
                             label: securityGroup.Name,
@@ -159,7 +158,6 @@ export const getNodeData = (azureData: AzureData) => {
                 data: {
                     type: 'service',
                     category: 'networking',
-                    tier: 'private-network',
                     region: rt.Location,
                     servicename: 'routetable',
                     label: rt.Name,
@@ -288,6 +286,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                tier: LayoutZone.INGRESS,
                 region: lb.Location,
                 servicename: 'loadbalancer',
                 label: lb.Name,
@@ -346,6 +345,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'storage',
+                tier: LayoutZone.PAAS,
                 region: storage.Location,
                 servicename: 'storage',
                 label: storage.Name,
@@ -364,6 +364,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'databases',
+                tier: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(cosmos.Location),
                 servicename: 'cosmosdb',
                 label: cosmos.Name,
@@ -383,6 +384,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'container',
                 category: 'analytics',
+                tier: LayoutZone.PAAS,
                 region: ehCluster.Location,
                 servicename: 'eventhubcluster',
                 label: ehCluster.Name,
@@ -402,6 +404,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'analytics',
+                tier: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(ehNamespace.Location),
                 servicename: 'eventhub',
                 label: ehNamespace.Name,
@@ -421,6 +424,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'analytics',
+                tier: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(ehNamespace.Location),
                 servicename: 'eventhub',
                 label: ehNamespace.Name,
@@ -440,6 +444,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'integration',
+                tier: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(sbNamespace.Location),
                 servicename: 'servicebus',
                 label: sbNamespace.Name,
@@ -460,6 +465,7 @@ export const getNodeData = (azureData: AzureData) => {
                 data: {
                     type: 'container',
                     category: 'compute',
+                    tier: LayoutZone.PAAS,
                     region: getRegionIdFromFriendlyName(servicePlan.Location),
                     servicename: 'appserviceplan',
                     label: servicePlan.Name,
@@ -479,6 +485,7 @@ export const getNodeData = (azureData: AzureData) => {
                 data: {
                     type: 'service',
                     category: 'compute',
+                    tier: LayoutZone.PAAS,
                     region: getRegionIdFromFriendlyName(funcApp.Location),
                     servicename: 'function',
                     label: funcApp.Name,
@@ -533,6 +540,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                tier: LayoutZone.INGRESS,
                 region: 'global',
                 servicename: 'expressroutecircuit',
                 label: er.Name,
@@ -551,6 +559,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
+                tier: LayoutZone.INGRESS,
                 region: 'global',
                 servicename: 'location',
                 label: er.Properties.serviceProviderProperties.peeringLocation,
@@ -678,8 +687,8 @@ export const getEdgeData = (azureData: AzureData) => {
         .map((appService) => (
             {
                 id: shortId(appService.Id) + '-to-' + shortId(appService.Properties.virtualNetworkSubnetId),
-                from: shortId(appService.Id),
-                to: shortId(appService.Properties.virtualNetworkSubnetId),
+                from: shortId(appService.Properties.virtualNetworkSubnetId),
+                to: shortId(appService.Id), 
                 data: {
                     type: 'vnetintegration'
                 }

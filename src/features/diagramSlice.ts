@@ -63,7 +63,8 @@ export const diagramSlice = createSlice({
                     state.value.visibleNodes, 
                     state.value.hiddenNodes, 
                     state.value.visibleEdges, 
-                    state.value.hiddenEdges);
+                    state.value.hiddenEdges
+                    );
 
                 state.value.hiddenNodes = hiddenNodes;
                 state.value.visibleNodes = displayNodes;
