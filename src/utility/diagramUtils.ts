@@ -11,11 +11,21 @@ import { NodeData, EdgeData } from 'reaflow';
  */
 export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
-    const childNodesToHide = getChildrenNodes(node, nodeDataVisible);
-    const hiddenNodes = [...nodeDataHidden, ...childNodesToHide];
-    const displayNodes = nodeDataVisible.filter(node => !childNodesToHide.some((n: { id: string; }) => n.id === node.id));
+    const nodesToHide = getChildrenNodes(node, nodeDataVisible);
+    const edgesToHide = getEdgesFromNodes(nodesToHide, edgeDataVisible);
 
-    const edgesToHide = getEdgesFromNodes(childNodesToHide, edgeDataVisible);
+    // TODO: re-factor into a separate function and account for external nodes that still have valid connections
+    const externalNodesToHide = getNodesFromEdges(edgesToHide, nodeDataVisible).map((node: any) => {
+        if (!nodesToHide.some((n: { id: string; }) => n.id === node.id)) {
+            return node;
+        }
+    }).filter((node: any) => node !== undefined);
+
+    nodesToHide.push(...externalNodesToHide);
+
+    const hiddenNodes = [...nodeDataHidden, ...nodesToHide];
+    const displayNodes = nodeDataVisible.filter(node => !nodesToHide.some((n: { id: string; }) => n.id === node.id));
+
     const hiddenEdges = [...edgeDataHidden, ...edgesToHide];
     const displayEdges = edgeDataVisible.filter(edge => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
 
@@ -33,11 +43,20 @@ export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData
  */
 export const expandContainer: any = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
-    const childNodesToDisplay = getChildrenNodes(node, nodeDataHidden);
-    const hiddenNodes = nodeDataHidden.filter(node => !childNodesToDisplay.some((n: { id: string; }) => n.id === node.id));
-    const displayNodes = [...nodeDataVisible, ...childNodesToDisplay];
+    const nodesToDisplay = getChildrenNodes(node, nodeDataHidden);
+    const edgesToDisplay = getEdgesFromNodes(nodesToDisplay, edgeDataHidden);
 
-    const edgesToDisplay = getEdgesFromNodes(childNodesToDisplay, edgeDataHidden);
+    const externalNodesToDisplay = getNodesFromEdges(edgesToDisplay, nodeDataHidden).map((node: any) => {
+        if (!nodesToDisplay.some((n: { id: string; }) => n.id === node.id)) {
+            return node;
+        }
+    }).filter((node: any) => node !== undefined);
+
+    nodesToDisplay.push(...externalNodesToDisplay);
+
+    const hiddenNodes = nodeDataHidden.filter(node => !nodesToDisplay.some((n: { id: string; }) => n.id === node.id));
+    const displayNodes = [...nodeDataVisible, ...nodesToDisplay];
+
     const hiddenEdges = edgeDataHidden.filter(edge => !edgesToDisplay.some((e: { id: string; }) => e.id === edge.id));
     const displayEdges = [...edgeDataVisible, ...edgesToDisplay];
 
@@ -129,8 +148,6 @@ const getChildrenNodes: any = (node: NodeData, nodeData: NodeData[]) => {
     }
 
     return childrenNodes
-
-    // return [...childrenNodes, ...getChildrenNodes(childrenNodes[0], nodeData)];
 }
 
 const getNodesFromEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
