@@ -12,23 +12,13 @@ import { NodeData, EdgeData } from 'reaflow';
 export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
     const nodesToHide = getChildrenNodes(node, nodeDataVisible);
-    const edgesToHide = getEdgesFromNodes(nodesToHide, edgeDataVisible);
-
-    // TODO: re-factor into a separate function and account for external nodes that still have valid connections
-    const externalNodesToHide = getNodesFromEdges(edgesToHide, nodeDataVisible).map((node: any) => {
-        if (!nodesToHide.some((n: { id: string; }) => n.id === node.id)) {
-            return node;
-        }
-    }).filter((node: any) => node !== undefined);
-
+    const edgesToHide = getEdgesFromNodes(nodesToHide, edgeDataVisible);    
+    const externalNodesToHide = getExternalNodesToHide(nodeDataVisible, edgeDataVisible, edgesToHide);
     nodesToHide.push(...externalNodesToHide);
-
     const hiddenNodes = [...nodeDataHidden, ...nodesToHide];
     const displayNodes = nodeDataVisible.filter(node => !nodesToHide.some((n: { id: string; }) => n.id === node.id));
-
     const hiddenEdges = [...edgeDataHidden, ...edgesToHide];
     const displayEdges = edgeDataVisible.filter(edge => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
-
     return [displayNodes, hiddenNodes, displayEdges, hiddenEdges];
 }
 
@@ -150,6 +140,12 @@ const getChildrenNodes: any = (node: NodeData, nodeData: NodeData[]) => {
     return childrenNodes
 }
 
+/**
+ * 
+ * @param edges
+ * @param nodeData
+ * @returns A list of nodes connected to the edges
+ */
 const getNodesFromEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
     const connectedNodes = edges.map(edge => {
         const connectedNode = nodeData.filter(node => {
@@ -219,4 +215,28 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
     const hybridNetworkingNodes: NodeData[] = [...hubVnetNodes, ...hubVnetChildren, ...hybridNetworkConnectionNodes, ...peeringLocationNodes].flat();
     const hybridNetworkingEdges: EdgeData[] = [...hubVnetEdges, ...hybridNetworkConnectionEdges, ...peeringLocationEdges].flat();
     return [hybridNetworkingNodes, hybridNetworkingEdges]
+}
+
+/**
+ * 
+ * @param visibleNodes All visibile nodes
+ * @param edges Edges that are to be hidden
+ * @returns 
+ */
+const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData[], edgesToHide: EdgeData[]): NodeData[] => {
+
+    // TODO: re-factor into a separate function and account for external nodes that still have valid connections
+    const externalNodesToHide = getNodesFromEdges(edgesToHide, visibleNodes).map((node: any) => {
+        if (visibleNodes.some((n: { id: string; }) => n.id === node.id)) {
+            // node is visible and might need to be hidden
+            // get list of edges connected to node that are not in edgesToHide
+            const connectedEdges = visibleEdges.filter(edge => edge.from === node.id || edge.to === node.id).filter((edge: { id: string; }) => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
+            if (connectedEdges.length === 0) {
+                return node;
+            }
+        }
+    }).filter((node: any) => node !== undefined);
+
+    return externalNodesToHide;
+
 }
