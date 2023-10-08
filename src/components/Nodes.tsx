@@ -7,6 +7,7 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
 
   const nodeProps = node;
   const nodeType = nodeProps?.properties?.data?.type;
+  const nodeCategory = nodeProps?.properties?.data?.category;
 
   const onNodeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
     console.log(`node clicked (${nodeType})`, 'node:', nodeProps.id);
@@ -85,6 +86,59 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
       )
       
       case 'container':
+        if (nodeCategory === 'layout') {
+          return (
+            <Node >
+              <foreignObject        
+                id={`node-foreignObject-${nodeProps.id}`}
+                height={nodeProps.height}
+                width={nodeProps.width} x={0} y={0}
+                className='layout-container'
+              >
+              </foreignObject>
+            </Node>
+          ) 
+        }
+
+        if (nodeCategory === 'region') {
+          return (
+            <Node >
+            <foreignObject        
+              id={`node-foreignObject-${nodeProps.id}`}
+              height={nodeProps.height}
+              width={nodeProps.width} x={0} y={0}
+            >
+              <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
+                <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>              
+              </div>
+            </foreignObject>
+          </Node>   
+          )
+        }
+
+        if (nodeCategory === 'summary') {
+          return (
+            <Node >
+              <foreignObject        
+                id={`node-foreignObject-${nodeProps.id}`}
+                height={nodeProps.height}
+                width={nodeProps.width} x={0} y={0}
+                // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
+                onClick={onNodeClick as MouseEventHandler}
+                onMouseEnter={onNodeEnter as MouseEventHandler}
+                onMouseLeave={onNodeLeave as MouseEventHandler}
+              >
+                <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
+                  <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>          
+                  <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
+                  <p style={{ color: 'white', margin: 0 }}>Click to expand</p>      
+                </div>
+              </foreignObject>
+            </Node>
+          )
+
+        }
+
         return (
             <Node className='node-container' >
               <foreignObject id={`node-foreignObject-${nodeProps.id}`}
@@ -102,54 +156,6 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
             </Node>
       )
       
-      case 'summary':
-        return (
-          <Node >
-            <foreignObject        
-              id={`node-foreignObject-${nodeProps.id}`}
-              height={nodeProps.height}
-              width={nodeProps.width} x={0} y={0}
-              // Use the same onClick/onMouseEnter/onMouseLeave handlers as the one used by the Node component, to yield the same behavior whether clicking on the <rect> or on the <foreignObject> element
-              onClick={onNodeClick as MouseEventHandler}
-              onMouseEnter={onNodeEnter as MouseEventHandler}
-              onMouseLeave={onNodeLeave as MouseEventHandler}
-            >
-              <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
-                <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>          
-                <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
-                <p style={{ color: 'white', margin: 0 }}>Click to expand</p>      
-              </div>
-            </foreignObject>
-          </Node>
-        )
-      
-      case 'layout':
-        return (
-          <Node >
-            <foreignObject        
-              id={`node-foreignObject-${nodeProps.id}`}
-              height={nodeProps.height}
-              width={nodeProps.width} x={0} y={0}
-              className='layout-container'
-            >
-            </foreignObject>
-          </Node>
-        )     
-      
-      case 'region':
-        return (
-          <Node >
-          <foreignObject        
-            id={`node-foreignObject-${nodeProps.id}`}
-            height={nodeProps.height}
-            width={nodeProps.width} x={0} y={0}
-          >
-            <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
-              <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>              
-            </div>
-          </foreignObject>
-        </Node>   
-        )
          
       default:  
         return ( <Node /> )

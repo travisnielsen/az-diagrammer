@@ -15,7 +15,8 @@ export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData
     const edgesToHide = getEdgesFromNodes(nodesToHide, edgeDataVisible);    
     const externalNodesToHide = getExternalNodesToHide(nodeDataVisible, edgeDataVisible, edgesToHide);
     nodesToHide.push(...externalNodesToHide);
-    const hiddenNodes = [...nodeDataHidden, ...nodesToHide];
+    // TODO: Logic in teh above methods is resulting in duplicate nodes. Look into this. Fixed for now by using Set
+    const hiddenNodes = [...new Set([...nodeDataHidden, ...nodesToHide])];
     const displayNodes = nodeDataVisible.filter(node => !nodesToHide.some((n: { id: string; }) => n.id === node.id));
     const hiddenEdges = [...edgeDataHidden, ...edgesToHide];
     const displayEdges = edgeDataVisible.filter(edge => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));

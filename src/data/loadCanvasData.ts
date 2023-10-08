@@ -23,8 +23,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     const filteredServices = ["routetable", "nsg"]
     let hasChildNodes = false
+
     if (node.data.type === "container") {
-      hasChildNodes = nodeData.findIndex(n => n.parent === node.id ) > 0
+      hasChildNodes = nodeData.findIndex(n => n.parent === node.id ) >= 0
       
       if (hasChildNodes && node.data.servicename === "subnet") {
         const childNodes = nodeData.filter(n => n.parent === node.id && !filteredServices.includes(n.data.servicename))
@@ -46,7 +47,8 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     id: 'container-network-workload',
     layoutOptions: containerlayoutOptions,
     data: {
-      type: 'layout',
+      type: 'container',
+      category: 'layout',
       url: ""
     }
   })
@@ -54,7 +56,8 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     id: 'container-paas',
     layoutOptions: containerlayoutOptions,
     data: {
-      type: 'layout',
+      type: 'container',
+      category: 'layout',
       url: ""
     }
   })
@@ -81,23 +84,20 @@ export const loadCanvasData = async (connectionString: string, containerName: st
         n.parent = 'container-paas'
     })
 
-  // remove unconnected items
+  // remove unconnected items unless they are containers or have a parent node
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
-  var canvasNodesVisible = nodeData
-    .filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.data.type === "layout" || n.data.type === "region" || n.parent != null)
-    .filter(n => n.data.type === "service" || n.data.type === "region" || n.data.type === "layout" ||  (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
+  var canvasNodesVisible = nodeData.filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
+
+  // remove empty containers
+  canvasNodesVisible = canvasNodesVisible.filter(n => n.data.type === "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
-  // add nodes with type 'layout' to canvasNodesVisible
-  /*
-  const layoutNodes = nodeData.filter(n => n.data.type === "layout")
-  layoutNodes.forEach(n => {
-    const existingNode = canvasNodesVisible.find(nf => nf.id === n.id)
-    if (!existingNode)
-      canvasNodesVisible.push(n)
-  })
-  */
+  // remove paasNodes that do not have connections
+  const paasNodesDisconnected = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
+
+  // remove items in paasNodesDisconnected from canvasNodesVisible
+  canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnected.includes(n.id))
 
   // remove edges that don't have valid targets
   var canvasEdgesVisible = edgeData
@@ -110,7 +110,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   // iterate through all subnets and set data.status to 'closed'.
   const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
   subnetNodes.forEach(n => {
-    
     // collapse subnets except for hub vnets
     const parent = canvasNodesVisible.find(nf => nf.id === n.parent)
     if (parent && parent.data.tier !== LayoutZone.NETWORKCORE) {
@@ -119,9 +118,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     }
   })
 
-  // if there are > 3 items of the same type within a container, replace them with a substitute node
-  
-  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && n.data.servicename !== "vnet").map(n => n.id)
+  // if there are > 3 items of the same type within a 'compute' or 'analytics' container, replace them with a substitute node
+  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && (n.data.category === 'compute' || n.data.category == 'analytics') )
+    .map(n => n.id)
   containerIds.forEach(id => {
     const childNodes = canvasNodesVisible.filter(n => n.parent === id)
     const childNodeServiceNames = [...new Set(childNodes.map(n => n.data.servicename))]
@@ -135,7 +134,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
           height: 110,
           width: 250,
           data: {
-            type: "summary",
+            type: "container",
             category: "summary",
             tier: 'paas',
             serviceName: node.data.servicename,
