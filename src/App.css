@@ -123,6 +123,11 @@
   stroke-width: 2px !important;
 }
 
+.node-subnet {
+  border-style: dashed;
+  border-color: violet;
+}
+
 
 /* Hide scrollbars. Currently unable to control canvas layout size */
 ::-webkit-scrollbar {

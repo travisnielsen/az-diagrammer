@@ -140,11 +140,11 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
         }
 
         return (
-            <Node className='node-container' >
+            <Node className={nodeProps.className} >
               <foreignObject id={`node-foreignObject-${nodeProps.id}`}
                 height={nodeProps.height}
                 width={nodeProps.width} x={0} y={0}
-                className='node-container'
+                className={nodeProps.className}
                 onClick={onNodeClick as MouseEventHandler}
               >
                   <div className='node-container-wrapper'>
@@ -154,7 +154,7 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
                   </div>
               </foreignObject>
             </Node>
-      )
+        )
       
          
       default:  

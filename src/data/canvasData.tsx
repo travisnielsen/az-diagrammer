@@ -89,6 +89,7 @@ export const getNodeData = (azureData: AzureData) => {
             // parent: 'private-network',
             height: 200,
             width: 750,
+            class : 'node-container node-vnet',
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
@@ -110,6 +111,7 @@ export const getNodeData = (azureData: AzureData) => {
             parent: shortId(vnet.Id),
             height: 120,
             width: 700,
+            className: 'node-container node-subnet',
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
