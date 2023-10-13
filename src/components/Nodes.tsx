@@ -78,7 +78,7 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
             >
               <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>
                   <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>
-                  <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
+                  <img src={nodeProps.properties.data.url} alt="A Function App" width="50" height="50" />
                   <p style={{ color: 'white', margin: 0  }}>{nodeProps.properties.data.info}</p>
               </div>
             </foreignObject>
@@ -130,7 +130,7 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
               >
                 <div style={{ padding: 5, textAlign: 'center', display: 'block' }}>          
                   <h5 style={{ color: 'white', margin: '6px' }}>{nodeProps.properties.data.label}</h5>          
-                  <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
+                  <img src={nodeProps.properties.data.url} alt="A Function App" width="50" height="50" />
                   <p style={{ color: 'white', margin: 0 }}>Click to expand</p>      
                 </div>
               </foreignObject>
@@ -149,7 +149,7 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
               >
                   <div className='node-container-wrapper'>
                       <h5 style={{ color: 'white', margin: 5 }}>{nodeProps.properties.data.label}</h5>
-                      <img src={nodeProps.properties.data.url} alt="A Function App" width="40" height="40" />
+                      <img src={nodeProps.properties.data.url} alt="A Function App" width="50" height="50" />
                           <p style={{ color: 'white', margin: 0 }}>{nodeProps.properties.data.info}</p>
                   </div>
               </foreignObject>
