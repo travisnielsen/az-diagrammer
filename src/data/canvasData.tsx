@@ -288,7 +288,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
-                tier: LayoutZone.INGRESS,
+                tier: LayoutZone.PAAS,
                 region: lb.Location,
                 servicename: 'loadbalancer',
                 label: lb.Name,
@@ -630,8 +630,8 @@ export const getEdgeData = (azureData: AzureData) => {
             return distinctIds.map(id => (
                 {
                     id: lb.Name + shortId(id),
-                    from: shortId(lb.Id),
-                    to: shortId(id),
+                    from: shortId(id),
+                    to: shortId(lb.Id),
                     text: "load balancing"
                 }
             ));

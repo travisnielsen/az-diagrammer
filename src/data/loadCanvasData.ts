@@ -32,7 +32,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
         if (childNodes.length === 0) hasChildNodes = false
       }
     }
-
     return hasChildNodes
   }
 
@@ -40,27 +39,56 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     'portConstraints': 'FREE',
     'elk.padding': '[top=150,left=25,bottom=25,right=25]',
     'elk.direction': 'RIGHT'
-}
+  }
+
+  // get distinct list of regions from nodeData
+  const regions = [...new Set(nodeData.map(n => n.data.region))]
+
+  // TODO: adding more parent containers for layout control breaks edge rendering. Setting edge parents does not seem to work. See: https://github.com/reaviz/reaflow/issues/87
+  
+  // add nodes for regions
+  /*
+  regions.forEach(region => {
+    const existingNode = nodeData.find(n => n.data.category === "region" && n.data.region === region)
+    if (!existingNode && region !== "global") {
+      const newNode = {
+        id: region,
+        layoutOptions: containerlayoutOptions,
+        data: {
+          type: "container",
+          category: "region",
+          region: region,
+          label: region,
+          url: ""
+        }
+      }
+      nodeData.push(newNode)
+    }
+  })
+  */
+
+  regions.forEach(region => {
+    nodeData.push( {
+      id: `container-network-workload-${region}`,
+      layoutOptions: containerlayoutOptions,
+      data: {
+        type: 'container',
+        category: 'layout',
+        url: ""
+      }
+    })
+    nodeData.push( {
+      id: `container-paas-${region}`,
+      layoutOptions: containerlayoutOptions,
+      data: {
+        type: 'container',
+        category: 'layout',
+        url: ""
+      }
+    })
+  })
 
   // add layout containers
- nodeData.push( {
-    id: 'container-network-workload',
-    layoutOptions: containerlayoutOptions,
-    data: {
-      type: 'container',
-      category: 'layout',
-      url: ""
-    }
-  })
-  nodeData.push( {
-    id: 'container-paas',
-    layoutOptions: containerlayoutOptions,
-    data: {
-      type: 'container',
-      category: 'layout',
-      url: ""
-    }
-  })
 
   // separate vnets into core (hub) and workload (spoke) vnets. Add spoke vnets as child nodes to 'container-network-workload' for layout purposes
   const vnetNodes = nodeData.filter(n => n.data.servicename === "vnet")
@@ -73,15 +101,14 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       n.data.tier = LayoutZone.NETWORKCORE
     } else {
       n.data.tier = LayoutZone.NETWORKWORKLOAD
-      n.parent = 'container-network-workload'
+      n.parent = `container-network-workload-${n.data.region}`
     }
-
   })
 
   const paasNodes = nodeData.filter(n => n.data.tier === LayoutZone.PAAS)
   paasNodes.forEach(n => {
       if (!n.parent)  // set top nodes only
-        n.parent = 'container-paas'
+        n.parent = `container-paas-${n.data.region}`
     })
 
   // remove unconnected items unless they are containers or have a parent node
@@ -200,6 +227,24 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       }
     })
   })
+
+  // set the parent of all edges to the parent of the 'from' node
+  /*
+  canvasEdgesVisible.forEach(e => {
+    const fromNode = canvasNodesVisible.find(n => n.id === e.from)
+    if (fromNode) {
+      e.parent = fromNode.parent
+    }
+  })
+
+  canvasEdgesHidden.forEach(e => {
+    const fromNode = canvasNodesVisible.find(n => n.id === e.from)
+    if (fromNode) {
+      e.parent = fromNode.parent
+    }
+  })
+  */
+
   
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }

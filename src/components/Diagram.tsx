@@ -139,6 +139,7 @@ const Diagram: React.FC = () => {
             direction='RIGHT'
             nodes={nodes}
             edges={edges}
+            arrow={null}
             fit={true}
             node={(nodeProps: NodeProps) => Nodes(nodeProps, dispatch)}
             // only renders nodes without parents!!
