@@ -89,7 +89,7 @@ export const getNodeData = (azureData: AzureData) => {
             // parent: 'private-network',
             height: 200,
             width: 750,
-            class : 'node-container node-vnet',
+            className: 'node-container',
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
@@ -111,7 +111,7 @@ export const getNodeData = (azureData: AzureData) => {
             parent: shortId(vnet.Id),
             height: 120,
             width: 700,
-            className: 'node-container node-subnet',
+            className: 'node-container',
             layoutOptions: containerlayoutOptions,
             data: {
                 type: 'container',
@@ -589,9 +589,10 @@ export const getEdgeData = (azureData: AzureData) => {
                 id: peering.id,
                 from: shortId(peering.properties.remoteVirtualNetwork.id),
                 to: shortId(vnet.Id),
+                className: 'edge-vnet-peering',
                 text: 'peering',
                 data: {
-                    type: 'vnet-peering'
+                    type: 'vnetpeering'
                 }
             }
         ))).flat()
@@ -612,7 +613,10 @@ export const getEdgeData = (azureData: AzureData) => {
                     parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet?.id),
                     from: shortId(lb.Id),
                     to: shortId(id),
-                    text: "load balancing"
+                    text: "load balancing",
+                    data: {
+                        type: 'loabalancing'
+                    }
                 }
             ));
         }).flat()
@@ -632,7 +636,10 @@ export const getEdgeData = (azureData: AzureData) => {
                     id: lb.Name + shortId(id),
                     from: shortId(id),
                     to: shortId(lb.Id),
-                    text: "load balancing"
+                    text: "load balancing",
+                    data: {
+                        type: 'loabalancing'
+                    }
                 }
             ));
         }).flat()
@@ -645,7 +652,10 @@ export const getEdgeData = (azureData: AzureData) => {
                     id: shortId(vnetRule.id + "-to-" + shortId(storage.Id)),
                     from: shortId(vnetRule.id),
                     to: shortId(storage.Id),
-                    text: ''
+                    text: '',
+                    data: {
+                        type: 'serviceendpointrule'
+                    }
                 }
             ))).flat()
     
@@ -658,7 +668,10 @@ export const getEdgeData = (azureData: AzureData) => {
                     id: shortId(vnetRule.id) + "-to-" + shortId(cosmos.Id),
                     from: shortId(vnetRule.id),
                     to: shortId(cosmos.Id),
-                    text: ''
+                    text: '',
+                    data: {
+                        type: 'serviceendpointrule'
+                    }
                 }
             ))
         ).flat()
@@ -669,7 +682,10 @@ export const getEdgeData = (azureData: AzureData) => {
                 id: shortId(rule.SubnetId) + '-to-' + shortId(getParentIdForRulesetId(ehruleset.Id)),
                 from: shortId(rule.SubnetId),
                 to: shortId(getParentIdForRulesetId(ehruleset.Id)),
-                text: ''
+                text: '',
+                data: {
+                    type: 'serviceendpointrule'
+                }
             }
         ))
     ).flat()
@@ -680,7 +696,10 @@ export const getEdgeData = (azureData: AzureData) => {
                 id: shortId(rule.SubnetId) + '-to-' + shortId(getParentIdForRulesetId(sbruleset.Id)),
                 from: shortId(rule.SubnetId),
                 to: shortId(getParentIdForRulesetId(sbruleset.Id)),
-                text: ''
+                text: '',
+                data: {
+                    type: 'serviceendpointrule'
+                }
             }
         ))
     ).flat()
@@ -703,7 +722,10 @@ export const getEdgeData = (azureData: AzureData) => {
             id: shortId(conn.Id),
             from: shortId(conn.Properties.peer?.id),
             to: shortId(conn.Properties.virtualNetworkGateway1.id),
-            text: "Routing Weight: " + conn.Properties.routingWeight
+            text: "Routing Weight: " + conn.Properties.routingWeight,
+            data: {
+                    type: 'expressroute'
+            }
         }
     ))
 
@@ -715,7 +737,12 @@ export const getEdgeData = (azureData: AzureData) => {
         {
                 id: shortId(conn.Properties.peer?.id) + "-to-peering-location",
                 from: getIdFromText(azureData.expressRouteCircuits.find((er: { Id: any; }) => er.Id === conn.Properties.peer?.id)?.Properties.serviceProviderProperties.peeringLocation),
-                to: shortId(conn.Properties.peer?.id)
+                to: shortId(conn.Properties.peer?.id),
+                text: '',
+                data: {
+                    type: 'expressroute'
+                }
+
         }
     ))
     

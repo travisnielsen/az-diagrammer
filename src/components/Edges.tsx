@@ -88,9 +88,9 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
             return (
                 <Edge {...edge} style={{ stroke: 'blue' }} className='edge' onClick={onEdgeClick} />
             )
-        case 'vnet-peering':
+        case 'vnetpeering':
             return (
-                <Edge {...edge} style={{ stroke: 'purple' }} className='edge' onClick={onEdgeClick} />
+                <Edge {...edge} className={edge.className } onClick={onEdgeClick} />
             )         
         default:
             return (

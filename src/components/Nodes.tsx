@@ -88,15 +88,9 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
       case 'container':
         if (nodeCategory === 'layout') {
           return (
-            <Node >
-              <foreignObject        
-                id={`node-foreignObject-${nodeProps.id}`}
-                height={nodeProps.height}
-                width={nodeProps.width} x={0} y={0}
-                className='layout-container'
-              >
-              </foreignObject>
-            </Node>
+            <Node className={nodeProps.className} />
+              
+
           ) 
         }
 

@@ -80,6 +80,11 @@
   height: 100%;
 }
 
+.edge-vnet-peering {
+  stroke: purple !important;
+  stroke-width: .3cap !important;
+}
+
 .navbar-row-2 {
   margin-top: 10px;
 }
@@ -98,7 +103,11 @@
 
 .layout-container {
   border-style: solid;
-  border-color: black; 
+  stroke: black !important;
+}
+
+.region-container {
+  stroke: aqua !important;
 }
 
 .node-container {
@@ -128,6 +137,10 @@
   border-color: violet;
 }
 
+.node-vnet-peered {
+  stroke: purple !important;
+  stroke-width: .5cap !important;
+}
 
 /* Hide scrollbars. Currently unable to control canvas layout size */
 ::-webkit-scrollbar {

@@ -35,25 +35,29 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     return hasChildNodes
   }
 
-  const containerlayoutOptions: ElkNodeLayoutOptions = {
+  const regionContainerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
-    'elk.padding': '[top=150,left=25,bottom=25,right=25]',
+    'elk.padding': '[top=100,left=50,bottom=50,right=50]',
+    'elk.direction': 'RIGHT'
+  }
+
+  const layoutContainerlayoutOptions: ElkNodeLayoutOptions = {
+    'portConstraints': 'FREE',
+    'elk.padding': '[top=0,left=0,bottom=0,right=0]',
     'elk.direction': 'RIGHT'
   }
 
   // get distinct list of regions from nodeData
   const regions = [...new Set(nodeData.map(n => n.data.region))]
-
-  // TODO: adding more parent containers for layout control breaks edge rendering. Setting edge parents does not seem to work. See: https://github.com/reaviz/reaflow/issues/87
   
   // add nodes for regions
-  /*
   regions.forEach(region => {
     const existingNode = nodeData.find(n => n.data.category === "region" && n.data.region === region)
     if (!existingNode && region !== "global") {
       const newNode = {
         id: region,
-        layoutOptions: containerlayoutOptions,
+        layoutOptions: regionContainerlayoutOptions,
+        className: 'region-container',
         data: {
           type: "container",
           category: "region",
@@ -65,12 +69,14 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       nodeData.push(newNode)
     }
   })
-  */
+  
 
   regions.forEach(region => {
     nodeData.push( {
       id: `container-network-workload-${region}`,
-      layoutOptions: containerlayoutOptions,
+      layoutOptions: layoutContainerlayoutOptions,
+      parent: region,
+      className: 'layout-container',
       data: {
         type: 'container',
         category: 'layout',
@@ -79,7 +85,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     })
     nodeData.push( {
       id: `container-paas-${region}`,
-      layoutOptions: containerlayoutOptions,
+      layoutOptions: layoutContainerlayoutOptions,
+      parent: region,
+      className: 'layout-container',
       data: {
         type: 'container',
         category: 'layout',
@@ -99,6 +107,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
 
     if (hasGatewaySubnet) {
       n.data.tier = LayoutZone.NETWORKCORE
+      n.parent = n.data.region
     } else {
       n.data.tier = LayoutZone.NETWORKWORKLOAD
       n.parent = `container-network-workload-${n.data.region}`
@@ -228,22 +237,42 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     })
   })
 
-  // set the parent of all edges to the parent of the 'from' node
-  /*
+  // Set parent nodes to edges to address layout issues with deep nesting. See: https://github.com/reaviz/reaflow/issues/87
+
   canvasEdgesVisible.forEach(e => {
     const fromNode = canvasNodesVisible.find(n => n.id === e.from)
     if (fromNode) {
-      e.parent = fromNode.parent
+      if (fromNode.parent)
+        e.parent = fromNode.data.region
     }
   })
 
+
   canvasEdgesHidden.forEach(e => {
-    const fromNode = canvasNodesVisible.find(n => n.id === e.from)
+    // TODO: Consider re-factoring this logic to include both hidden and visible nodes in the same loop
+    const fromNode = canvasNodesHidden.find(n => n.id === e.from)
+    const toNode = canvasNodesHidden.find(n => n.id === e.to)
     if (fromNode) {
-      e.parent = fromNode.parent
+      if (fromNode.parent) {
+        const parentNodeFrom = canvasNodesVisible.find(n => n.id === fromNode?.parent)
+        const parentnodeTo = canvasNodesVisible.find(n => n.id === toNode?.parent)
+        if (parentNodeFrom?.id === parentnodeTo?.id) {
+          e.parent = parentNodeFrom?.id
+        }
+        else {
+          e.parent = fromNode.data.region
+        }
+      }
     }
   })
-  */
+
+  // get nodes that are the from or two of an edge that has data.type === 'vnet-peering'
+  const vnetPeeringEdges = canvasEdgesVisible.filter(e => e.data.type === 'vnetpeering')
+  const vnetPeeringNodes = [...new Set([...vnetPeeringEdges.map(e => e.from), ...vnetPeeringEdges.map(e => e.to)])]
+  const vnetPeeringNodesData = canvasNodesVisible.filter(n => vnetPeeringNodes.includes(n.id))
+  vnetPeeringNodesData.forEach(n => {
+    n.className = n.className + ' node-vnet-peered'
+  })
 
   
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
