@@ -83,7 +83,7 @@ export const getNodeData = (azureData: AzureData) => {
         .map((routeTable) => routeTable.Properties.routes?.filter((route) => route.properties.addressPrefix.includes("0.0.0.0/0"))
         .map((r: { properties: { nextHopIpAddress: any; }; }) => r.properties.nextHopIpAddress)).flat()
 
-    const vnets: NodeData[] = azureData.virtualNetworks.filter((vnet) => vnet.Location.includes(configData.region)).map((vnet) => (
+    const vnets: NodeData[] = azureData.virtualNetworks.map((vnet) => (
         {
             id: shortId(vnet.Id),
             // parent: 'private-network',
@@ -105,7 +105,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const subnets: NodeData[] = azureData.virtualNetworks.filter((vnet) => vnet.Location.includes(configData.region)).map((vnet) => vnet.Properties.subnets.map((subnet) => (
+    const subnets: NodeData[] = azureData.virtualNetworks.map((vnet) => vnet.Properties.subnets.map((subnet) => (
         {
             id: shortId(subnet.id),
             parent: shortId(vnet.Id),
@@ -126,8 +126,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))).flat()
 
-    const nsgs: NodeData[] = azureData.virtualNetworks.filter((vnet) => vnet.Location.includes(configData.region))
-        .map((vnet: { Properties: { subnets: any[]; }; }) => vnet.Properties.subnets
+    const nsgs: NodeData[] = azureData.virtualNetworks.map((vnet: { Properties: { subnets: any[]; }; }) => vnet.Properties.subnets
             .map((subnet) => azureData.networkSecurityGroups.filter((nsg: { Id: any; }) => nsg.Id === subnet.properties.networkSecurityGroup?.id)
                 .map((securityGroup) => (
                     {
@@ -148,8 +147,7 @@ export const getNodeData = (azureData: AzureData) => {
         )))).flat().flat()
 
 
-    const routeTables: NodeData[] = azureData.virtualNetworks.filter((vnet) => vnet.Location.includes(configData.region))
-    .map((vnet: { Properties: { subnets: any[]; }; }) => vnet.Properties.subnets
+    const routeTables: NodeData[] = azureData.virtualNetworks.map((vnet: { Properties: { subnets: any[]; }; }) => vnet.Properties.subnets
         .map((subnet) => azureData.routeTables.filter((route: { Id: any; }) => route.Id === subnet.properties.routeTable?.id)
             .map((rt) => (
             {
@@ -169,7 +167,7 @@ export const getNodeData = (azureData: AzureData) => {
             }
         )))).flat().flat()
 
-    const vmScaleSets: NodeData[] = azureData.virtualMachineScaleSets.filter((vmss) => vmss.Location.includes(configData.region)).map((vmss) => (
+    const vmScaleSets: NodeData[] = azureData.virtualMachineScaleSets.map((vmss) => (
         {
             id: shortId(vmss.Id),
             parent: shortId(vmss.Properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].properties.ipConfigurations[0].properties.subnet.id),
@@ -187,7 +185,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const dataBricksPublic: NodeData[] = azureData.databricksWorkspaces.filter((workspace) => workspace.Location.includes(configData.region)).map((workspace) => (
+    const dataBricksPublic: NodeData[] = azureData.databricksWorkspaces.map((workspace) => (
         {
             id: shortId(workspace.Id) + "-public",
             parent: shortId(workspace.Properties.parameters.customVirtualNetworkId.value + "/subnets/" + workspace.Properties.parameters.customPublicSubnetName.value),
@@ -205,7 +203,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const dataBricksPrivate: NodeData[] = azureData.databricksWorkspaces.filter((workspace) => workspace.Location.includes(configData.region)).map((workspace) => (
+    const dataBricksPrivate: NodeData[] = azureData.databricksWorkspaces.map((workspace) => (
         {
             id: shortId(workspace.Id) + "-private",
             parent: shortId(workspace.Properties.parameters.customVirtualNetworkId.value + "/subnets/" + workspace.Properties.parameters.customPrivateSubnetName.value),
@@ -223,7 +221,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const redisCache: NodeData[] = azureData.redisCache.filter((r) => getRegionIdFromFriendlyName(r.Location) === configData.region).map((redis) => (
+    const redisCache: NodeData[] = azureData.redisCache.map((redis) => (
         {
             id: shortId(redis.Id),
             parent: shortId(redis.Properties.subnetId),
@@ -241,8 +239,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const apiManagementInternal: NodeData[] = azureData.apiManagement.filter((a) => getRegionIdFromFriendlyName(a.Location) === configData.region && a.Properties.virtualNetworkType === "Internal")
-        .map((apim) => (
+    const apiManagementInternal: NodeData[] = azureData.apiManagement.filter((a) => a.Properties.virtualNetworkType === "Internal").map((apim) => (
         {
             id: shortId(apim.Id),
             parent: shortId(apim.Properties.virtualNetworkConfiguration.subnetResourceId),
@@ -262,7 +259,7 @@ export const getNodeData = (azureData: AzureData) => {
 
 
     // NOTE: Need to split load balancer source json due to schema differences between public and private configurations
-    const loadBalancersPrivate: NodeData[] = azureData.loadBalancers.filter((lb) => lb.Location === configData.region && lb.Properties.frontendIPConfigurations[0].properties.subnet != null).map((lb) => (
+    const loadBalancersPrivate: NodeData[] = azureData.loadBalancers.filter((lb) => lb.Properties.frontendIPConfigurations[0].properties.subnet != null).map((lb) => (
         {
             id: shortId(lb.Id),
             parent: shortId(lb.Properties.frontendIPConfigurations[0].properties.subnet?.id),
@@ -280,7 +277,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const loadBalancersPublic: NodeData[] = azureData.loadBalancers.filter((lb) => lb.Location === configData.region && lb.Properties.frontendIPConfigurations[0].properties.publicIPAddress != null).map((lb) => (
+    const loadBalancersPublic: NodeData[] = azureData.loadBalancers.filter((lb) => lb.Properties.frontendIPConfigurations[0].properties.publicIPAddress != null).map((lb) => (
         {
             id: shortId(lb.Id),
             height: 150,
@@ -300,7 +297,7 @@ export const getNodeData = (azureData: AzureData) => {
     
     const firewalls: NodeData[] = azureData.azureFirewalls
         // TODO: hard-coded tag name here (EnvType). Need to move this to config. 
-        .filter((fw) => fw.Location.includes(configData.region) && targetFirewallIps.includes(fw.Properties.ipConfigurations[0].properties.privateIPAddress) && 
+        .filter((fw) => targetFirewallIps.includes(fw.Properties.ipConfigurations[0].properties.privateIPAddress) && 
             !configData.excludeTagValues.includes(fw.Tags.EnvType))
         .map((firewall) => (
         {
@@ -320,7 +317,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const gateways: NodeData[] = azureData.vnetGateways.filter((g) => g.Location === configData.region && !hasTagFilterMatch(g.Tags.EnvType)).map((gw) => (
+    const gateways: NodeData[] = azureData.vnetGateways.filter((g) => !hasTagFilterMatch(g.Tags.EnvType)).map((gw) => (
         {
             id: shortId(gw.Id),
             parent: shortId(gw.Properties.ipConfigurations[0].properties.subnet.id),
@@ -338,7 +335,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const storageAccounts: NodeData[] = azureData.storageAccounts.filter((s) => s.Location === configData.region).map((storage) => (
+    const storageAccounts: NodeData[] = azureData.storageAccounts.map((storage) => (
         {
             id: shortId(storage.Id),
             // parent: 'paas',
@@ -357,7 +354,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const cosmosAccounts: NodeData[] = azureData.cosmosAccounts.filter((c) => getRegionIdFromFriendlyName(c.Location) === configData.region).map((cosmos) => (
+    const cosmosAccounts: NodeData[] = azureData.cosmosAccounts.map((cosmos) => (
         {
             id: shortId(cosmos.Id),
             // parent: 'paas',
@@ -376,7 +373,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const eventHubClusters: NodeData[] = azureData.eventHubClusters.filter((cluster) => cluster.Location === configData.region).map((ehCluster) => (
+    const eventHubClusters: NodeData[] = azureData.eventHubClusters.map((ehCluster) => (
         {
             id: shortId(ehCluster.Id),
             // parent: 'paas',
@@ -396,7 +393,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const eventHuNamespacesDedicated: NodeData[] = azureData.eventHubNamespaces.filter((n) => getRegionIdFromFriendlyName(n.Location) === configData.region && (n.Properties.clusterArmId !== undefined && n.Properties.clusterArmId != null ) )
+    const eventHuNamespacesDedicated: NodeData[] = azureData.eventHubNamespaces.filter((n) => (n.Properties.clusterArmId !== undefined && n.Properties.clusterArmId != null ) )
         .map((ehNamespace) => (
         {
             id: shortId(ehNamespace.Id),
@@ -416,7 +413,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
         ))
     
-    const eventHuNamespaces: NodeData[] = azureData.eventHubNamespaces.filter((n) => getRegionIdFromFriendlyName(n.Location) === configData.region && n.Properties.clusterArmId === undefined )
+    const eventHuNamespaces: NodeData[] = azureData.eventHubNamespaces.filter((n) => n.Properties.clusterArmId === undefined )
         .map((ehNamespace) => (
         {
             id: shortId(ehNamespace.Id),
@@ -436,8 +433,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
         ))
     
-    const serviceBusNamespaces: NodeData[] = azureData.serviceBusNamespaces.filter((sb) => getRegionIdFromFriendlyName(sb.Location) === configData.region)
-        .map((sbNamespace) => (
+    const serviceBusNamespaces: NodeData[] = azureData.serviceBusNamespaces.map((sbNamespace) => (
         {
             id: shortId(sbNamespace.Id),
             // parent: 'paas',
@@ -457,8 +453,7 @@ export const getNodeData = (azureData: AzureData) => {
         ))
     
     
-    const appServicePlans: NodeData[] = azureData.appServicePlans.filter((p) => getRegionIdFromFriendlyName(p.Location) === configData.region)
-        .map((servicePlan) => (
+    const appServicePlans: NodeData[] = azureData.appServicePlans.map((servicePlan) => (
             {
                 id: shortId(servicePlan.Id),
                 height: 200,
@@ -477,7 +472,7 @@ export const getNodeData = (azureData: AzureData) => {
             }
         ))
    
-    const functionApps: NodeData[] = azureData.appServices.filter((s) => getRegionIdFromFriendlyName(s.Location) === configData.region && s.Kind === "functionapp")
+    const functionApps: NodeData[] = azureData.appServices.filter((s) => s.Kind === "functionapp")
         .map((funcApp) => (
             {
                 id: shortId(funcApp.Id),
@@ -497,7 +492,7 @@ export const getNodeData = (azureData: AzureData) => {
             }
         ))
     
-    const appServiceVnetIntegration: NodeData[] = azureData.appServices.filter((s) => getRegionIdFromFriendlyName(s.Location) === configData.region && s.Properties.virtualNetworkSubnetId !== undefined || s.Properties.virtualNetworkSubnetId !== null)
+    const appServiceVnetIntegration: NodeData[] = azureData.appServices.filter((s) => s.Properties.virtualNetworkSubnetId !== undefined || s.Properties.virtualNetworkSubnetId !== null)
         .map((appService) => (
             {
                 id: shortId(appService.Properties.virtualNetworkSubnetId) + "-appServiceDelegation",
@@ -516,7 +511,7 @@ export const getNodeData = (azureData: AzureData) => {
             }
             )).filter((v: { id: any; }, i: any, a: any[]) => a.findIndex((t: { id: any; }) => (t.id === v.id)) === i)
     
-    const privateEndpoints: NodeData[] = azureData.privateEndpoints.filter((p) => p.Location === configData.region).map((pe) => (
+    const privateEndpoints: NodeData[] = azureData.privateEndpoints.map((pe) => (
         {
             id: shortId(pe.Id),
             parent: shortId(pe.Properties.subnet.id),
@@ -580,7 +575,7 @@ export const getNodeData = (azureData: AzureData) => {
 
 export const getEdgeData = (azureData: AzureData) => {
 
-    const vnetPeerings: EdgeData[] = azureData.virtualNetworks.filter((vnet) => vnet.Location.includes(configData.region) &&
+    const vnetPeerings: EdgeData[] = azureData.virtualNetworks.filter((vnet) => 
         vnet.SubscriptionId.includes(configData.subscriptionId) &&
         vnet.Properties.virtualNetworkPeerings !== undefined &&
         vnet.Properties.virtualNetworkPeerings !== null)
@@ -597,7 +592,7 @@ export const getEdgeData = (azureData: AzureData) => {
             }
         ))).flat()
     
-    const loadBalancingPrivateVmss: EdgeData[] = azureData.loadBalancers.filter((lb) => lb.Location === configData.region && lb.Properties.frontendIPConfigurations[0].properties.subnet != null)
+    const loadBalancingPrivateVmss: EdgeData[] = azureData.loadBalancers.filter((lb) => lb.Properties.frontendIPConfigurations[0].properties.subnet != null)
         .map(function (lb) {
 
             const ipconfigIds = lb.Properties.backendAddressPools?.map((bePool) =>
@@ -622,7 +617,7 @@ export const getEdgeData = (azureData: AzureData) => {
         }).flat()
 
     
-    const loadBalancingPublicVmss: EdgeData[] = azureData.loadBalancers.filter((lb) => lb.Location === configData.region && lb.Properties.frontendIPConfigurations[0].properties.publicIPAddress != null)
+    const loadBalancingPublicVmss: EdgeData[] = azureData.loadBalancers.filter((lb) => lb.Properties.frontendIPConfigurations[0].properties.publicIPAddress != null)
         .map(function (lb) {
             const ipconfigIds = lb.Properties.backendAddressPools?.map((bePool) =>
                 bePool.properties.loadBalancerBackendAddresses?.map((beAddress) => {
@@ -645,7 +640,7 @@ export const getEdgeData = (azureData: AzureData) => {
         }).flat()
     
     
-    const storageVnetRules: EdgeData[] = azureData.storageAccounts.filter((s) => s.Location.includes(configData.region))
+    const storageVnetRules: EdgeData[] = azureData.storageAccounts
         .map((storage) => storage.Properties.networkAcls.virtualNetworkRules.filter((rule) => getSubscriptionGuidFromId(rule.id) === getSubscriptionGuidFromId(storage.Id))
             .map((vnetRule: { id: string | undefined; }) => (
                 {
@@ -660,8 +655,7 @@ export const getEdgeData = (azureData: AzureData) => {
             ))).flat()
     
     
-    const cosmosVnetRules: EdgeData[] = azureData.cosmosAccounts.filter((c: { Location: string; }) => getRegionIdFromFriendlyName(c.Location).includes(configData.region))
-        .map((cosmos) => cosmos.Properties.virtualNetworkRules
+    const cosmosVnetRules: EdgeData[] = azureData.cosmosAccounts.map((cosmos) => cosmos.Properties.virtualNetworkRules
             .filter((rule: { id: string; }) => getSubscriptionGuidFromId(rule.id) === getSubscriptionGuidFromId(cosmos.Id))
             .map((vnetRule: { id: string | undefined; }) => (
                 {
@@ -704,7 +698,7 @@ export const getEdgeData = (azureData: AzureData) => {
         ))
     ).flat()
     
-    const appServiceVnetIntegration: EdgeData[] = azureData.appServices.filter((s) => getRegionIdFromFriendlyName(s.Location) === configData.region && s.Properties.virtualNetworkSubnetId !== undefined)
+    const appServiceVnetIntegration: EdgeData[] = azureData.appServices.filter((s) => s.Properties.virtualNetworkSubnetId !== undefined)
         .map((appService) => (
             {
                 id: shortId(appService.Id) + '-to-' + shortId(appService.Properties.virtualNetworkSubnetId),
@@ -716,8 +710,7 @@ export const getEdgeData = (azureData: AzureData) => {
             }
         ))
     
-    const expressRouteConnections: EdgeData[] = azureData.gatewayConnections.filter((g: { Location: string; }) => g.Location === configData.region)
-        .map((conn) => (
+    const expressRouteConnections: EdgeData[] = azureData.gatewayConnections.filter(c => c.Properties.connectionType === "ExpressRoute").map((conn) => (
         {
             id: shortId(conn.Id),
             from: shortId(conn.Properties.peer?.id),
@@ -731,7 +724,7 @@ export const getEdgeData = (azureData: AzureData) => {
 
     // const expressRoutePeerings: EdgeData[] = expressRouteData.map(er => (
     const expressRoutePeerings: EdgeData[] = azureData.gatewayConnections
-        .filter((c) => c.Location === configData.region && !hasTagFilterMatch(c.Tags.EnvType))
+        .filter((c) => !hasTagFilterMatch(c.Tags.EnvType))
         .filter((v, i: any, a: any[]) => a.findIndex((t) => (t.Properties.peer?.id === v.Properties.peer?.id)) === i)
         .map((conn) => (
         {
