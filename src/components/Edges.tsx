@@ -94,7 +94,7 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
             )         
         default:
             return (
-                <Edge {...edge} onClick={onEdgeClick} />
+                <Edge {...edge} onClick={onEdgeClick} onEnter={onEdgeEnter} />
             )
     }
 

@@ -81,8 +81,10 @@ export const getNodeData = (azureData: AzureData) => {
     // TODO: remove duplicates from this arraoy
     const targetFirewallIps = azureData.routeTables.filter((routeTable) => routeTable.Location.includes(configData.region))
         .map((routeTable) => routeTable.Properties.routes?.filter((route) => route.properties.addressPrefix.includes("0.0.0.0/0"))
-        .map((r: { properties: { nextHopIpAddress: any; }; }) => r.properties.nextHopIpAddress)).flat()
-
+            .map((r: { properties: { nextHopIpAddress: any; }; }) => r.properties.nextHopIpAddress)).flat()
+    
+    const subnetIds = azureData.virtualNetworks.map((vnet) => vnet.Properties.subnets.map((subnet) => subnet.id)).flat()
+    
     const vnets: NodeData[] = azureData.virtualNetworks.map((vnet) => (
         {
             id: shortId(vnet.Id),
@@ -317,7 +319,8 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
-    const gateways: NodeData[] = azureData.vnetGateways.filter((g) => !hasTagFilterMatch(g.Tags.EnvType)).map((gw) => (
+    // const gateways: NodeData[] = azureData.vnetGateways.filter((g) => !hasTagFilterMatch(g.Tags.EnvType)).map((gw) => (
+    const gateways: NodeData[] = azureData.vnetGateways.filter((g) => subnetIds.indexOf(g.Properties.ipConfigurations[0].properties.subnet.id) > -1).map((gw) => (
         {
             id: shortId(gw.Id),
             parent: shortId(gw.Properties.ipConfigurations[0].properties.subnet.id),

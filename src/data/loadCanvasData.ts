@@ -49,28 +49,40 @@ export const loadCanvasData = async (connectionString: string, containerName: st
 
   // get distinct list of regions from nodeData
   const regions = [...new Set(nodeData.map(n => n.data.region))]
+
+  /*
+  nodeData.push({
+    id: 'topContainer',
+    layoutOptions: layoutContainerlayoutOptions,
+    className: 'layout-container',
+    width: 750,
+    data: {
+      type: "container",
+      category: "layout",
+    }
+  })
+  */
   
   // add nodes for regions
   regions.forEach(region => {
-    const existingNode = nodeData.find(n => n.data.category === "region" && n.data.region === region)
-    if (!existingNode && region !== "global") {
+    const regionNameLowerCase = region.toLowerCase()
+    const existingNode = nodeData.find(n => n.data.category === "region" && n.data.region === regionNameLowerCase)
+    if (!existingNode && region !== "global" && region !== '') {
       const newNode = {
-        id: region,
+        id: regionNameLowerCase,
         layoutOptions: regionContainerlayoutOptions,
         className: 'region-container',
         data: {
           type: "container",
           category: "region",
-          region: region,
+          region: regionNameLowerCase,
           label: region,
-          url: ""
         }
       }
       nodeData.push(newNode)
     }
   })
   
-
   regions.forEach(region => {
     nodeData.push( {
       id: `container-network-workload-${region}`,
@@ -80,7 +92,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       data: {
         type: 'container',
         category: 'layout',
-        url: ""
       }
     })
     nodeData.push( {
@@ -118,7 +129,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   paasNodes.forEach(n => {
       if (!n.parent)  // set top nodes only
         n.parent = `container-paas-${n.data.region}`
-    })
+  })
+
+
 
   // remove unconnected items unless they are containers or have a parent node
   const edgeIdsFrom = edgeData.map(e => e.from)
@@ -238,26 +251,24 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   })
 
   // Set parent nodes to edges to address layout issues with deep nesting. See: https://github.com/reaviz/reaflow/issues/87
+  const combinedNodes = [...canvasNodesVisible, ...canvasNodesHidden]
+  const combinedEdges = [...canvasEdgesVisible, ...canvasEdgesHidden]
 
-  canvasEdgesVisible.forEach(e => {
-    const fromNode = canvasNodesVisible.find(n => n.id === e.from)
-    if (fromNode) {
-      if (fromNode.parent)
-        e.parent = fromNode.data.region
-    }
-  })
-
-
-  canvasEdgesHidden.forEach(e => {
+  combinedEdges.forEach(e => {
     // TODO: Consider re-factoring this logic to include both hidden and visible nodes in the same loop
-    const fromNode = canvasNodesHidden.find(n => n.id === e.from)
-    const toNode = canvasNodesHidden.find(n => n.id === e.to)
+    const fromNode = combinedNodes.find(n => n.id === e.from)
+    const toNode = combinedNodes.find(n => n.id === e.to)
     if (fromNode) {
       if (fromNode.parent) {
-        const parentNodeFrom = canvasNodesVisible.find(n => n.id === fromNode?.parent)
-        const parentnodeTo = canvasNodesVisible.find(n => n.id === toNode?.parent)
+        const parentNodeFrom = combinedNodes.find(n => n.id === fromNode?.parent)
+        const parentnodeTo = combinedNodes.find(n => n.id === toNode?.parent)
         if (parentNodeFrom?.id === parentnodeTo?.id) {
           e.parent = parentNodeFrom?.id
+        }
+        if (fromNode.data.region !== toNode?.data.region) {
+          // e.parent = parentNodeFrom?.id
+          e.parent = parentNodeFrom?.parent
+          // e.parent = fromNode.data.region
         }
         else {
           e.parent = fromNode.data.region
@@ -273,7 +284,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   vnetPeeringNodesData.forEach(n => {
     n.className = n.className + ' node-vnet-peered'
   })
-
   
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }

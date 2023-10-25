@@ -6,7 +6,7 @@ interface CanvasPane {
 }
 
 const initialState: CanvasPane = {
-    value: { paneHeight: 1000, paneWidth: 3000 }
+    value: { paneHeight: 5000, paneWidth: 3000 }
 }
 
 export const canvasSlice = createSlice({
