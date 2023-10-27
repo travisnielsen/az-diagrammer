@@ -19,6 +19,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
 
   const nodeData = getNodeData(azureData);
   const edgeData = getEdgeData(azureData); 
+
+
+
   
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     const filteredServices = ["routetable", "nsg"]
@@ -185,6 +188,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
           data: {
             type: "container",
             category: "summary",
+            region: node.data.region,
             tier: 'paas',
             serviceName: node.data.servicename,
             label: `${nodesOfType.length} ${node.data.servicename}s`,
@@ -251,14 +255,17 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   })
 
   // Set parent nodes to edges to address layout issues with deep nesting. See: https://github.com/reaviz/reaflow/issues/87
-  const combinedNodes = [...canvasNodesVisible, ...canvasNodesHidden]
-  const combinedEdges = [...canvasEdgesVisible, ...canvasEdgesHidden]
+  const combinedNodes = [...new Set  ([...canvasNodesVisible, ...canvasNodesHidden])]
+  const combinedEdges = [...new Set ([canvasEdgesVisible, ...canvasEdgesHidden])]
 
-  combinedEdges.forEach(e => {
+  canvasEdgesVisible.forEach(e => {
     // TODO: Consider re-factoring this logic to include both hidden and visible nodes in the same loop
     const fromNode = combinedNodes.find(n => n.id === e.from)
     const toNode = combinedNodes.find(n => n.id === e.to)
     if (fromNode) {
+      if (e.id = 'rpuprodrxrenewalrxicentralusvnet01rg-rpuprodrxrenewalcentralusrxiakssnms01-to-idiprodeus2rg-idiprodeus2ehns') {
+        console.log('fromNode', fromNode)
+      }
       if (fromNode.parent) {
         const parentNodeFrom = combinedNodes.find(n => n.id === fromNode?.parent)
         const parentnodeTo = combinedNodes.find(n => n.id === toNode?.parent)
@@ -284,6 +291,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   vnetPeeringNodesData.forEach(n => {
     n.className = n.className + ' node-vnet-peered'
   })
+
+  // get edge with id of 'rpuprodrxrenewalrxicentralusvnet01rg-rpuprodrxrenewalcentralusrxiakssnms01-to-idiprodeus2rg-idiprodeus2ehns'
+
   
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }
