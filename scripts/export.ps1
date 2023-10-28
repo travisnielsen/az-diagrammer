@@ -48,6 +48,17 @@ foreach ($vnetId in $listRemoteVnetIds) {
     $listVnets.Add($remoteVnet)
 }
 
+$listDnsServerIps = New-Object -TypeName 'System.Collections.ArrayList'
+
+# get DNS server IPs for each vnet
+foreach ($vnet in $listVnets) {
+    $dnsServers = $vnet.Properties.dhcpOptions.dnsServers
+    foreach ($serverIp in $dnsServers) {
+        if ($listDnsServerIps -notcontains $serverIp) {
+            $listDnsServerIps.Add($serverIp)
+        }
+    }
+}
 
 # identify other subscriptions based on VNET Gateway Connection objects
 # ExpressRoute circuits are often placed in separate / isolated subscriptions
@@ -79,11 +90,24 @@ $listFirewalls = New-Object -TypeName 'System.Collections.ArrayList'
 $listNatGateways = New-Object -TypeName 'System.Collections.ArrayList'
 $listVnetGateways = New-Object -TypeName 'System.Collections.ArrayList'
 $listExpressRouteCircuits = New-Object -TypeName 'System.Collections.ArrayList'
+$listVmNics = New-Object -TypeName 'System.Collections.ArrayList'
+$listDnsServers = New-Object -TypeName 'System.Collections.ArrayList'
 
 foreach ($subscription in $subscriptions) {
     Set-AzContext -Subscription $subscription
     $context = Get-AzContext
     $listSubscriptionInfo.Add($context.Subscription)
+
+    foreach ($serverIp in $listDnsServerIps) {
+        $nic = Get-AzNetworkInterface | Where-Object { $_.ipConfigurations.PrivateIpAddress -eq $serverIp }
+        if ($nic) {
+            $vmId = $nic.virtualMachine.id
+            $vm = Get-AzResource -ResourceId $vmId -ExpandProperties
+            $listDnsServers.Add($vm)
+            $listVmNics.Add($nic)
+        }
+        
+    }
 
     Get-AzResource -ResourceType "Microsoft.Network/routeTables" -ExpandProperties | ForEach-Object { $listRouteTables.Add($_) }
     Get-AzResource -ResourceType "Microsoft.Network/azureFirewalls" -ExpandProperties | ForEach-Object { $listFirewalls.Add($_) }
@@ -141,6 +165,8 @@ ConvertTo-Json -InputObject $listNatGateways -Depth 20 | Out-File "..//data/${ou
 ConvertTo-Json -InputObject $listVnetGateways -Depth 20 | Out-File "..//data/${outFolder}/vnetGateways.json"
 ConvertTo-Json -InputObject $listGatewayConnections -Depth 20 | Out-File "..//data/${outFolder}/gatewayConnections.json"
 ConvertTo-Json -InputObject $listExpressRouteCircuits -Depth 20 | Out-File "..//data/${outFolder}/expressRouteCircuits.json"
+ConvertTo-Json -InputObject $listDnsServers -Depth 20 | Out-File "..//data/${outFolder}/dnsServers.json"
+ConvertTo-Json -InputObject $listVmNics -Depth 20 | Out-File "..//data/${outFolder}/vmNetworkInterfaces.json"
 
 $dictServices.GetEnumerator() | ForEach-Object {
     $filename = $_.key.Split("/")[1]
