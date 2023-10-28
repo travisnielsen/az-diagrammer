@@ -79,7 +79,7 @@ const hasTagFilterMatch = (s: string | undefined) => {
 export const getNodeData = (azureData: AzureData) => {
 
     // TODO: remove duplicates from this arraoy
-    const targetFirewallIps = azureData.routeTables.filter((routeTable) => routeTable.Location.includes(configData.region))
+    const targetFirewallIps = azureData.routeTables
         .map((routeTable) => routeTable.Properties.routes?.filter((route) => route.properties.addressPrefix.includes("0.0.0.0/0"))
             .map((r: { properties: { nextHopIpAddress: any; }; }) => r.properties.nextHopIpAddress)).flat()
     

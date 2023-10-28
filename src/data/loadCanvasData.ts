@@ -47,9 +47,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     'elk.direction': 'RIGHT'
   }
 
-  // get distinct list of regions from nodeData
   const regions = [...new Set(nodeData.map(n => n.data.region))]
 
+  // overall parent container for all diagram elements
   nodeData.push({
     id: 'topContainer',
     layoutOptions: layoutContainerlayoutOptions,
@@ -60,9 +60,20 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       category: "layout",
     }
   })
+
+  // layout container to host global network resources (ExpressRoute)
+  nodeData.push({
+    id: 'global',
+    parent: 'topContainer',
+    layoutOptions: layoutContainerlayoutOptions,
+    className: 'layout-container',
+    data: {
+      type: "container",
+      category: "layout",
+    }
+  })
   
-  
-  // add nodes for regions
+  // region containers
   regions.forEach(region => {
     const regionNameLowerCase = region.toLowerCase()
     const existingNode = nodeData.find(n => n.data.category === "region" && n.data.region === regionNameLowerCase)
@@ -83,6 +94,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     }
   })
   
+  // layout containers for network and paas resources
   regions.forEach(region => {
     nodeData.push( {
       id: `container-network-workload-${region}`,
@@ -107,8 +119,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     })
   })
 
-  // add layout containers
-
+  // service layout container assignments
   // separate vnets into core (hub) and workload (spoke) vnets. Add spoke vnets as child nodes to 'container-network-workload' for layout purposes
   const vnetNodes = nodeData.filter(n => n.data.servicename === "vnet")
   vnetNodes.forEach(n => {
@@ -131,7 +142,11 @@ export const loadCanvasData = async (connectionString: string, containerName: st
         n.parent = `container-paas-${n.data.region}`
   })
 
-
+  // place expressroute circuits into the global container
+  const expressrouteNodes = nodeData.filter(n => n.data.servicename === "expressroutecircuit")
+  expressrouteNodes.forEach(n => {
+    n.parent = 'global'
+  })
 
   // remove unconnected items unless they are containers or have a parent node
   const edgeIdsFrom = edgeData.map(e => e.from)
@@ -267,7 +282,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
           e.parent = parentNodeFrom?.id
         }
         // cross-region connections - need to set parent to 'topContainer'
-        if (fromNode.data.region !== toNode?.data.region) {
+        if (fromNode.data.region !== toNode?.data.region && toNode?.data.region !== 'global') {
           e.parent = 'topContainer'
         }
         else {
