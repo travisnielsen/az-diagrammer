@@ -19,9 +19,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
 
   const nodeData = getNodeData(azureData);
   const edgeData = getEdgeData(azureData); 
-
-
-
   
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     const filteredServices = ["routetable", "nsg"]
@@ -53,7 +50,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   // get distinct list of regions from nodeData
   const regions = [...new Set(nodeData.map(n => n.data.region))]
 
-  /*
   nodeData.push({
     id: 'topContainer',
     layoutOptions: layoutContainerlayoutOptions,
@@ -64,7 +60,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
       category: "layout",
     }
   })
-  */
+  
   
   // add nodes for regions
   regions.forEach(region => {
@@ -73,6 +69,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     if (!existingNode && region !== "global" && region !== '') {
       const newNode = {
         id: regionNameLowerCase,
+        parent: 'topContainer',
         layoutOptions: regionContainerlayoutOptions,
         className: 'region-container',
         data: {
@@ -269,10 +266,9 @@ export const loadCanvasData = async (connectionString: string, containerName: st
         if (parentNodeFrom?.id === parentnodeTo?.id) {
           e.parent = parentNodeFrom?.id
         }
+        // cross-region connections - need to set parent to 'topContainer'
         if (fromNode.data.region !== toNode?.data.region) {
-          // e.parent = parentNodeFrom?.id
-          e.parent = parentNodeFrom?.parent
-          // e.parent = fromNode.data.region
+          e.parent = 'topContainer'
         }
         else {
           e.parent = fromNode.data.region
