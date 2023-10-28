@@ -263,9 +263,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     const fromNode = combinedNodes.find(n => n.id === e.from)
     const toNode = combinedNodes.find(n => n.id === e.to)
     if (fromNode) {
-      if (e.id = 'rpuprodrxrenewalrxicentralusvnet01rg-rpuprodrxrenewalcentralusrxiakssnms01-to-idiprodeus2rg-idiprodeus2ehns') {
-        console.log('fromNode', fromNode)
-      }
       if (fromNode.parent) {
         const parentNodeFrom = combinedNodes.find(n => n.id === fromNode?.parent)
         const parentnodeTo = combinedNodes.find(n => n.id === toNode?.parent)
@@ -291,9 +288,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   vnetPeeringNodesData.forEach(n => {
     n.className = n.className + ' node-vnet-peered'
   })
-
-  // get edge with id of 'rpuprodrxrenewalrxicentralusvnet01rg-rpuprodrxrenewalcentralusrxiakssnms01-to-idiprodeus2rg-idiprodeus2ehns'
-
   
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }

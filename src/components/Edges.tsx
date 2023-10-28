@@ -72,7 +72,7 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
     };
     
     const onEdgeEnter = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
-        console.log(`edge entered (${edge.id})`);
+        console.log(`edge entered (${edge.id}) from ${edge.source} to ${edge.target}`);
       };
 
     // @ts-ignore
