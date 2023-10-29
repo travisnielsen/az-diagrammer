@@ -165,8 +165,8 @@ ConvertTo-Json -InputObject $listNatGateways -Depth 20 | Out-File "..//data/${ou
 ConvertTo-Json -InputObject $listVnetGateways -Depth 20 | Out-File "..//data/${outFolder}/vnetGateways.json"
 ConvertTo-Json -InputObject $listGatewayConnections -Depth 20 | Out-File "..//data/${outFolder}/gatewayConnections.json"
 ConvertTo-Json -InputObject $listExpressRouteCircuits -Depth 20 | Out-File "..//data/${outFolder}/expressRouteCircuits.json"
-ConvertTo-Json -InputObject $listDnsServers -Depth 20 | Out-File "..//data/${outFolder}/dnsServers.json"
-ConvertTo-Json -InputObject $listVmNics -Depth 20 | Out-File "..//data/${outFolder}/vmNetworkInterfaces.json"
+ConvertTo-Json -InputObject $listDnsServers -Depth 20 | Out-File "..//data/${outFolder}/virtualMachines-dns.json"
+ConvertTo-Json -InputObject $listVmNics -Depth 20 | Out-File "..//data/${outFolder}/networkInterfaces.json"
 
 $dictServices.GetEnumerator() | ForEach-Object {
     $filename = $_.key.Split("/")[1]

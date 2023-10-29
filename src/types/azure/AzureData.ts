@@ -1,28 +1,29 @@
 import * as AzureTypes from './AzureTypes';
 
 export class AzureData {
-    subscriptions: AzureTypes.Subscription[] = [];
-    virtualNetworks: AzureTypes.VirtualNetwork[] = [];
-    networkSecurityGroups: AzureTypes.NetworkSecurityGroup[] = [];
-    routeTables: AzureTypes.RouteTable[] = [];
-    azureFirewalls: AzureTypes.AzureFirewall[] = [];
-    databricksWorkspaces: AzureTypes.DatabricksWorkspace[] = [];
-    loadBalancers: AzureTypes.LoadBalancer[] = [];
-    redisCache: AzureTypes.RedisCache[] = [];
     apiManagement: AzureTypes.ApiManagement[] = [];
-    vnetGateways: AzureTypes.VnetGateway[] = [];
-    storageAccounts: AzureTypes.StorageAccount[] = [];
+    appServicePlans: AzureTypes.AppServicePlan[] = [];
+    appServices: AzureTypes.AppService[] = [];
+    azureFirewalls: AzureTypes.AzureFirewall[] = [];
     cosmosAccounts: AzureTypes.CosmosAccount[] = [];
+    databricksWorkspaces: AzureTypes.DatabricksWorkspace[] = [];
     eventHubClusters: AzureTypes.EventHubCluster[] = [];
     eventHubNamespaces: AzureTypes.EventHubNamespace[] = [];
     eventHubNetworkRuleSets: AzureTypes.NetworkRuleSet[] = [];
-    appServicePlans: AzureTypes.AppServicePlan[] = [];
-    appServices: AzureTypes.AppService[] = [];
-    privateEndpoints: AzureTypes.PrivateEndpoint[] = [];
     expressRouteCircuits: AzureTypes.ExpressRouteCircuit[] = [];
     gatewayConnections: AzureTypes.GatewayConnection[] = [];
-    virtualMachineScaleSets: AzureTypes.VirtualMachineScaleSet[] = [];
+    loadBalancers: AzureTypes.LoadBalancer[] = [];
+    networkInterfaces: AzureTypes.NetworkInterface[] = [];
+    networkSecurityGroups: AzureTypes.NetworkSecurityGroup[] = [];
+    privateEndpoints: AzureTypes.PrivateEndpoint[] = [];
+    redisCache: AzureTypes.RedisCache[] = [];
+    routeTables: AzureTypes.RouteTable[] = [];
     serviceBusNamespaces: AzureTypes.ServiceBusNamespace[] = [];
     serviceBusNetworkRuleSets: AzureTypes.NetworkRuleSet[] = [];
-
+    storageAccounts: AzureTypes.StorageAccount[] = [];
+    subscriptions: AzureTypes.Subscription[] = [];
+    virtualMachinesDns: AzureTypes.VirtualMachine[] = [];
+    virtualMachineScaleSets: AzureTypes.VirtualMachineScaleSet[] = [];
+    virtualNetworks: AzureTypes.VirtualNetwork[] = [];
+    vnetGateways: AzureTypes.VnetGateway[] = [];
 }

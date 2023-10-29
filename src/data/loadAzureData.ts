@@ -8,29 +8,31 @@ export const LoadAzureData = async (connectionString: string, containerName: str
     const containerClient = blobServiceClient.getContainerClient(containerName);
     
     let azureData: AzureData = {
-        subscriptions: [],
-        virtualNetworks: [],
-        networkSecurityGroups: [],
-        routeTables: [],
-        azureFirewalls: [],
-        databricksWorkspaces: [],
-        loadBalancers: [],       
-        redisCache: [],
         apiManagement: [],
-        vnetGateways: [],
-        storageAccounts: [],
+        appServicePlans: [],
+        appServices: [],
+        azureFirewalls: [],
         cosmosAccounts: [],
+        databricksWorkspaces: [],
         eventHubClusters: [],
         eventHubNamespaces: [],
         eventHubNetworkRuleSets: [],
-        appServicePlans: [],
-        appServices: [],
-        privateEndpoints: [],
         expressRouteCircuits: [],
         gatewayConnections: [],
-        virtualMachineScaleSets: [],
+        loadBalancers: [],       
+        networkInterfaces: [],
+        networkSecurityGroups: [],
+        privateEndpoints: [],
+        redisCache: [],
+        routeTables: [],
         serviceBusNamespaces: [],
         serviceBusNetworkRuleSets: [],
+        storageAccounts: [],
+        subscriptions: [],
+        virtualMachinesDns: [],
+        virtualMachineScaleSets: [],
+        virtualNetworks: [],
+        vnetGateways: []
     };
     
     const fileNames = await getBlobFiles().catch((err) => {
@@ -105,7 +107,11 @@ export const LoadAzureData = async (connectionString: string, containerName: str
             case "virtualmachinescalesets.json":
                 const virtualMachineScaleSets: AzureTypes.VirtualMachineScaleSet[]  = await blobToJSONArray(blobString);
                 azureData.virtualMachineScaleSets = virtualMachineScaleSets;
-                break;       
+                break;
+            case "virtualmachines-dns.json":
+                const virtualMachines: AzureTypes.VirtualMachine[]  = await blobToJSONArray(blobString);
+                azureData.virtualMachinesDns = virtualMachines;
+                break;
             case "workspaces.json":
                 const databricksWorkspaces: AzureTypes.DatabricksWorkspace[]  = await blobToJSONArray(blobString);
                 azureData.databricksWorkspaces = databricksWorkspaces;
@@ -166,6 +172,10 @@ export const LoadAzureData = async (connectionString: string, containerName: str
                 const appServices: AzureTypes.AppService[]  = await blobToJSONArray(blobString);
                 azureData.appServices = appServices;
                 break;
+            case "networkinterfaces.json":
+                const nics: AzureTypes.NetworkInterface[]  = await blobToJSONArray(blobString);
+                azureData.networkInterfaces = nics;
+                break;            
             case "privateendpoints.json":
                 const privateEndpoints: AzureTypes.PrivateEndpoint[]  = await blobToJSONArray(blobString);
                 azureData.privateEndpoints = privateEndpoints;

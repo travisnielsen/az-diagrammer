@@ -167,8 +167,27 @@ export const getNodeData = (azureData: AzureData) => {
                     info: rt.Properties.routes?.length + " routes"
                 }
             }
-        )))).flat().flat()
-
+            )))).flat().flat()
+    
+    // get virtual machines from virtualMachinesDns and matching networkinterface where networkinterface.virualmachine.id = virtualmachine.id
+    const vmsDns: NodeData[] = azureData.virtualMachinesDns.map((vm) => (azureData.networkInterfaces.filter((ni) => ni.VirtualMachine.Id === vm.Id).map((ni) => (
+        {
+            id: shortId(vm.Id),
+            parent: shortId(ni.IpConfigurations[0].Subnet.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'compute',
+                region: vm.Location,
+                servicename: 'virtualmachine',
+                label: vm.Name,
+                info: vm.Properties.hardwareProfile.vmSize,
+                url: 'images/Compute/virtualmachine.svg'
+            }
+        }
+    )))).flat()
+    
     const vmScaleSets: NodeData[] = azureData.virtualMachineScaleSets.map((vmss) => (
         {
             id: shortId(vmss.Id),
@@ -569,7 +588,7 @@ export const getNodeData = (azureData: AzureData) => {
         }
     )).filter((v: { id: any; }, i: any, a: any[]) => a.findIndex((t: { id: any; }) => (t.id === v.id)) === i)
 
-    const nodeData = [...vnets, ...subnets, ...nsgs, ...routeTables, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
+    const nodeData = [...vnets, ...subnets, ...nsgs, ...routeTables, ...vmsDns, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
         ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations]
 
