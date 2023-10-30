@@ -780,7 +780,7 @@ export const getEdgeData = (azureData: AzureData) => {
         }))).flat()
 
     const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss, ...storageVnetRules, ...cosmosVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules,
-        ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings]
+        ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings, ...dnsConnections]
     
     return edgeData
 }

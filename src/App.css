@@ -80,6 +80,18 @@
   height: 100%;
 }
 
+.edge-dns {
+  stroke: green !important;
+  stroke-dasharray: 5;
+  animation: dashdraw .5s linear infinite;
+  stroke-width: 1;
+
+}
+
+@keyframes dashdraw {
+  0% { stroke-dashoffset: 10; }
+}
+
 .edge-vnet-peering {
   stroke: purple !important;
   stroke-width: .3cap !important;

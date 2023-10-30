@@ -148,6 +148,30 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     n.parent = 'global'
   })
 
+  // remove any nodes from nodedata that are in the parent 'global' container that do not have edges
+  const globalNodes = nodeData.filter(n => n.parent === 'global')
+  globalNodes.forEach(n => {
+    const edges = edgeData.filter(e => e.from === n.id || e.to === n.id)
+    if (edges.length === 0) {
+      const index = nodeData.findIndex(nf => nf.id === n.id)
+      nodeData.splice(index, 1)
+    }
+  })
+
+  // adjustment for DNS connections where the source and target are in the same layout region (self reference)
+  // example: dns server in a VNET that has the DNS server IP address. ELK will not allow edges that point to a granparent node in this way
+  const dnsEdges = edgeData.filter(e => e.data.type === "dns")
+  dnsEdges.forEach(e => {
+    const fromNode = nodeData.find(n => n.id === e.from)
+    const fromNodeParent = nodeData.find(n => n.id === fromNode?.parent)
+    const fromNodeGrandParent = nodeData.find(n => n.id === fromNodeParent?.parent)
+    const toNode = nodeData.find(n => n.id === e.to)
+    if (fromNodeGrandParent?.data.tier === toNode?.data.tier) {
+      const index = edgeData.findIndex(ef => ef.id === e.id)
+      edgeData.splice(index, 1)
+    }
+  })
+
   // remove unconnected items unless they are containers or have a parent node
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)

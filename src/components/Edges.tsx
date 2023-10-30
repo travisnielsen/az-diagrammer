@@ -91,7 +91,11 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
         case 'vnetpeering':
             return (
                 <Edge {...edge} className={edge.className } onClick={onEdgeClick} />
-            )         
+            )           
+        case 'dns':
+            return (
+                <Edge {...edge} className={edge.className } onClick={onEdgeClick} />
+            ) 
         default:
             return (
                 <Edge {...edge} onClick={onEdgeClick} onEnter={onEdgeEnter} />
