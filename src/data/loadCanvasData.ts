@@ -299,6 +299,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   vnetPeeringNodesData.forEach(n => {
     n.className = n.className + ' node-vnet-peered'
   })
-  
+
+
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }

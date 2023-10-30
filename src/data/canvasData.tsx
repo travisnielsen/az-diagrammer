@@ -19,11 +19,6 @@ const shortId = (s: string | undefined | null) => {
     return resourceGroup + "-" + item
 }
 
-const idFromNetworkIpconfig = (s: string) => {
-    const id = s.split("/virtualMachines/")[0]
-    return id
-}
-
 const getIdFromText = (s: string | undefined) => {
     if (s === undefined) {
         return ""
@@ -74,6 +69,18 @@ const hasTagFilterMatch = (s: string | undefined) => {
         return false
     }
     return configData.excludeTagValues.includes(s)
+}
+
+const getVmsWithPrivateIp = (azureData: AzureData) => {
+    // iterate thoguh all networkInterfaces and get the private IP address. set this as a the PrivateIpAddress property on the matching virtual machine
+    const vms = azureData.virtualMachinesDns.map((vm) => {
+        const networkInterface = azureData.networkInterfaces.find((ni) => ni.VirtualMachine.Id === vm.Id)
+        if (networkInterface !== undefined) {
+            vm.PrivateIpAddress = networkInterface.IpConfigurations[0].PrivateIpAddress
+        }
+        return vm
+    })
+    return vms
 }
 
 export const getNodeData = (azureData: AzureData) => {
@@ -180,10 +187,11 @@ export const getNodeData = (azureData: AzureData) => {
                 type: 'service',
                 category: 'compute',
                 region: vm.Location,
-                servicename: 'virtualmachine',
+                servicename: 'virtualmachine-dns',
                 label: vm.Name,
                 info: vm.Properties.hardwareProfile.vmSize,
-                url: 'images/Compute/virtualmachine.svg'
+                url: 'images/Compute/virtualmachine.svg',
+                ipAddressPrivate: ni.IpConfigurations[0].PrivateIpAddress
             }
         }
     )))).flat()
@@ -572,7 +580,6 @@ export const getNodeData = (azureData: AzureData) => {
     const peeringLocations: NodeData[] = azureData.expressRouteCircuits.map((er) => (
         {
             id: getIdFromText(er.Properties.serviceProviderProperties.peeringLocation),
-            // parent: 'hybrid',
             height: 150,
             width: 250,
             data: {
@@ -744,7 +751,6 @@ export const getEdgeData = (azureData: AzureData) => {
         }
     ))
 
-    // const expressRoutePeerings: EdgeData[] = expressRouteData.map(er => (
     const expressRoutePeerings: EdgeData[] = azureData.gatewayConnections
         .filter((c) => !hasTagFilterMatch(c.Tags.EnvType))
         .filter((v, i: any, a: any[]) => a.findIndex((t) => (t.Properties.peer?.id === v.Properties.peer?.id)) === i)
@@ -757,10 +763,22 @@ export const getEdgeData = (azureData: AzureData) => {
                 data: {
                     type: 'expressroute'
                 }
-
-        }
-    ))
+            }))
     
+    const dnsConnections: EdgeData[] = getVmsWithPrivateIp(azureData)
+        .map((vm) => azureData.virtualNetworks.filter((vnet) => vnet.Properties.dhcpOptions?.dnsServers?.includes(vm.PrivateIpAddress || ''))
+            .map((vnet) => (
+        {
+            id: shortId(vm.Id) + "-to-" + shortId(vnet.Id),
+            from: shortId(vm.Id),
+            to: shortId(vnet.Id),
+            text: 'dns',
+            className: 'edge-dns',
+            data: {
+                type: 'dns'
+            }
+        }))).flat()
+
     const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss, ...storageVnetRules, ...cosmosVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules,
         ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings]
     
