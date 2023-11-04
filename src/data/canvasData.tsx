@@ -639,7 +639,7 @@ export const getEdgeData = (azureData: AzureData) => {
                     to: shortId(id),
                     text: "load balancing",
                     data: {
-                        type: 'loabalancing'
+                        type: 'loadbalancing'
                     }
                 }
             ));
@@ -662,7 +662,7 @@ export const getEdgeData = (azureData: AzureData) => {
                     to: shortId(lb.Id),
                     text: "load balancing",
                     data: {
-                        type: 'loabalancing'
+                        type: 'loadbalancing'
                     }
                 }
             ));

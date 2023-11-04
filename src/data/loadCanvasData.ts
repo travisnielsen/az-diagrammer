@@ -291,10 +291,10 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   })
 
   // Set parent nodes to edges to address layout issues with deep nesting. See: https://github.com/reaviz/reaflow/issues/87
-  const combinedNodes = [...new Set  ([...canvasNodesVisible, ...canvasNodesHidden])]
-  const combinedEdges = [...new Set ([canvasEdgesVisible, ...canvasEdgesHidden])]
+  const combinedNodes = canvasNodesVisible.concat(canvasNodesHidden);
+  const combinedEdges = canvasEdgesVisible.concat(canvasEdgesHidden);
 
-  canvasEdgesVisible.forEach(e => {
+  combinedEdges.forEach(e => {
     // TODO: Consider re-factoring this logic to include both hidden and visible nodes in the same loop
     const fromNode = combinedNodes.find(n => n.id === e.from)
     const toNode = combinedNodes.find(n => n.id === e.to)
@@ -306,7 +306,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
           e.parent = parentNodeFrom?.id
         }
         // cross-region connections - need to set parent to 'topContainer'
-        if (fromNode.data.region !== toNode?.data.region && toNode?.data.region !== 'global') {
+        else if (fromNode.data.region !== toNode?.data.region && toNode?.data.region !== 'global') {
           e.parent = 'topContainer'
         }
         else {
@@ -324,6 +324,7 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     n.className = n.className + ' node-vnet-peered'
   })
 
+  var loadBalancingEdges2 = canvasEdgesHidden.filter(e => e.data.type === "loadbalancing")
 
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }
