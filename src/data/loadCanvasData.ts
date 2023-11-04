@@ -324,7 +324,5 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     n.className = n.className + ' node-vnet-peered'
   })
 
-  var loadBalancingEdges2 = canvasEdgesHidden.filter(e => e.data.type === "loadbalancing")
-
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }
