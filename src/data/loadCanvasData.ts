@@ -142,10 +142,11 @@ export const loadCanvasData = async (connectionString: string, containerName: st
         n.parent = `container-paas-${n.data.region}`
   })
 
-  // place expressroute circuits into the global container
+  // place expressroute circuits into the global container and set tier to 'hybrid connection'
   const expressrouteNodes = nodeData.filter(n => n.data.servicename === "expressroutecircuit")
   expressrouteNodes.forEach(n => {
-    n.parent = 'global'
+    n.parent = 'global';
+    n.data.tier = LayoutZone.HYBRID_CONNECTION;
   })
 
   // remove any nodes from nodedata that are in the parent 'global' container that do not have edges

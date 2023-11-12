@@ -37,7 +37,7 @@ export const diagramSlice = createSlice({
             if (selectedNode.data.tier === LayoutZone.PAAS) {
                 [displayNodes, displayEdges] = getConnectionGraphPaaS(current(selectedNode), current(state.value.visibleNodes), current(state.value.visibleEdges));
             } else {
-                [displayNodes, displayEdges] = getConnectionGraphVnetInjected(selectedNode, state.value.visibleNodes, state.value.visibleEdges);
+                [displayNodes, displayEdges] = getConnectionGraphVnetInjected(current(selectedNode), current(state.value.visibleNodes), current(state.value.visibleEdges));
             }
             
             const hiddenNodesFromFilter = state.value.visibleNodes.filter(node => !displayNodes.some((n: { id: string; }) => n.id === node.id));

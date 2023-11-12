@@ -15,7 +15,7 @@ import { store } from '../store';
 export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
     const nodesToHide = getChildrenNodes(node, nodeDataVisible);
-    const edgesToHide = getEdgesFromNodes(nodesToHide, edgeDataVisible);    
+    const edgesToHide = getEdgesForNode(nodesToHide, edgeDataVisible);    
     const externalNodesToHide = getExternalNodesToHide(nodeDataVisible, edgeDataVisible, edgesToHide);
     nodesToHide.push(...externalNodesToHide);
     // TODO: Logic in the above methods is resulting in duplicate nodes. Look into this. Fixed for now by using Set
@@ -38,9 +38,9 @@ export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData
 export const expandContainer: any = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
     const nodesToDisplay = getChildrenNodes(node, nodeDataHidden);
-    const edgesToDisplay = getEdgesFromNodes(nodesToDisplay, edgeDataHidden);
+    const edgesToDisplay = getEdgesForNode(nodesToDisplay, edgeDataHidden);
 
-    const externalNodesToDisplay = getNodesFromEdges(edgesToDisplay, nodeDataHidden).map((node: any) => {
+    const externalNodesToDisplay = getNodesForEdges(edgesToDisplay, nodeDataHidden).map((node: any) => {
         if (!nodesToDisplay.some((n: { id: string; }) => n.id === node.id)) {
             return node;
         }
@@ -66,8 +66,8 @@ export const expandContainer: any = (node: NodeData, nodeDataVisible: NodeData[]
  */
 export const getConnectionGraphPaaS = (selectedNode: NodeData, nodes: NodeData[], edges: EdgeData[]): [NodeData[], EdgeData[]] => {
 
-    const connectedEdges: NodeData[] = getEdgesFromNodes([selectedNode], edges);
-    const connectedNodes: NodeData[] = getNodesFromEdges(connectedEdges, nodes);
+    const connectedEdges: NodeData[] = getEdgesForNode([selectedNode], edges);
+    const connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, nodes);
     const connectedNodesParents = [...new Set(connectedNodes.map((node: NodeData) => getParentNodes(node, nodes)).flat())];
     const connectedNodesChildren = connectedNodes.map((node: NodeData) => getChildrenNodes(node, nodes)).flat();
     // const vnetNodes = connectedNodesParents.filter(node => node.data.servicename === 'vnet');
@@ -85,8 +85,8 @@ export const getConnectionGraphPaaS = (selectedNode: NodeData, nodes: NodeData[]
  * @returns A tuple containing the filtered nodes and edges
  */
 export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: NodeData[], edges: EdgeData[]) => {
-    const connectedSelectedNodeEdges: EdgeData[] = getEdgesFromNodes([selectedNode], edges);
-    const connectedSelectedNodeNodes: NodeData[] = getNodesFromEdges(connectedSelectedNodeEdges, nodes);
+    const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNode([selectedNode], edges);
+    const connectedSelectedNodeNodes: NodeData[] = getNodesForEdges(connectedSelectedNodeEdges, nodes);
 
     const parentNodes: NodeData[] = getParentNodes(selectedNode, nodes);
 
@@ -94,21 +94,27 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: No
     const parentSubnet: NodeData | any = parentNodes.find(node => node.data.servicename === 'subnet');
     const peerNodes: NodeData[] = getChildrenNodes(parentSubnet, nodes).filter((peerNode: { id: string; }) => peerNode.id != selectedNode.id);
 
-    // get nodes connected to parent nodes
-    const connectedParentNodeEdges: EdgeData[] = getEdgesFromNodes(parentNodes, edges);
-    const connectedNodes: NodeData[] = getNodesFromEdges(connectedParentNodeEdges, nodes);
+    // get nodes connected to parent nodes and their parent containers
+    const connectedParentNodeEdges: EdgeData[] = getEdgesForNode(parentNodes, edges);
+    const connectedParentNodeNodes: NodeData[] = getNodesForEdges(connectedParentNodeEdges, nodes);
+    const connectedNodesParentNodes: NodeData[] =  connectedParentNodeNodes.map(node => getParentNodes(node, nodes)).flat();
 
-    const connectedNodesParentNodes: NodeData[] =  connectedNodes.map(node => getParentNodes(node, nodes)).flat();
 
-    const connectedVnetNodes = connectedNodes.filter(node => node.data.servicename === 'vnet').filter((node: { id: string; }) => !parentNodes.some((parentNode: { id: string; }) => parentNode.id === node.id));
+    const connectedVnetNodes = connectedParentNodeNodes.filter(node => node.data.servicename === 'vnet').filter((node: { id: string; }) => !parentNodes.some((parentNode: { id: string; }) => parentNode.id === node.id));
     const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(connectedVnetNodes, nodes, edges);
-    const filteredNodes = [selectedNode, ...parentNodes, ...peerNodes, ...connectedNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes].flat();
+    const filteredNodes = [selectedNode, ...parentNodes, ...peerNodes, ...connectedParentNodeNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes].flat();
     const filteredNodesUnique = [...new Set(filteredNodes)];
     const filteredEdges = [connectedParentNodeEdges, ...hybridNetworkingEdges, ...connectedSelectedNodeEdges].flat();
 
     return [filteredNodesUnique, filteredEdges];
 }
 
+/**
+ * This is a recursive function that returns all parent nodes of a given node
+ * @param node 
+ * @param nodeData 
+ * @returns A list of all parent nodes, including all ancestors
+ */
 const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
     const parentNodes = nodeData.filter(parentNode => {
         if (parentNode.id === node.parent) {
@@ -157,7 +163,7 @@ const getChildrenNodes: any = (node: NodeData, nodeData: NodeData[]) => {
  * @param nodeData
  * @returns A list of nodes connected to the edges
  */
-const getNodesFromEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
+const getNodesForEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
     const connectedNodes = edges.map(edge => {
         const connectedNode = nodeData.filter(node => {
             if (node.id === edge.from || node.id === edge.to) {
@@ -171,7 +177,7 @@ const getNodesFromEdges: any = (edges: EdgeData[], nodeData: NodeData[]) => {
     return [...new Set(connectedNodes)];
 }
 
-const getEdgesFromNodes: any = (nodes: NodeData[], edgeData: EdgeData[]) => {
+const getEdgesForNode: any = (nodes: NodeData[], edgeData: EdgeData[]) => {
     const connectedEdges = nodes.map(node => {
         const connectedEdge = edgeData.filter(edge => {
             if (edge.from === node.id || edge.to === node.id) {
@@ -202,19 +208,31 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
 
     vnetGatewayNodes.map(node => {
         const connectedEdges: EdgeData[] = edges.filter(edge => edge.to === node.id);
-        const connectedNodes: NodeData[] = getNodesFromEdges(connectedEdges, nodes)
+        const connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, nodes)
             .filter((node: { id: string; }) => !hubVnetChildren.some((vnetChildNode: { id: string; }) => vnetChildNode.id === node.id)).flat();
+        
         hybridNetworkConnectionEdges.push(...connectedEdges);
 
         connectedNodes.map(node => {
-            if (!hybridNetworkConnectionNodes.some((connectionObject: { id: string; }) => connectionObject.id === node.id)) { hybridNetworkConnectionNodes.push(node); }
+            if (!hybridNetworkConnectionNodes.some((connectionObject: { id: string; }) => connectionObject.id === node.id)) {
+                hybridNetworkConnectionNodes.push(node);
+                // get parent nodes or node
+                const parentNodes: NodeData[] = getParentNodes(node, nodes);
+
+                parentNodes.map(n => {
+                    if (!hybridNetworkConnectionNodes.some((connectionObject: { id: string; }) => connectionObject.id === n.id)) {
+                        hybridNetworkConnectionNodes.push(n);
+                    }
+                });
+                
+            }
         });
     });
 
     // get objects that connect to hybrid network connections
     hybridNetworkConnectionNodes.map(node => {
         const connectedEdges: EdgeData[] = edges.filter(edge => edge.to === node.id);
-        const connectedNodes: NodeData[] = getNodesFromEdges(connectedEdges, nodes)
+        const connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, nodes)
             .filter((node: { id: string; }) => !hybridNetworkConnectionNodes.some((connectionObject: { id: string; }) => connectionObject.id === node.id)).flat();
         peeringLocationEdges.push(...connectedEdges);
 
@@ -237,7 +255,7 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
 const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData[], edgesToHide: EdgeData[]): NodeData[] => {
 
     // TODO: re-factor into a separate function and account for external nodes that still have valid connections
-    const externalNodesToHide = getNodesFromEdges(edgesToHide, visibleNodes).map((node: any) => {
+    const externalNodesToHide = getNodesForEdges(edgesToHide, visibleNodes).map((node: any) => {
         if (visibleNodes.some((n: { id: string; }) => n.id === node.id)) {
             // node is visible and might need to be hidden
             // get list of edges connected to node that are not in edgesToHide
