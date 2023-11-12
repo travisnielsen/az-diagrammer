@@ -1,4 +1,7 @@
 import { NodeData, EdgeData } from 'reaflow';
+import { store } from '../store';
+
+
 
 /**
  * 
@@ -15,7 +18,7 @@ export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData
     const edgesToHide = getEdgesFromNodes(nodesToHide, edgeDataVisible);    
     const externalNodesToHide = getExternalNodesToHide(nodeDataVisible, edgeDataVisible, edgesToHide);
     nodesToHide.push(...externalNodesToHide);
-    // TODO: Logic in teh above methods is resulting in duplicate nodes. Look into this. Fixed for now by using Set
+    // TODO: Logic in the above methods is resulting in duplicate nodes. Look into this. Fixed for now by using Set
     const hiddenNodes = [...new Set([...nodeDataHidden, ...nodesToHide])];
     const displayNodes = nodeDataVisible.filter(node => !nodesToHide.some((n: { id: string; }) => n.id === node.id));
     const hiddenEdges = [...edgeDataHidden, ...edgesToHide];
@@ -62,6 +65,7 @@ export const expandContainer: any = (node: NodeData, nodeDataVisible: NodeData[]
  * @returns A tuple containing the filtered nodes and edges
  */
 export const getConnectionGraphPaaS = (selectedNode: NodeData, nodes: NodeData[], edges: EdgeData[]): [NodeData[], EdgeData[]] => {
+
     const connectedEdges: NodeData[] = getEdgesFromNodes([selectedNode], edges);
     const connectedNodes: NodeData[] = getNodesFromEdges(connectedEdges, nodes);
     const connectedNodesParents = [...new Set(connectedNodes.map((node: NodeData) => getParentNodes(node, nodes)).flat())];
@@ -120,9 +124,15 @@ const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
     return [...parentNodes, ...getParentNodes(parentNodes[0], nodeData)];
 }
 
+/**
+ * This is a recursive function that returns all descendant nodes of a given node
+ * @param node 
+ * @param nodeData 
+ * @returns A list of all child nodes, including all descendants
+ */
 const getChildrenNodes: any = (node: NodeData, nodeData: NodeData[]) => {
-    const childrenNodes = nodeData.filter(childNode => {
-        if (childNode.parent === node.id) {
+    const childrenNodes = nodeData.filter(n => {
+        if (n.parent === node.id) {
             return true;
         }
         return false;
