@@ -1,7 +1,7 @@
 import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow'
-import configData from "../config.json"
 import { AzureData } from '../types/azure/AzureData'
 import { LayoutZone } from '../types/LayoutZone'
+import { DiagramConfiguration, Tags } from '../types/DiagramConfiguration'
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
@@ -15,7 +15,15 @@ const shortId = (s: string | undefined | null) => {
     }
     const splitArr = s.split("/")
     const resourceGroup = splitArr[4].replace(/_/g, "").replace(/-/g, "").toLowerCase()
-    const item = splitArr[splitArr.length -1].replace(/_/g, "").replace(/-/g, "").toLowerCase()
+    const item = splitArr[splitArr.length - 1].replace(/_/g, "").replace(/-/g, "").toLowerCase()
+    
+    // its possible to have two subnets in the same resource group with the same name. Example: AzureFirewallSubnet
+    if (s.includes("/subnets/")) {
+        const vnetToken = s.split("/virtualNetworks/")[1]
+        const vnetName = vnetToken.split("/")[0].replace(/-/g, "").toLowerCase()
+        return resourceGroup + "-" + vnetName + "-" + item
+    }
+
     return resourceGroup + "-" + item
 }
 
@@ -59,16 +67,19 @@ const getRegionIdFromFriendlyName = (name: string) => {
             return "eastus2"
         case ("East US"):
             return "eastus"
+        case ("North Central US"):
+            return "northcentralus"
         default:
             return ""
     }
 }
 
-const hasTagFilterMatch = (s: string | undefined) => {
+const hasTagFilterMatch = (s: string | undefined, excludeTagValues: Tags ) => {
     if (s === undefined) {
         return false
     }
-    return configData.excludeTagValues.includes(s)
+    // TODO: need to solve for tag filtering
+    // return excludeTagValues.includes(s)
 }
 
 const getVmsWithPrivateIp = (azureData: AzureData) => {
@@ -83,7 +94,7 @@ const getVmsWithPrivateIp = (azureData: AzureData) => {
     return vms
 }
 
-export const getNodeData = (azureData: AzureData) => {
+export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) => {
 
     // TODO: remove duplicates from this arraoy
     const targetFirewallIps = azureData.routeTables
@@ -325,9 +336,12 @@ export const getNodeData = (azureData: AzureData) => {
     ))
     
     const firewalls: NodeData[] = azureData.azureFirewalls
-        // TODO: hard-coded tag name here (EnvType). Need to move this to config. 
+        // TODO: hard-coded tag name here (EnvType). Need to move this to config.
+        /*
         .filter((fw) => targetFirewallIps.includes(fw.Properties.ipConfigurations[0].properties.privateIPAddress) && 
             !configData.excludeTagValues.includes(fw.Tags.EnvType))
+        */
+        // .filter((fw) => targetFirewallIps.includes(fw.Properties.ipConfigurations[0].properties.privateIPAddress))
         .map((firewall) => (
         {
             id: shortId(firewall.Id),
@@ -502,7 +516,7 @@ export const getNodeData = (azureData: AzureData) => {
             }
         ))
    
-    const functionApps: NodeData[] = azureData.appServices.filter((s) => s.Kind === "functionapp")
+    const functionApps: NodeData[] = azureData.appServices.filter((s) => s.Kind.includes("functionapp"))
         .map((funcApp) => (
             {
                 id: shortId(funcApp.Id),
@@ -602,10 +616,10 @@ export const getNodeData = (azureData: AzureData) => {
     return nodeData
 }
 
-export const getEdgeData = (azureData: AzureData) => {
+export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) => {
 
     const vnetPeerings: EdgeData[] = azureData.virtualNetworks.filter((vnet) => 
-        vnet.SubscriptionId.includes(configData.subscriptionId) &&
+        vnet.SubscriptionId.includes(config.subscriptionId) &&
         vnet.Properties.virtualNetworkPeerings !== undefined &&
         vnet.Properties.virtualNetworkPeerings !== null)
         .map((vnet) => vnet.Properties.virtualNetworkPeerings?.map((peering) => (
@@ -752,7 +766,8 @@ export const getEdgeData = (azureData: AzureData) => {
     ))
 
     const expressRoutePeerings: EdgeData[] = azureData.gatewayConnections
-        .filter((c) => !hasTagFilterMatch(c.Tags.EnvType))
+        // TODO: Cannot assume tags are present. Need to move this to config or find another way to remove unwanted connections
+        // .filter((c) => !hasTagFilterMatch(c.Tags.EnvType))
         .filter((v, i: any, a: any[]) => a.findIndex((t) => (t.Properties.peer?.id === v.Properties.peer?.id)) === i)
         .map((conn) => (
         {

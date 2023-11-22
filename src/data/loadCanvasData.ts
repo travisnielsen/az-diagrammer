@@ -3,10 +3,11 @@ import { getNodeData, getEdgeData } from './canvasData'
 import { LoadAzureData } from './loadAzureData'
 import { collapseContainer } from '../utility/diagramUtils';
 import { LayoutZone } from '../types/LayoutZone';
+import { DiagramConfiguration } from "../types/DiagramConfiguration";
 
-export const loadCanvasData = async (connectionString: string, containerName: string): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
+export const loadCanvasData = async (config: DiagramConfiguration): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
 
-  const azureData = await LoadAzureData(connectionString, containerName);
+  const azureData = await LoadAzureData(config.connectionString, config.containerName);
 
   if (!azureData) {
     console.log("no azure data found");
@@ -17,8 +18,8 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     return [nodeDataVisible, nodeDataHidden, edgeDataVisible, edgeDataHidden]
   }
 
-  const nodeData = getNodeData(azureData);
-  const edgeData = getEdgeData(azureData); 
+  const nodeData = getNodeData(azureData, config);
+  const edgeData = getEdgeData(azureData, config); 
   
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     const filteredServices = ["routetable", "nsg"]
@@ -119,6 +120,8 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     })
   })
 
+  const hubNetIDs: string[] = []
+
   // service layout container assignments
   // separate vnets into core (hub) and workload (spoke) vnets. Add spoke vnets as child nodes to 'container-network-workload' for layout purposes
   const vnetNodes = nodeData.filter(n => n.data.servicename === "vnet")
@@ -130,6 +133,8 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     if (hasGatewaySubnet) {
       n.data.tier = LayoutZone.NETWORKCORE
       n.parent = n.data.region
+      n.data.role = "hub"
+      hubNetIDs.push(n.id)
     } else {
       n.data.tier = LayoutZone.NETWORKWORKLOAD
       n.parent = `container-network-workload-${n.data.region}`
@@ -156,6 +161,37 @@ export const loadCanvasData = async (connectionString: string, containerName: st
     if (edges.length === 0) {
       const index = nodeData.findIndex(nf => nf.id === n.id)
       nodeData.splice(index, 1)
+    }
+  })
+
+  // some VNETS may not have a gateway subnet but still should be placed in the NETWORKCORE layout zone. These are typically 'bridge' VNETs
+  // I identify them as VNETS Nodes that have multiple egdes (peering), which is due to the circular / redundant bi-directional VNET peering objects in the source data
+  const nodeIdsTo = edgeData.map(e => e.to)
+  const nodesWithMultipleEdges = nodeIdsTo.filter(n => nodeIdsTo.filter(e => e === n).length > 1)
+
+  nodesWithMultipleEdges.forEach(n => {
+    const node = nodeData.find(nf => nf.id === n)
+    if (node && node.data.tier !== LayoutZone.NETWORKCORE) {
+      node.data.tier = LayoutZone.NETWORKCORE
+      node.parent = node.data.region
+    }
+  })
+
+  // Remove duplicate / bi-directional VNET peering edges and adjust for peering relationships between vnets in the same layout zone
+  const networkCoreNodes = nodeData.filter(n => n.data.tier === LayoutZone.NETWORKCORE)
+  const networkCoreNodeIds = networkCoreNodes.map(n => n.id)
+  const vnetPeeringEdges = edgeData.filter(e => e.data.type === 'vnetpeering')
+
+  vnetPeeringEdges.forEach(e => {
+    if (networkCoreNodeIds.includes((e.to || '') && (e.from || ''))) { 
+      if (hubNetIDs.includes(e.to || '')) {
+        const index = edgeData.findIndex(ef => ef.id === e.id)
+        edgeData.splice(index, 1)
+      }
+    }
+    else if (networkCoreNodeIds.includes(e.to || '')) {
+      const index = edgeData.findIndex(ef => ef.id === e.id)
+      edgeData.splice(index, 1)
     }
   })
 
@@ -189,10 +225,12 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnected.includes(n.id))
 
   // remove edges that don't have valid targets
-  var canvasEdgesVisible = edgeData
-    .filter(e => canvasNodesVisible.findIndex(n => n.id === e.to) > 0)
-    .filter(e => canvasNodesVisible.findIndex(n => n.id === e.from) > 0)
 
+  // get edges from edgeData that have either a from or to node that is not in canvasNodesVisible
+  const edgeIdsFromVisible = canvasNodesVisible.map(n => n.id)
+  const edgeIdsToVisible = canvasNodesVisible.map(n => n.id)
+  const edgeIdsVisible = [...new Set([...edgeIdsFromVisible, ...edgeIdsToVisible])]
+  var canvasEdgesVisible = edgeData.filter(e => edgeIdsVisible.includes(e.from || '') && edgeIdsVisible.includes(e.to || ''))
   var canvasNodesHidden: NodeData[] = []
   var canvasEdgesHidden: EdgeData[] = []
 
@@ -318,7 +356,6 @@ export const loadCanvasData = async (connectionString: string, containerName: st
   })
 
   // get nodes that are the from or two of an edge that has data.type === 'vnet-peering'
-  const vnetPeeringEdges = canvasEdgesVisible.filter(e => e.data.type === 'vnetpeering')
   const vnetPeeringNodes = [...new Set([...vnetPeeringEdges.map(e => e.from), ...vnetPeeringEdges.map(e => e.to)])]
   const vnetPeeringNodesData = canvasNodesVisible.filter(n => vnetPeeringNodes.includes(n.id))
   vnetPeeringNodesData.forEach(n => {

@@ -1,19 +1,25 @@
-import { type } from "os";
-
 export type { ApiManagement } from "./ApiManagement";
 export type { AppService } from "./AppService";
 export type { AppServicePlan } from "./AppServicePlan";
 export type { AzureFirewall } from "./AzureFirewall";
+export type { BastionHost } from "./BastionHost";
 export type { CosmosAccount } from "./CosmosAccount";
 export type { DatabricksWorkspace } from "./DatabricksWorkspace";
+export type { DnsForwardingRuleset } from "./DnsForwardingRuleset";
+export type { DnsForwardingRulesetLink } from "./DnsForwardingRulesetLink";
+export type { DnsForwardingRulesetRule } from "./DnsForwardingRulesetRule";
+export type { DnsResolver } from "./DnsResolver";
 export type { EventHubCluster } from "./EventHubCluster";
 export type { EventHubNamespace } from "./EventHubNamespace";
 export type { ExpressRouteCircuit } from "./ExpressRouteCircuit";
 export type { GatewayConnection } from "./GatewayConnection";
+export type { KeyVault } from "./KeyVault";
 export type { LoadBalancer } from "./LoadBalancer";
 export type { NetworkInterface } from "./NetworkInterface";
 export type { NetworkRuleSet } from "./NetworkRuleSet";
 export type { NetworkSecurityGroup } from "./NetworkSecurityGroup";
+export type { PrivateDnsZone } from "./PrivateDnsZone";
+export type { PrivateDnsZoneLink } from "./PrivateDnsZoneLink";
 export type { PrivateEndpoint } from "./PrivateEndpoint";
 export type { RedisCache } from "./RedisCache";
 export type { RouteTable } from "./RouteTable";

@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import ConnectionButton from './ConnectionButton';
+import ConfigurationButton from './ConfigurationButton';
 import SignInAccountButton from './SignInAccountButton';
 import RegionFilterButton from './RegionFilterButton';
 import { FormControl } from 'react-bootstrap';
@@ -30,7 +30,7 @@ const TopNav = () => {
       <Navbar.Collapse className="navbar-row-2" id="basic-navbar-nav">
 
         <span className="navbar-row-2-label">Connection:</span>
-          <ConnectionButton />
+          <ConfigurationButton />
             
         <Navbar.Collapse>
           <span className="navbar-row-2-spacer"></span>

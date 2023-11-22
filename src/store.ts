@@ -3,7 +3,7 @@ import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import diagramReducer from './features/diagramSlice'
 import canvasReducer from './features/canvasSlice'
-import connectionsReducer from './features/connectionsSlice'
+import connectionsReducer from './features/configurationSlice'
 import thunk from 'redux-thunk';
 
 const persistConfig = {
@@ -11,13 +11,13 @@ const persistConfig = {
   storage
 }
 
-const persistedConnectionsReducer = persistReducer(persistConfig, connectionsReducer)
+const persistedConfigurationsReducer = persistReducer(persistConfig, connectionsReducer)
 
 export const store = configureStore({
   reducer: {
     diagram: diagramReducer,
     canvas: canvasReducer,
-    connections: persistedConnectionsReducer
+    configurations: persistedConfigurationsReducer
   },
   middleware: [thunk]
 })

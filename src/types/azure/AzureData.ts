@@ -5,16 +5,24 @@ export class AzureData {
     appServicePlans: AzureTypes.AppServicePlan[] = [];
     appServices: AzureTypes.AppService[] = [];
     azureFirewalls: AzureTypes.AzureFirewall[] = [];
+    bastions: AzureTypes.BastionHost[] = [];
     cosmosAccounts: AzureTypes.CosmosAccount[] = [];
     databricksWorkspaces: AzureTypes.DatabricksWorkspace[] = [];
+    dnsForwardingRulesets: AzureTypes.DnsForwardingRuleset[] = [];
+    dnsForwardingRulesetLinks: AzureTypes.DnsForwardingRulesetLink[] = [];
+    dnsForwardingRulesetRules: AzureTypes.DnsForwardingRulesetRule[] = [];
+    dnsResolvers: AzureTypes.DnsResolver[] = [];
     eventHubClusters: AzureTypes.EventHubCluster[] = [];
     eventHubNamespaces: AzureTypes.EventHubNamespace[] = [];
     eventHubNetworkRuleSets: AzureTypes.NetworkRuleSet[] = [];
     expressRouteCircuits: AzureTypes.ExpressRouteCircuit[] = [];
     gatewayConnections: AzureTypes.GatewayConnection[] = [];
+    keyVaults: AzureTypes.KeyVault[] = [];
     loadBalancers: AzureTypes.LoadBalancer[] = [];
     networkInterfaces: AzureTypes.NetworkInterface[] = [];
     networkSecurityGroups: AzureTypes.NetworkSecurityGroup[] = [];
+    privateDnsZones: AzureTypes.PrivateDnsZone[] = [];
+    privateDnsZoneLinks: AzureTypes.PrivateDnsZoneLink[] = [];
     privateEndpoints: AzureTypes.PrivateEndpoint[] = [];
     redisCache: AzureTypes.RedisCache[] = [];
     routeTables: AzureTypes.RouteTable[] = [];
@@ -22,8 +30,8 @@ export class AzureData {
     serviceBusNetworkRuleSets: AzureTypes.NetworkRuleSet[] = [];
     storageAccounts: AzureTypes.StorageAccount[] = [];
     subscriptions: AzureTypes.Subscription[] = [];
-    virtualMachinesDns: AzureTypes.VirtualMachine[] = [];
     virtualMachineScaleSets: AzureTypes.VirtualMachineScaleSet[] = [];
+    virtualMachinesDns: AzureTypes.VirtualMachine[] = [];
     virtualNetworks: AzureTypes.VirtualNetwork[] = [];
     vnetGateways: AzureTypes.VnetGateway[] = [];
 }

@@ -1,24 +1,28 @@
 import { useState } from "react";
 import { Button, Form, ModalProps } from "react-bootstrap";
-import { removeConnection, updateConnection } from "../features/connectionsSlice";
+import { removeConfiguration, updateConfiguration } from "../features/configurationSlice";
 import { useAppDispatch } from "../hooks";
 
 
-const EditConnectionsDetail = (props: ModalProps) => {
+const EditConfigurationsDetail = (props: ModalProps) => {
 
     // TODO: There must be a better way to do this using the StorageAccountConnection type
     // const [connectionInfo, setConnectionInfo] = useState((props.connection) as StorageAccountConnection);
     
     const dispatch = useAppDispatch()
-    const [connectionName, setConnectionName] = useState(props.connection.name);
-    const [connectionString, setConnectionString] = useState(props.connection.connectionString);
-    const [containerName, setContainerName] = useState(props.connection.containerName);
-    const [folderName, setFolderName] = useState(props.connection.folderName);
+    const [configurationName, setConfigurationName] = useState(props.configuration.name);
+    const [subscriptionId, setSubscriptionId] = useState(props.configuration.subscriptionId);
+    const [excludeTags, setExcludeTags] = useState(props.configuration.excludeTags);
+    const [connectionString, setConnectionString] = useState(props.configuration.connectionString);
+    const [containerName, setContainerName] = useState(props.configuration.containerName);
+    const [folderName, setFolderName] = useState(props.configuration.folderName);
 
     function handleUpdate() {
-        dispatch(updateConnection({
-            id: props.connection.id,
-            name: connectionName,
+        dispatch(updateConfiguration({
+            id: props.configuration.id,
+            name: configurationName,
+            subscriptionId: subscriptionId,
+            excludeTags: excludeTags,
             connectionString: connectionString,
             containerName: containerName,
             selected: props.connection.selected,
@@ -29,12 +33,14 @@ const EditConnectionsDetail = (props: ModalProps) => {
     }
 
     function handleDelete() {
-        dispatch(removeConnection({
-            id: props.connection.id,
-            name: connectionName,
+        dispatch(removeConfiguration({
+            id: props.configuration.id,
+            name: configurationName,
+            subscriptionId: subscriptionId,
+            excludeTags: excludeTags,
             connectionString: connectionString,
             containerName: containerName,
-            selected: props.connection.selected,
+            selected: props.configuration.selected,
             folderName: folderName
         }));
     }
@@ -42,9 +48,17 @@ const EditConnectionsDetail = (props: ModalProps) => {
     return (
         <>
             <Form>
-                <Form.Group className="mb-3" controlId="formConnectionName">
+                <Form.Group className="mb-3" controlId="formConfigurationName">
                     <Form.Label>Name</Form.Label>
-                    <Form.Control readOnly value={connectionName} onChange={e => setConnectionName(e.target.value) }/>
+                    <Form.Control readOnly value={configurationName} onChange={e => setConfigurationName(e.target.value) }/>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formSubscriptionId">
+                    <Form.Label>Subscription ID</Form.Label>
+                    <Form.Control value={subscriptionId} onChange={e => setSubscriptionId(e.target.value) }/>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formExcludeTags">
+                    <Form.Label>Exclude Tags</Form.Label>
+                    <Form.Control type="text" defaultValue={excludeTags} onChange={e => setExcludeTags(e.target.value)} />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formStorageAcctConnectionString">
                     <Form.Label>Connection String</Form.Label>
@@ -67,4 +81,4 @@ const EditConnectionsDetail = (props: ModalProps) => {
     )
 }
 
-export default EditConnectionsDetail;
+export default EditConfigurationsDetail;

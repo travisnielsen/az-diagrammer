@@ -1,56 +1,38 @@
-import { BlobServiceClient } from "@azure/storage-blob";
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import * as AzureTypes from '../types/azure/AzureTypes';
-import { AzureData }  from "../types/azure/AzureData";
+import { AzureData } from "../types/azure/AzureData";
 
 export const LoadAzureData = async (connectionString: string, containerName: string) => {
+        
+    let azureData: AzureData = new AzureData();
 
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    const containerClient = blobServiceClient.getContainerClient(containerName);
-    
-    let azureData: AzureData = {
-        apiManagement: [],
-        appServicePlans: [],
-        appServices: [],
-        azureFirewalls: [],
-        cosmosAccounts: [],
-        databricksWorkspaces: [],
-        eventHubClusters: [],
-        eventHubNamespaces: [],
-        eventHubNetworkRuleSets: [],
-        expressRouteCircuits: [],
-        gatewayConnections: [],
-        loadBalancers: [],       
-        networkInterfaces: [],
-        networkSecurityGroups: [],
-        privateEndpoints: [],
-        redisCache: [],
-        routeTables: [],
-        serviceBusNamespaces: [],
-        serviceBusNetworkRuleSets: [],
-        storageAccounts: [],
-        subscriptions: [],
-        virtualMachinesDns: [],
-        virtualMachineScaleSets: [],
-        virtualNetworks: [],
-        vnetGateways: []
-    };
-    
-    const fileNames = await getBlobFiles().catch((err) => {
-        console.error(err);
-    });
+    if (connectionString.toLowerCase() === 'demo') {
 
-    if (fileNames) {
-        for (const fileName of fileNames) {
-            await getAzureData(fileName);
-        }
+        // const demoData = await import('../data/aks.json');
+
+
     } else {
-        console.log("no blob files found")
+
+        const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+        const containerClient = blobServiceClient.getContainerClient(containerName);
+    
+        const fileNames = await getBlobFiles(containerClient).catch((err) => {
+            console.error(err);
+        });
+
+        if (fileNames) {
+            for (const fileName of fileNames) {
+                await getAzureDataFromBlob(fileName, containerClient);
+            }
+        } else {
+            console.log("no blob files found")
+        }
     }
 
     return azureData;
 
     // return list of Blob files
-    async function getBlobFiles() {
+    async function getBlobFiles(containerClient: ContainerClient) {
         let i = 1;
         let blobNames = [];
         let blobs = containerClient.listBlobsFlat();
@@ -82,7 +64,7 @@ export const LoadAzureData = async (connectionString: string, containerName: str
         }
     }
 
-    async function getAzureData(blobName: string) {
+    async function getAzureDataFromBlob(blobName: string, containerClient: ContainerClient) {
         const blobClient = await containerClient.getBlobClient(blobName)
         const downloadResponse = await blobClient.download();
         const blobString = await blobToString(await downloadResponse.blobBody);
@@ -188,6 +170,39 @@ export const LoadAzureData = async (connectionString: string, containerName: str
                 const gatewayConnections: AzureTypes.GatewayConnection[]  = await blobToJSONArray(blobString);
                 azureData.gatewayConnections = gatewayConnections;
                 break;
+            case "bastionHosts.json":
+                const bastionHosts: AzureTypes.BastionHost[]  = await blobToJSONArray(blobString);
+                azureData.bastions = bastionHosts;
+                break;            
+            
+            case "dnsForwardingRulesets.json":
+                const dnsForwardingRulesets: AzureTypes.DnsForwardingRuleset[]  = await blobToJSONArray(blobString);
+                azureData.dnsForwardingRulesets = dnsForwardingRulesets;
+                break;                 
+            case "dnsForwardingRulesetRules.json":
+                const dnsForwardingRulesetRules: AzureTypes.DnsForwardingRulesetRule[]  = await blobToJSONArray(blobString);
+                azureData.dnsForwardingRulesetRules = dnsForwardingRulesetRules;
+                break;            
+            case "dnsForwardingRulesetLinks.json":
+                const dnsForwardingRulesetLinks: AzureTypes.DnsForwardingRulesetLink[]  = await blobToJSONArray(blobString);
+                azureData.dnsForwardingRulesetLinks = dnsForwardingRulesetLinks;
+                break;     
+            case "dnsResolvers.json":
+                const dnsResolvers: AzureTypes.DnsResolver[]  = await blobToJSONArray(blobString);
+                azureData.dnsResolvers = dnsResolvers;
+                break;
+            case "keyVaults.json":
+                const keyVaults: AzureTypes.KeyVault[]  = await blobToJSONArray(blobString);
+                azureData.keyVaults = keyVaults;
+                break;     
+            case "privateDnsZones.json":
+                const privateDnsZones: AzureTypes.PrivateDnsZone[]  = await blobToJSONArray(blobString);
+                azureData.privateDnsZones = privateDnsZones;
+                break;   
+            case "privateDnsZoneLinks.json":
+                const privateDnsZoneLinks: AzureTypes.PrivateDnsZoneLink[]  = await blobToJSONArray(blobString);
+                azureData.privateDnsZoneLinks = privateDnsZoneLinks;
+                break;              
             default:
                 break;
         }

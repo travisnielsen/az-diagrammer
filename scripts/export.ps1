@@ -90,7 +90,7 @@ $listFirewalls = New-Object -TypeName 'System.Collections.ArrayList'
 $listNatGateways = New-Object -TypeName 'System.Collections.ArrayList'
 $listVnetGateways = New-Object -TypeName 'System.Collections.ArrayList'
 $listExpressRouteCircuits = New-Object -TypeName 'System.Collections.ArrayList'
-$listVmNics = New-Object -TypeName 'System.Collections.ArrayList'
+$listDnsVmNics = New-Object -TypeName 'System.Collections.ArrayList'
 $listDnsServers = New-Object -TypeName 'System.Collections.ArrayList'
 
 foreach ($subscription in $subscriptions) {
@@ -104,7 +104,7 @@ foreach ($subscription in $subscriptions) {
             $vmId = $nic.virtualMachine.id
             $vm = Get-AzResource -ResourceId $vmId -ExpandProperties
             $listDnsServers.Add($vm)
-            $listVmNics.Add($nic)
+            $listDnsVmNics.Add($nic)
         }
         
     }
@@ -126,10 +126,29 @@ $dictServices = @{}
 
 foreach ($service in $services) {
     $items = Get-AzResource -ResourceType "${service}" -ExpandProperties
-    $dictServices.add( $service, $items)
+    # $dictServices.add( $service, $items)
+
+    # get vnet links for DNS forwarding rulesets
+    if ($service -eq "Microsoft.Network/dnsForwardingRulesets") {
+
+        $dnsForwardingRuleSetRules = New-Object -TypeName 'System.Collections.ArrayList'
+        $dnsForwardingRulesetLinks = New-Object -TypeName 'System.Collections.ArrayList'
+
+        foreach ($dnsForwardingRuleset in $items) {
+            $dnsForwardingRules = Get-AzDnsForwardingRulesetForwardingRule -DnsForwardingRulesetName $dnsForwardingRuleset.Name -ResourceGroupName $dnsForwardingRuleset.ResourceGroupName
+            $dnsForwardingRuleSetRules.Add($dnsForwardingRules)
+
+            Get-AzDnsForwardingRulesetVirtualNetworkLink -DnsForwardingRulesetName $dnsForwardingRuleset.Name -ResourceGroupName $dnsForwardingRuleset.ResourceGroupName | ForEach-Object { $dnsForwardingRulesetLinks.Add($_) }
+        }
+
+        $dictServices.add("Microsoft.Network/dnsForwardingRulesets", $items)
+        $dictServices.add("Microsoft.Network/dnsForwardingRulesets//forwardingRule", $dnsForwardingRuleSetRules)
+        $dictServices.add("Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks", $dnsForwardingRulesetLinks)
+
+    }
 
     # get network rules for Event Hub and Service Bus
-    if ($service -eq "Microsoft.EventHub/namespaces" -or $service -eq "Microsoft.ServiceBus/namespaces") {
+    elseif ($service -eq "Microsoft.EventHub/namespaces" -or $service -eq "Microsoft.ServiceBus/namespaces") {
 
         $networkRuleSets = New-Object -TypeName 'System.Collections.ArrayList'
         $namespace = ""
@@ -149,6 +168,9 @@ foreach ($service in $services) {
 
         $dictServices.add($namespace, $networkRuleSets)
     }
+    else {
+        $dictServices.add($service, $items)
+    }
 }
 
 #
@@ -166,13 +188,20 @@ ConvertTo-Json -InputObject $listVnetGateways -Depth 20 | Out-File "..//data/${o
 ConvertTo-Json -InputObject $listGatewayConnections -Depth 20 | Out-File "..//data/${outFolder}/gatewayConnections.json"
 ConvertTo-Json -InputObject $listExpressRouteCircuits -Depth 20 | Out-File "..//data/${outFolder}/expressRouteCircuits.json"
 ConvertTo-Json -InputObject $listDnsServers -Depth 20 | Out-File "..//data/${outFolder}/virtualMachines-dns.json"
-ConvertTo-Json -InputObject $listVmNics -Depth 20 | Out-File "..//data/${outFolder}/networkInterfaces.json"
+ConvertTo-Json -InputObject $listDnsVmNics -Depth 20 | Out-File "..//data/${outFolder}/networkInterfaces-dns.json"
 
 $dictServices.GetEnumerator() | ForEach-Object {
     $filename = $_.key.Split("/")[1]
 
     switch ($_.Key)
     {
+        "Microsoft.Network/dnsForwardingRulesets//forwardingRule" { $filename = "dnsForwardingRulesetRules"; Break }
+        "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks" { $filename = "dnsForwardingRulesetLinks"; Break }
+        "Microsoft.Network/privateDnsZones/virtualNetworkLinks" { $filename = "privateDnsZoneLinks"; Break }
+        "microsoft.insights/components" { $filename = "appInsights"; Break }
+        "Microsoft.ContainerRegistry/registries" { $filename = "containerRegistries"; Break }
+        "Microsoft.OperationalInsights/workspaces" { $filename = "logAnalyticsWorkspaces"; Break }
+        "Microsoft.KeyVault/vaults" { $filename = "keyVaults"; Break }
         "Microsoft.ServiceBus/namespaces" { $filename = "serviceBusNamespaces"; Break }
         "Microsoft.ServiceBus/namespaces/NetworkRuleSets" { $filename = "serviceBusNetworkRuleSets"; Break }
         "Microsoft.EventHub/clusters" { $filename = "eventHubClusters"; Break }

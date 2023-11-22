@@ -1,37 +1,37 @@
 import { useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import AddConnection from './AddConnection';
-import EditConnections from './EditConnections';
+import AddConfiguration from './AddConfiguration';
+import EditConfigurations from './EditConfigurations';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { StorageAccountConnection } from '../types/StorageAccountConnection';
-import { setSelectedConnection } from '../features/connectionsSlice';
+import { DiagramConfiguration } from '../types/DiagramConfiguration';
+import { setSelectedConfiguration } from '../features/configurationSlice';
 import { setVisibleNodes, setVisibleEdges, setHiddenNodes, setHiddenEdges } from '../features/diagramSlice'
 import { loadCanvasData } from '../data/loadCanvasData';
 import { useMsal, useAccount } from "@azure/msal-react";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { NodeData } from 'reaflow';
 
-const ConnectionButton = () => {
+const ConfigurationButton = () => {
 
     const { instance, accounts, inProgress } = useMsal();
     const account = useAccount(accounts[0] || {});
 
     const dispatch = useAppDispatch()
     const [modalShow, setModalShow] = useState(false);
-    const [editConnectionModel, setModalShowEditConnections] = useState(false);
+    const [editConfigurationModal, setModalShowEditConfigurations] = useState(false);
 
-    const selectedConnection: StorageAccountConnection = useAppSelector((state: any) => {
-        if (state.connections.value.filter((c: { selected: any; }) => c.selected).length === 0) {
+    const selectedConfiguration: DiagramConfiguration = useAppSelector((state: any) => {
+        if (state.configurations.value.filter((c: { selected: any; }) => c.selected).length === 0) {
             return "Select connection...";
         }
-        return state.connections.value.filter((c: { selected: any; }) => c.selected)[0]
+        return state.configurations.value.filter((c: { selected: any; }) => c.selected)[0]
     })
 
     // called when the selected connection changes
     useEffect(() => {
         
         const fetchData = async () => {
-            const [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = await loadCanvasData(selectedConnection.connectionString, selectedConnection.containerName);
+            const [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = await loadCanvasData(selectedConfiguration);
             dispatch(setVisibleNodes(canvasNodesVisible));
             dispatch(setVisibleEdges(canvasEdgesVisible));
             dispatch(setHiddenNodes(canvasNodesHidden));
@@ -46,9 +46,9 @@ const ConnectionButton = () => {
         }
 
         
-        if (selectedConnection.name && selectedConnection.name !== "Select connection...") {
+        if (selectedConfiguration.name && selectedConfiguration.name !== "Select connection...") {
 
-            if (selectedConnection.connectionString.includes("SharedAccessSignature") && inProgress === "none") {
+            if (selectedConfiguration.connectionString.includes("SharedAccessSignature") && inProgress === "none") {
                 fetchData();
                 return;
             }
@@ -82,39 +82,39 @@ const ConnectionButton = () => {
             }
         }
 
-    }, [selectedConnection, account, inProgress, instance]);
+    }, [selectedConfiguration, account, inProgress, instance]);
 
-    const connections: StorageAccountConnection[] = useAppSelector((state: any) => state.connections.value)
+    const configurations: DiagramConfiguration[] = useAppSelector((state: any) => state.configurations.value)
 
     function handleSelect(e: any, id: string) {
-        dispatch(setSelectedConnection(id))
+        dispatch(setSelectedConfiguration(id))
     }
 
-    const renderedListItems = connections.map(connection => {
-        const href = "#/" + connection.name.replace(" ", "-");
-        const key = connection.id;
-        return <Dropdown.Item href={href} key={key} onClick={(e) => handleSelect(e, connection.id)}>{connection.name}</Dropdown.Item>
+    const renderedListItems = configurations.map(configuration => {
+        const href = "#/" + configuration.name.replace(" ", "-");
+        const key = configuration.id;
+        return <Dropdown.Item href={href} key={key} onClick={(e) => handleSelect(e, configuration.id)}>{configuration.name}</Dropdown.Item>
     })
 
     return (
         <>
             <Dropdown>
                 <Dropdown.Toggle id="dropdown-button-dark-example1" variant="dark" size='sm'>
-                {selectedConnection.name}
+                {selectedConfiguration.name}
                 </Dropdown.Toggle>
                 <Dropdown.Menu variant="dark">
                     {renderedListItems}
                     <Dropdown.Divider />
-                    <Dropdown.Item key="addConnection" href="#/action-1" onClick={() => setModalShow(true)}>Add</Dropdown.Item>
-                    <Dropdown.Item key="editConnections" href="#/action-2" onClick={() => setModalShowEditConnections(true)}>Edit</Dropdown.Item>
+                    <Dropdown.Item key="addConfiguration" href="#/action-1" onClick={() => setModalShow(true)}>Add</Dropdown.Item>
+                    <Dropdown.Item key="editConfigurations" href="#/action-2" onClick={() => setModalShowEditConfigurations(true)}>Edit</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
 
-            <AddConnection show={modalShow} onHide={() => setModalShow(false)}/>
-            <EditConnections show={editConnectionModel} onHide={() => setModalShowEditConnections(false)}/>
+            <AddConfiguration show={modalShow} onHide={() => setModalShow(false)}/>
+            <EditConfigurations show={editConfigurationModal} onHide={() => setModalShowEditConfigurations(false)}/>
         </>
     )
 
 };
 
-export default ConnectionButton;
+export default ConfigurationButton;
