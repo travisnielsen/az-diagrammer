@@ -6,6 +6,7 @@ export class AzureData {
     appServices: AzureTypes.AppService[] = [];
     azureFirewalls: AzureTypes.AzureFirewall[] = [];
     bastions: AzureTypes.BastionHost[] = [];
+    containerRegistries: AzureTypes.ContainerRegistry[] = [];
     cosmosAccounts: AzureTypes.CosmosAccount[] = [];
     databricksWorkspaces: AzureTypes.DatabricksWorkspace[] = [];
     dnsForwardingRulesets: AzureTypes.DnsForwardingRuleset[] = [];
@@ -31,6 +32,7 @@ export class AzureData {
     storageAccounts: AzureTypes.StorageAccount[] = [];
     subscriptions: AzureTypes.Subscription[] = [];
     virtualMachineScaleSets: AzureTypes.VirtualMachineScaleSet[] = [];
+    virtualMachines: AzureTypes.VirtualMachine[] = [];
     virtualMachinesDns: AzureTypes.VirtualMachine[] = [];
     virtualNetworks: AzureTypes.VirtualNetwork[] = [];
     vnetGateways: AzureTypes.VnetGateway[] = [];

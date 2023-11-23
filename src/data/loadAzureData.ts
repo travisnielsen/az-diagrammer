@@ -90,6 +90,10 @@ export const LoadAzureData = async (connectionString: string, containerName: str
                 const virtualMachineScaleSets: AzureTypes.VirtualMachineScaleSet[]  = await blobToJSONArray(blobString);
                 azureData.virtualMachineScaleSets = virtualMachineScaleSets;
                 break;
+            case "virtualmachines.json":
+                const vms: AzureTypes.VirtualMachine[]  = await blobToJSONArray(blobString);
+                azureData.virtualMachines = vms;
+                break;
             case "virtualmachines-dns.json":
                 const virtualMachines: AzureTypes.VirtualMachine[]  = await blobToJSONArray(blobString);
                 azureData.virtualMachinesDns = virtualMachines;
@@ -170,39 +174,42 @@ export const LoadAzureData = async (connectionString: string, containerName: str
                 const gatewayConnections: AzureTypes.GatewayConnection[]  = await blobToJSONArray(blobString);
                 azureData.gatewayConnections = gatewayConnections;
                 break;
-            case "bastionHosts.json":
+            case "bastionhosts.json":
                 const bastionHosts: AzureTypes.BastionHost[]  = await blobToJSONArray(blobString);
                 azureData.bastions = bastionHosts;
                 break;            
-            
-            case "dnsForwardingRulesets.json":
+            case "dnsforwardingrulesets.json":
                 const dnsForwardingRulesets: AzureTypes.DnsForwardingRuleset[]  = await blobToJSONArray(blobString);
                 azureData.dnsForwardingRulesets = dnsForwardingRulesets;
                 break;                 
-            case "dnsForwardingRulesetRules.json":
+            case "dnsforwardingrulesetrules.json":
                 const dnsForwardingRulesetRules: AzureTypes.DnsForwardingRulesetRule[]  = await blobToJSONArray(blobString);
                 azureData.dnsForwardingRulesetRules = dnsForwardingRulesetRules;
                 break;            
-            case "dnsForwardingRulesetLinks.json":
+            case "dnsforwardingrulesetlinks.json":
                 const dnsForwardingRulesetLinks: AzureTypes.DnsForwardingRulesetLink[]  = await blobToJSONArray(blobString);
                 azureData.dnsForwardingRulesetLinks = dnsForwardingRulesetLinks;
                 break;     
-            case "dnsResolvers.json":
+            case "dnsresolvers.json":
                 const dnsResolvers: AzureTypes.DnsResolver[]  = await blobToJSONArray(blobString);
                 azureData.dnsResolvers = dnsResolvers;
                 break;
-            case "keyVaults.json":
+            case "keyvaults.json":
                 const keyVaults: AzureTypes.KeyVault[]  = await blobToJSONArray(blobString);
                 azureData.keyVaults = keyVaults;
                 break;     
-            case "privateDnsZones.json":
+            case "privatednszones.json":
                 const privateDnsZones: AzureTypes.PrivateDnsZone[]  = await blobToJSONArray(blobString);
                 azureData.privateDnsZones = privateDnsZones;
                 break;   
-            case "privateDnsZoneLinks.json":
+            case "privatednszonelinks.json":
                 const privateDnsZoneLinks: AzureTypes.PrivateDnsZoneLink[]  = await blobToJSONArray(blobString);
                 azureData.privateDnsZoneLinks = privateDnsZoneLinks;
-                break;              
+                break;
+            case "containerregistries.json":
+                const containerRegistries: AzureTypes.ContainerRegistry[]  = await blobToJSONArray(blobString);
+                azureData.containerRegistries = containerRegistries;
+                break;            
             default:
                 break;
         }

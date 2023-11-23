@@ -28,7 +28,7 @@ interface Properties {
     provisioningState: string;
     dnsName: string;
     scaleUnits: number;
-    ipConfigurations?: (IpConfigurationsEntity)[] | null;
+    ipConfigurations: (IpConfigurationsEntity)[];
 }
 
 interface IpConfigurationsEntity {

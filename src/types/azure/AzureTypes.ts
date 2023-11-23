@@ -3,6 +3,7 @@ export type { AppService } from "./AppService";
 export type { AppServicePlan } from "./AppServicePlan";
 export type { AzureFirewall } from "./AzureFirewall";
 export type { BastionHost } from "./BastionHost";
+export type { ContainerRegistry } from "./ContainerRegistry";
 export type { CosmosAccount } from "./CosmosAccount";
 export type { DatabricksWorkspace } from "./DatabricksWorkspace";
 export type { DnsForwardingRuleset } from "./DnsForwardingRuleset";

@@ -209,14 +209,14 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     }
   })
 
-  // remove unconnected items unless they are containers or have a parent node
+  // REMOVE unconnected items unless they are containers or have a parent node
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
   var canvasNodesVisible = nodeData.filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
 
   // remove empty containers
-  canvasNodesVisible = canvasNodesVisible.filter(n => n.data.type === "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
+  // canvasNodesVisible = canvasNodesVisible.filter(n => n.data.type === "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
   // remove paasNodes that do not have connections
   const paasNodesDisconnected = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
@@ -227,14 +227,23 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   // remove edges that don't have valid targets
 
   // get edges from edgeData that have either a from or to node that is not in canvasNodesVisible
-  const edgeIdsFromVisible = canvasNodesVisible.map(n => n.id)
-  const edgeIdsToVisible = canvasNodesVisible.map(n => n.id)
-  const edgeIdsVisible = [...new Set([...edgeIdsFromVisible, ...edgeIdsToVisible])]
-  var canvasEdgesVisible = edgeData.filter(e => edgeIdsVisible.includes(e.from || '') && edgeIdsVisible.includes(e.to || ''))
+
+  var canvasEdgesVisible = edgeData.filter(e => edgeIds.includes(e.from || '') && edgeIds.includes(e.to || ''))
+
+  // get edges that are not in canvasEdgesVisible
+  var canvasEdgesHidden = edgeData.filter(e => !canvasEdgesVisible.includes(e))
+
   var canvasNodesHidden: NodeData[] = []
-  var canvasEdgesHidden: EdgeData[] = []
+  // var canvasEdgesHidden: EdgeData[] = []
+
+
+
+
+
+
 
   // iterate through all subnets and set data.status to 'closed'.
+  
   const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
   subnetNodes.forEach(n => {
     // collapse subnets except for hub vnets
@@ -244,6 +253,11 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
       n.data.status = "closed"
     }
   })
+
+
+
+
+
 
   // if there are > 3 items of the same type within a 'compute' or 'analytics' container, replace them with a substitute node
   const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && (n.data.category === 'compute' || n.data.category == 'analytics') )

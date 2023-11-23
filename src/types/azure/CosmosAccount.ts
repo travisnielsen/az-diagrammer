@@ -17,20 +17,18 @@ export interface CosmosAccount extends AzureBase {
     Type: string;
     ResourceType: string;
     ExtensionResourceType?: null;
-    TagsTable: string;
+    TagsTable?: null;
     SubscriptionId: string;
     CreatedTime?: null;
     ChangedTime?: null;
     ETag?: null;
-}
-  
+  }
 interface Identity {
     PrincipalId?: null;
     TenantId?: null;
     Type: string;
     UserAssignedIdentities?: null;
-}
-
+  }
 interface Properties {
     provisioningState: string;
     documentEndpoint: string;
@@ -40,52 +38,59 @@ interface Properties {
     enableMultipleWriteLocations: boolean;
     enablePartitionKeyMonitor: boolean;
     isVirtualNetworkFilterEnabled: boolean;
-    virtualNetworkRules: (VirtualNetworkRulesEntity)[];
+    virtualNetworkRules?: (null)[] | null;
+    privateEndpointConnections?: (PrivateEndpointConnectionsEntity)[] | null;
     EnabledApiTypes: string;
     disableKeyBasedMetadataWriteAccess: boolean;
     enableFreeTier: boolean;
     enableAnalyticalStorage: boolean;
-    analyticalStorageConfiguration: {};
+    analyticalStorageConfiguration: AnalyticalStorageConfiguration;
     instanceId: string;
-    createMode: string;
     databaseAccountOfferType: string;
     defaultIdentity: string;
     networkAclBypass: string;
-    enableClientTelemetry: boolean;
     disableLocalAuth: boolean;
     enablePartitionMerge: boolean;
+    enableBurstCapacity: boolean;
     minimalTlsVersion: string;
     consistencyPolicy: ConsistencyPolicy;
-    configurationOverrides: {};
+    configurationOverrides: ConfigurationOverridesOrTags;
     writeLocations?: (WriteLocationsEntityOrReadLocationsEntityOrLocationsEntity)[] | null;
     readLocations?: (WriteLocationsEntityOrReadLocationsEntityOrLocationsEntity)[] | null;
     locations?: (WriteLocationsEntityOrReadLocationsEntityOrLocationsEntity)[] | null;
     failoverPolicies?: (FailoverPoliciesEntity)[] | null;
     cors?: (null)[] | null;
     capabilities?: (null)[] | null;
-    ipRules?: (IpRulesEntity)[] | null;
+    ipRules?: (null)[] | null;
     backupPolicy: BackupPolicy;
     networkAclBypassResourceIds?: (null)[] | null;
-    keysMetadata: {
-        primaryMasterKey: { generationTime: string; };
-        secondaryMasterKey: { generationTime: string; };
-        primaryReadonlyMasterKey: { generationTime: string; };
-        secondaryReadonlyMasterKey: { generationTime: string; };
-    };
-}
-
-interface VirtualNetworkRulesEntity {
+    keysMetadata: KeysMetadata;
+  }
+interface PrivateEndpointConnectionsEntity {
     id: string;
-    ignoreMissingVNetServiceEndpoint: boolean;
-}
-
-  
+    properties: Properties1;
+  }
+interface Properties1 {
+    privateEndpoint: PrivateEndpoint;
+    privateLinkServiceConnectionState: PrivateLinkServiceConnectionState;
+  }
+interface PrivateEndpoint {
+    id: string;
+  }
+interface PrivateLinkServiceConnectionState {
+    status: string;
+    actionsRequired: string;
+  }
+interface AnalyticalStorageConfiguration {
+    schemaType: string;
+  }
 interface ConsistencyPolicy {
     defaultConsistencyLevel: string;
     maxIntervalInSeconds: number;
     maxStalenessPrefix: number;
-}
-  
+  }
+interface ConfigurationOverridesOrTags {
+  }
 interface WriteLocationsEntityOrReadLocationsEntityOrLocationsEntity {
     id: string;
     locationName: string;
@@ -93,20 +98,28 @@ interface WriteLocationsEntityOrReadLocationsEntityOrLocationsEntity {
     provisioningState: string;
     failoverPriority: number;
     isZoneRedundant: boolean;
-}
-  
+  }
 interface FailoverPoliciesEntity {
     id: string;
     locationName: string;
     failoverPriority: number;
-}
-  
-interface IpRulesEntity {
-    ipAddressOrRange: string;
-}
-  
+  }
 interface BackupPolicy {
     type: string;
-}
- 
+    periodicModeProperties: PeriodicModeProperties;
+  }
+interface PeriodicModeProperties {
+    backupIntervalInMinutes: number;
+    backupRetentionIntervalInHours: number;
+    backupStorageRedundancy: string;
+  }
+interface KeysMetadata {
+    primaryMasterKey: PrimaryMasterKeyOrSecondaryMasterKeyOrPrimaryReadonlyMasterKeyOrSecondaryReadonlyMasterKey;
+    secondaryMasterKey: PrimaryMasterKeyOrSecondaryMasterKeyOrPrimaryReadonlyMasterKeyOrSecondaryReadonlyMasterKey;
+    primaryReadonlyMasterKey: PrimaryMasterKeyOrSecondaryMasterKeyOrPrimaryReadonlyMasterKeyOrSecondaryReadonlyMasterKey;
+    secondaryReadonlyMasterKey: PrimaryMasterKeyOrSecondaryMasterKeyOrPrimaryReadonlyMasterKeyOrSecondaryReadonlyMasterKey;
+  }
+  interface PrimaryMasterKeyOrSecondaryMasterKeyOrPrimaryReadonlyMasterKeyOrSecondaryReadonlyMasterKey {
+    generationTime: string;
+  }
   

@@ -17,20 +17,40 @@ export interface ServiceBusNamespace extends AzureBase {
     Type: string;
     ResourceType: string;
     ExtensionResourceType?: null;
-    TagsTable: string;
+    TagsTable?: null;
     SubscriptionId: string;
     CreatedTime?: null;
     ChangedTime?: null;
     ETag?: null;
-}
-
+  }
 interface Properties {
     disableLocalAuth: boolean;
     zoneRedundant: boolean;
+    privateEndpointConnections?: (PrivateEndpointConnectionsEntity)[] | null;
     provisioningState: string;
     metricId: string;
     createdAt: string;
     updatedAt: string;
     serviceBusEndpoint: string;
     status: string;
-}
+  }
+interface PrivateEndpointConnectionsEntity {
+    id: string;
+    name: string;
+    type: string;
+    location: string;
+    properties: Properties1;
+  }
+interface Properties1 {
+    provisioningState: string;
+    privateEndpoint: PrivateEndpoint;
+    privateLinkServiceConnectionState: PrivateLinkServiceConnectionState;
+    groupIds?: (string)[] | null;
+  }
+  export interface PrivateEndpoint {
+    id: string;
+  }
+interface PrivateLinkServiceConnectionState {
+    status: string;
+    description: string;
+  }

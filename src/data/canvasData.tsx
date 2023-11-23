@@ -85,7 +85,7 @@ const hasTagFilterMatch = (s: string | undefined, excludeTagValues: Tags ) => {
 const getVmsWithPrivateIp = (azureData: AzureData) => {
     // iterate thoguh all networkInterfaces and get the private IP address. set this as a the PrivateIpAddress property on the matching virtual machine
     const vms = azureData.virtualMachinesDns.map((vm) => {
-        const networkInterface = azureData.networkInterfaces.find((ni) => ni.VirtualMachine.Id === vm.Id)
+        const networkInterface = azureData.networkInterfaces.find((ni) => ni.VirtualMachine?.id === vm.Id)
         if (networkInterface !== undefined) {
             vm.PrivateIpAddress = networkInterface.IpConfigurations[0].PrivateIpAddress
         }
@@ -188,7 +188,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             )))).flat().flat()
     
     // get virtual machines from virtualMachinesDns and matching networkinterface where networkinterface.virualmachine.id = virtualmachine.id
-    const vmsDns: NodeData[] = azureData.virtualMachinesDns.map((vm) => (azureData.networkInterfaces.filter((ni) => ni.VirtualMachine.Id === vm.Id).map((ni) => (
+    const vmsDns: NodeData[] = azureData.virtualMachinesDns.map((vm) => (azureData.networkInterfaces.filter((ni) => ni.VirtualMachine?.id === vm.Id).map((ni) => (
         {
             id: shortId(vm.Id),
             parent: shortId(ni.IpConfigurations[0].Subnet.Id),
@@ -206,6 +206,28 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             }
         }
     )))).flat()
+
+
+    const virtualMachines: NodeData[] = azureData.virtualMachines.map((vm) => (azureData.networkInterfaces.filter((ni) => ni.Properties?.virtualMachine?.id === vm.Id).map((ni) => (
+        {
+            id: shortId(vm.Id),
+            parent: shortId(ni.Properties?.ipConfigurations[0].properties.subnet.id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'compute',
+                region: vm.Location,
+                servicename: 'virtualmachine',
+                label: vm.Name,
+                info: vm.Properties.hardwareProfile.vmSize,
+                url: 'images/Compute/virtualmachine.svg',
+                ipAddressPrivate: ni.Properties?.ipConfigurations[0].properties.privateIPAddress
+            }
+        }
+    )))).flat()
+
+
     
     const vmScaleSets: NodeData[] = azureData.virtualMachineScaleSets.map((vmss) => (
         {
@@ -609,9 +631,69 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
         }
     )).filter((v: { id: any; }, i: any, a: any[]) => a.findIndex((t: { id: any; }) => (t.id === v.id)) === i)
 
-    const nodeData = [...vnets, ...subnets, ...nsgs, ...routeTables, ...vmsDns, ...vmScaleSets, ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
+    const bastionHosts: NodeData[] = azureData.bastions.map((bastion) => (
+        {
+            id: shortId(bastion.Id),
+            parent: shortId(bastion.Properties.ipConfigurations[0].properties.subnet.id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'networking',
+                region: bastion.Location,
+                servicename: 'bastion',
+                label: bastion.Name,
+                info: bastion.Sku?.Name,
+                url: 'images/Networking/bastion.svg'
+            }
+        }
+    ))
+
+    const containerRegistries: NodeData[] = azureData.containerRegistries.map((registry) => (
+        {
+            id: shortId(registry.Id),
+            // parent: 'paas',
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'compute',
+                tier: LayoutZone.PAAS,
+                region: registry.Location,
+                servicename: 'containerregistry',
+                label: registry.Name,
+                info: registry.Sku?.Name,
+                url: 'images/Containers/containerregistry.svg'
+            }
+        }
+    ))
+
+    const keyVaults: NodeData[] = azureData.keyVaults.map((keyVault) => (
+        {
+            id: shortId(keyVault.Id),
+            // parent: 'paas',
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'security',
+                tier: LayoutZone.PAAS,
+                region: keyVault.Location,
+                servicename: 'keyvault',
+                label: keyVault.Name,
+                info: keyVault.Properties.sku?.name,
+                url: 'images/Security/keyvault.svg'
+            }
+        }
+    ))
+
+    const nodeData = [
+        ...vnets, ...subnets, ...nsgs, ...routeTables, ...vmsDns, ...virtualMachines, ...vmScaleSets,
+        ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
-        ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations]
+        ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations,
+        ...bastionHosts, ...containerRegistries, ...keyVaults
+    ]
 
     return nodeData
 }
@@ -698,6 +780,8 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             ))).flat()
     
     
+    // TODO: Need to fix the data model for cosmos accounts. Azure API version differences impact virtualNetworkRules and probably other settings
+    /*
     const cosmosVnetRules: EdgeData[] = azureData.cosmosAccounts.map((cosmos) => cosmos.Properties.virtualNetworkRules
             .filter((rule: { id: string; }) => getSubscriptionGuidFromId(rule.id) === getSubscriptionGuidFromId(cosmos.Id))
             .map((vnetRule: { id: string | undefined; }) => (
@@ -712,7 +796,93 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
                 }
             ))
         ).flat()
+    */
     
+    const cosmosPrivateEndpointConnections: EdgeData[] = azureData.cosmosAccounts.filter((c) => c.Properties.privateEndpointConnections !== undefined)
+        .map((cosmos) => cosmos.Properties.privateEndpointConnections?.map((pe) => (
+        {
+            id: shortId(pe.id),
+            from: shortId(pe.properties.privateEndpoint.id),
+            to: shortId(cosmos.Id),
+            text: '',
+            data: {
+                type: 'privateendpoint-connection'
+                }
+        }
+        ))).flat().filter((data) => data !== undefined) as EdgeData[];
+    
+    
+    const eventHubPrivateEndpointConnections: EdgeData[] = azureData.eventHubNamespaces.filter((eh) => eh.Properties.privateEndpointConnections !== undefined)
+        .map((eh) => eh.Properties.privateEndpointConnections?.map((pe) => (
+        {
+            id: shortId(pe.id),
+            from: shortId(pe.properties.privateEndpoint.id),
+            to: shortId(eh.Id),
+            text: '',
+            data: {
+                type: 'privateendpoint-connection'
+                }
+        }
+        ))).flat().filter((data) => data !== undefined) as EdgeData[];
+    
+    
+    const serviceBusPrivateEndpointConnections: EdgeData[] = azureData.serviceBusNamespaces.filter((sb) => sb.Properties.privateEndpointConnections !== undefined)
+        .map((sb) => sb.Properties.privateEndpointConnections?.map((pe) => (
+        {
+            id: shortId(pe.id),
+            from: shortId(pe.properties.privateEndpoint.id),
+            to: shortId(sb.Id),
+            text: '',
+            data: {
+                type: 'privateendpoint-connection'
+                }
+        }
+        ))).flat().filter((data) => data !== undefined) as EdgeData[];
+    
+    
+    const keyVaultPrivateEndpointConnections = azureData.keyVaults.filter((kv) => kv.Properties.privateEndpointConnections !== undefined)
+        .map((kv) => kv.Properties.privateEndpointConnections?.map((pe) => (
+        {
+            id: shortId(pe.id),
+            from: shortId(pe.properties.privateEndpoint.id),
+            to: shortId(kv.Id),
+            text: '',
+            data: {
+                type: 'privateendpoint-connection'
+                }
+        }
+        ))).flat().filter((data) => data !== undefined) as EdgeData[];
+    
+    
+    const containerRegistryPrivateEndpointConnections = azureData.containerRegistries.filter((cr) => cr.Properties.privateEndpointConnections !== undefined)
+        .map((cr) => cr.Properties.privateEndpointConnections?.map((pe) => (
+        {
+            id: shortId(pe.id),
+            from: shortId(pe.properties.privateEndpoint.id),
+            to: shortId(cr.Id),
+            text: '',
+            data: {
+                type: 'privateendpoint-connection'
+                }
+        }
+        ))).flat().filter((data) => data !== undefined) as EdgeData[];
+    
+    
+    const appServicePrivateEndpointConnections = azureData.appServices.filter((app) => app.Properties.privateEndpointConnections !== undefined)
+        .map((app) => app.Properties.privateEndpointConnections?.map((pe) => (
+        {
+            id: shortId(pe.id),
+            from: shortId(pe.properties.privateEndpoint.id),
+            to: shortId(app.Id),
+            text: '',
+            data: {
+                type: 'privateendpoint-connection'
+                }
+        }
+        ))).flat().filter((data) => data !== undefined) as EdgeData[];    
+    
+    
+        
     const eventHubNetworkRules: EdgeData[] = azureData.eventHubNetworkRuleSets.map((ehruleset) => ehruleset.VirtualNetworkRule
         .map((rule) => (
             {
@@ -745,7 +915,7 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
         .map((appService) => (
             {
                 id: shortId(appService.Id) + '-to-' + shortId(appService.Properties.virtualNetworkSubnetId),
-                from: shortId(appService.Properties.virtualNetworkSubnetId),
+                from: shortId(appService.Properties.virtualNetworkSubnetId) + "-appServiceDelegation",
                 to: shortId(appService.Id), 
                 data: {
                     type: 'vnetintegration'
@@ -794,8 +964,13 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             }
         }))).flat()
 
-    const edgeData = [...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss, ...storageVnetRules, ...cosmosVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules,
-        ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings, ...dnsConnections]
+    const edgeData = [
+        ...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss,
+        ...cosmosPrivateEndpointConnections, ...eventHubPrivateEndpointConnections, ...serviceBusPrivateEndpointConnections,
+        ...keyVaultPrivateEndpointConnections, ...containerRegistryPrivateEndpointConnections, ...appServicePrivateEndpointConnections,
+        ...storageVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules,
+        ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings, ...dnsConnections
+    ]
     
     return edgeData
 }

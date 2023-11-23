@@ -1,7 +1,7 @@
 export interface NetworkInterface {
-    VirtualMachine: VirtualMachine;
+    VirtualMachine?: VirtualMachine;
     ExtendedLocation?: null;
-    IpConfigurations: (IpConfigurationsEntity)[];
+    IpConfigurations: (IpConfigurationsEntity1)[];
     TapConfigurations?: (null)[] | null;
     DnsSettings: DnsSettings;
     MacAddress: string;
@@ -12,6 +12,7 @@ export interface NetworkInterface {
     HostedWorkloads?: (null)[] | null;
     NetworkSecurityGroup?: null;
     PrivateEndpoint?: null;
+    Properties?: Properties;
     ProvisioningState: string;
     VnetEncryptionSupported: boolean;
     AuxiliaryMode: string;
@@ -26,10 +27,31 @@ export interface NetworkInterface {
     Etag: string;
     Id: string;
 }
-interface VirtualMachine {
-    Id: string;
+
+interface Properties {
+    provisioningState: string;
+    resourceGuid: string;
+    ipConfigurations: (IpConfigurationsEntity2)[];
+    dnsSettings: DnsSettings;
+    macAddress: string;
+    vnetEncryptionSupported: boolean;
+    enableIPForwarding: boolean;
+    disableTcpStateTracking: boolean;
+    primary: boolean;
+    virtualMachine: VirtualMachine;
+    hostedWorkloads?: (null)[] | null;
+    tapConfigurations?: (null)[] | null;
+    nicType: string;
+    allowPort25Out: boolean;
+    auxiliaryMode: string;
+    auxiliarySku: string;
 }
-export interface IpConfigurationsEntity {
+
+interface VirtualMachine {
+    id: string;
+}
+
+interface IpConfigurationsEntity1 {
     PrivateIpAddressVersion: string;
     LoadBalancerBackendAddressPools?: (null)[] | null;
     LoadBalancerInboundNatRules?: (null)[] | null;
@@ -48,7 +70,24 @@ export interface IpConfigurationsEntity {
     Etag: string;
     Id: string;
 }
-export interface Subnet {
+
+interface IpConfigurationsEntity2 {
+    name: string;
+    id: string;
+    etag: string;
+    type: string;
+    properties: Properties1;
+  }
+interface Properties1 {
+    provisioningState: string;
+    privateIPAddress: string;
+    privateIPAllocationMethod: string;
+    subnet: VirtualMachine;
+    primary: boolean;
+    privateIPAddressVersion: string;
+  }
+
+interface Subnet {
     AddressPrefix?: null;
     IpConfigurations?: (null)[] | null;
     ServiceAssociationLinks?: (null)[] | null;
@@ -68,12 +107,31 @@ export interface Subnet {
     Etag?: null;
     Id: string;
 }
-interface DnsSettings {
-    DnsServers?: (null)[] | null;
-    AppliedDnsServers?: (null)[] | null;
-    InternalDnsNameLabel?: null;
-    InternalFqdn?: null;
-    InternalDomainNameSuffix: string;
-}
 
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  export interface DnsSettings {
+    dnsServers?: (null)[] | null;
+    appliedDnsServers?: (null)[] | null;
+  }
   
