@@ -1,6 +1,6 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { store } from '../store';
-
+import { LayoutZone } from '../types/LayoutZone'
 
 
 /**
@@ -18,6 +18,11 @@ export const collapseContainer: any = (node: NodeData, nodeDataVisible: NodeData
     const edgesToHide = getEdgesForNode(nodesToHide, edgeDataVisible);    
     const externalNodesToHide = getExternalNodesToHide(nodeDataVisible, edgeDataVisible, edgesToHide);
     nodesToHide.push(...externalNodesToHide);
+
+    // NEW: hide empty PaaS containers
+    const emptyPaasContainers = getEmptyPaasContainers(nodeDataVisible);
+    nodesToHide.push(...emptyPaasContainers);
+
     // TODO: Logic in the above methods is resulting in duplicate nodes. Look into this. Fixed for now by using Set
     const hiddenNodes = [...new Set([...nodeDataHidden, ...nodesToHide])];
     const displayNodes = nodeDataVisible.filter(node => !nodesToHide.some((n: { id: string; }) => n.id === node.id));
@@ -47,6 +52,14 @@ export const expandContainer: any = (node: NodeData, nodeDataVisible: NodeData[]
     }).filter((node: any) => node !== undefined);
 
     nodesToDisplay.push(...externalNodesToDisplay);
+
+    externalNodesToDisplay.forEach((node: any) => {
+        const parentNode = getParentPaasContainer(node, nodeDataHidden);
+        if (parentNode !== undefined) {
+            nodesToDisplay.push(parentNode);
+        }
+    });
+
 
     const hiddenNodes = nodeDataHidden.filter(node => !nodesToDisplay.some((n: { id: string; }) => n.id === node.id));
     const displayNodes = [...nodeDataVisible, ...nodesToDisplay];
@@ -128,6 +141,21 @@ const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
     }
 
     return [...parentNodes, ...getParentNodes(parentNodes[0], nodeData)];
+}
+
+/**
+ * This is a function that returns the parent node of a given node
+ * @param node 
+ * @param nodeData 
+ * @returns The parent node
+ */
+const getParentNode: any = (node: NodeData, nodeData: NodeData[]) => {
+    const parentNode = nodeData.filter(parentNode => {
+        if (parentNode.id === node.parent) {
+            return true;
+        }
+        return false;
+    });
 }
 
 /**
@@ -247,7 +275,7 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
 }
 
 /**
- * 
+ * Returns a list of nodes that are connected to the edges input that are to be hidden
  * @param visibleNodes All visibile nodes
  * @param edges Edges that are to be hidden
  * @returns 
@@ -255,7 +283,7 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
 const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData[], edgesToHide: EdgeData[]): NodeData[] => {
 
     // TODO: re-factor into a separate function and account for external nodes that still have valid connections
-    const externalNodesToHide = getNodesForEdges(edgesToHide, visibleNodes).map((node: any) => {
+    const externalNodesToHide: NodeData[] = getNodesForEdges(edgesToHide, visibleNodes).map((node: any) => {
         if (visibleNodes.some((n: { id: string; }) => n.id === node.id)) {
             // node is visible and might need to be hidden
             // get list of edges connected to node that are not in edgesToHide
@@ -266,6 +294,45 @@ const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData
         }
     }).filter((node: any) => node !== undefined);
 
+
     return externalNodesToHide;
 
+}
+
+/**
+ * Returns a list of empty PaaS containers
+ * @param nodes 
+ * @returns 
+ */
+const getEmptyPaasContainers: any = (nodes: NodeData[]) => {
+    const emptyPaasContainers = nodes.filter(node => {
+        if (node.data.type === 'container' && node.data.tier === LayoutZone.PAAS ) {
+            // return true if container has no children
+            const children = getChildrenNodes(node, nodes);
+            if (children.length === 0) {
+                return true;
+            }
+        }
+        return false;
+    });
+
+    return emptyPaasContainers;
+}
+
+
+/**
+ * Returns a list of empty PaaS containers
+ * @param nodes 
+ * @returns 
+ */
+const getParentPaasContainer = (node: NodeData, hiddenNodes: NodeData[]) => {
+
+    const parentNode = hiddenNodes.filter(hiddenNode => { 
+        if (hiddenNode.id === node.parent && hiddenNode.data.tier === LayoutZone.PAAS && hiddenNode.data.type === 'container') {
+            return true;
+        }
+        return false;
+    }).flat();
+
+    return parentNode[0];
 }

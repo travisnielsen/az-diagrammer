@@ -360,6 +360,16 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   // iterate through all subnets and set data.status to 'closed'.
   
   const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
+
+  subnetNodes.forEach(n => {
+    // collapse subnets except for hub vnets
+    if (n.data.label !== "GatewaySubnet") {
+      [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = collapseContainer(n, canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden)
+      n.data.status = "closed"
+    }
+  })
+  
+  /*
   subnetNodes.forEach(n => {
     // collapse subnets except for hub vnets
     const parent = canvasNodesVisible.find(nf => nf.id === n.parent)
@@ -368,6 +378,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
       n.data.status = "closed"
     }
   })
+  */
   
 
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
