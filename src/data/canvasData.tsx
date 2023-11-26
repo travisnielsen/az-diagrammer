@@ -2,11 +2,18 @@ import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow'
 import { AzureData } from '../types/azure/AzureData'
 import { LayoutZone } from '../types/LayoutZone'
 import { DiagramConfiguration, Tags } from '../types/DiagramConfiguration'
+import { sha256 } from 'crypto-hash'
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
     'elk.padding': '[top=150,left=25,bottom=25,right=25]',
     'elk.direction': 'RIGHT'
+}
+
+// TODO: integrate this async code with synchronous calls from the rest of this code using promises
+const hashValue = async (s: string) => {
+    const hash = await sha256(s);
+    return hash.slice(0, 10);
 }
 
 const shortId = (s: string | undefined | null) => {
@@ -21,8 +28,11 @@ const shortId = (s: string | undefined | null) => {
     if (s.includes("/subnets/")) {
         const vnetToken = s.split("/virtualNetworks/")[1]
         const vnetName = vnetToken.split("/")[0].replace(/-/g, "").toLowerCase()
+        // const resourceGroupHash = hashValue(resourceGroup)
         return resourceGroup + "-" + vnetName + "-" + item
     }
+
+    // const resourceGroupHash = hashValue(resourceGroup)
 
     return resourceGroup + "-" + item
 }

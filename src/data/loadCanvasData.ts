@@ -171,7 +171,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
 
   nodesWithMultipleEdges.forEach(n => {
     const node = nodeData.find(nf => nf.id === n)
-    if (node && node.data.tier !== LayoutZone.NETWORKCORE) {
+    if (node && node.data?.servicename === 'vnet' && node.data.tier !== LayoutZone.NETWORKCORE) {
       node.data.tier = LayoutZone.NETWORKCORE
       node.parent = node.data.region
     }
@@ -219,10 +219,10 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   // canvasNodesVisible = canvasNodesVisible.filter(n => n.data.type === "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
   // remove paasNodes that do not have connections
-  const paasNodesDisconnected = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
+  // const paasNodesDisconnectedIds = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
 
   // remove items in paasNodesDisconnected from canvasNodesVisible
-  canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnected.includes(n.id))
+  // canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnectedIds.includes(n.id))
 
   // remove edges that don't have valid targets
 
@@ -235,27 +235,6 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
 
   var canvasNodesHidden: NodeData[] = []
   // var canvasEdgesHidden: EdgeData[] = []
-
-
-
-
-
-
-
-  // iterate through all subnets and set data.status to 'closed'.
-  
-  const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
-  subnetNodes.forEach(n => {
-    // collapse subnets except for hub vnets
-    const parent = canvasNodesVisible.find(nf => nf.id === n.parent)
-    if (parent && parent.data.tier !== LayoutZone.NETWORKCORE) {
-      [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = collapseContainer(n, canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden)
-      n.data.status = "closed"
-    }
-  })
-
-
-
 
 
 
@@ -375,6 +354,21 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   vnetPeeringNodesData.forEach(n => {
     n.className = n.className + ' node-vnet-peered'
   })
+
+
+
+  // iterate through all subnets and set data.status to 'closed'.
+  
+  const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
+  subnetNodes.forEach(n => {
+    // collapse subnets except for hub vnets
+    const parent = canvasNodesVisible.find(nf => nf.id === n.parent)
+    if (parent && parent.data.tier !== LayoutZone.NETWORKCORE) {
+      [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = collapseContainer(n, canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden)
+      n.data.status = "closed"
+    }
+  })
+  
 
   return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
 }
