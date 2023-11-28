@@ -7,7 +7,7 @@ import { DiagramConfiguration } from "../types/DiagramConfiguration";
 
 export const loadCanvasData = async (config: DiagramConfiguration): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
 
-  const azureData = await LoadAzureData(config.connectionString, config.containerName);
+  const azureData = await LoadAzureData(config.connectionString, config.containerName, config.folderName);
 
   if (!azureData) {
     console.log("no azure data found");

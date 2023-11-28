@@ -25,7 +25,7 @@ const EditConfigurationsDetail = (props: ModalProps) => {
             excludeTags: excludeTags,
             connectionString: connectionString,
             containerName: containerName,
-            selected: props.connection.selected,
+            selected: props.configuration.selected,
             folderName: folderName
         }));
 

@@ -2,7 +2,7 @@ import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import * as AzureTypes from '../types/azure/AzureTypes';
 import { AzureData } from "../types/azure/AzureData";
 
-export const LoadAzureData = async (connectionString: string, containerName: string) => {
+export const LoadAzureData = async (connectionString: string, containerName: string, folderName?: string) => {
         
     let azureData: AzureData = new AzureData();
 
@@ -16,13 +16,13 @@ export const LoadAzureData = async (connectionString: string, containerName: str
         const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
         const containerClient = blobServiceClient.getContainerClient(containerName);
     
-        const fileNames = await getBlobFiles(containerClient).catch((err) => {
+        const fileNames = await getBlobFiles(containerClient, folderName).catch((err) => {
             console.error(err);
         });
 
         if (fileNames) {
             for (const fileName of fileNames) {
-                await getAzureDataFromBlob(fileName, containerClient);
+                await getAzureDataFromBlob(fileName, containerClient, folderName);
             }
         } else {
             console.log("no blob files found")
@@ -32,10 +32,18 @@ export const LoadAzureData = async (connectionString: string, containerName: str
     return azureData;
 
     // return list of Blob files
-    async function getBlobFiles(containerClient: ContainerClient) {
+    async function getBlobFiles(containerClient: ContainerClient, folderName?: string) {
         let i = 1;
         let blobNames = [];
-        let blobs = containerClient.listBlobsFlat();
+        let blobs = null
+        
+        if (folderName) {
+            blobs = containerClient.listBlobsFlat({ prefix: folderName });
+        } else {
+            blobs = containerClient.listBlobsFlat();
+        }
+
+        // containerClient.listBlobsFlat({ prefix: folderName || '' });
         for await (const blob of blobs) {
             blobNames.push(blob.name);
             console.log(`Blob ${i++}: ${blob.name}`);
@@ -64,10 +72,14 @@ export const LoadAzureData = async (connectionString: string, containerName: str
         }
     }
 
-    async function getAzureDataFromBlob(blobName: string, containerClient: ContainerClient) {
+    async function getAzureDataFromBlob(blobName: string, containerClient: ContainerClient, folderName?: string) {
         const blobClient = await containerClient.getBlobClient(blobName)
         const downloadResponse = await blobClient.download();
         const blobString = await blobToString(await downloadResponse.blobBody);
+
+        if (folderName) {
+            blobName = blobName.replace(folderName + '/', '');
+        }
 
         switch (blobName.toLowerCase()) {
             case "subscriptions.json":
