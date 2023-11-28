@@ -218,7 +218,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
     )))).flat()
 
 
-    const virtualMachines: NodeData[] = azureData.virtualMachines.map((vm) => (azureData.networkInterfaces.filter((ni) => ni.Properties?.virtualMachine?.id === vm.Id).map((ni) => (
+    const virtualMachines: NodeData[] = azureData.virtualMachines.map((vm) => (azureData.networkInterfaces.filter((ni) => ni.Properties.virtualMachine?.id.toLowerCase() === vm.Id.toLowerCase()).map((ni) => (
         {
             id: shortId(vm.Id),
             parent: shortId(ni.Properties?.ipConfigurations[0].properties.subnet.id),

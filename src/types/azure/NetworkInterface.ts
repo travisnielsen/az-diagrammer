@@ -12,7 +12,7 @@ export interface NetworkInterface {
     HostedWorkloads?: (null)[] | null;
     NetworkSecurityGroup?: null;
     PrivateEndpoint?: null;
-    Properties?: Properties;
+    Properties: Properties;
     ProvisioningState: string;
     VnetEncryptionSupported: boolean;
     AuxiliaryMode: string;
