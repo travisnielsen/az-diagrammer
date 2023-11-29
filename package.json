@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@azure/msal-browser": "^2.37.1",
-    "@azure/msal-react": "^1.5.8",
+    "@azure/msal-browser": "^3.5.0",
+    "@azure/msal-react": "^2.0.7",
     "@azure/storage-blob": "^12.14.0",
     "@emotion/react": "^11.10.6",
     "@reduxjs/toolkit": "^1.9.5",
@@ -17,17 +17,18 @@
     "@types/react-dom": "^18.0.11",
     "bootstrap": "^5.2.3",
     "crypto-hash": "^3.0.0",
-    "dracula-ui": "^1.0.6",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.4",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
-    "react-scripts": "5.0.1",
     "react-zoom-pan-pinch": "^3.0.2",
     "reaflow": "^5.1.2",
     "redux-persist": "^6.0.0",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
