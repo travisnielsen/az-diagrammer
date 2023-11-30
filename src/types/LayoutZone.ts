@@ -5,4 +5,5 @@ export enum LayoutZone {
     NETWORKWORKLOAD = "2",
     PAAS = "3",
     HYBRID_CONNECTION = "4",
+    REGION = "5",
 }

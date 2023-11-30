@@ -28,11 +28,16 @@ const shortId = (s: string | undefined | null) => {
     if (s.includes("/subnets/")) {
         const vnetToken = s.split("/virtualNetworks/")[1]
         const vnetName = vnetToken.split("/")[0].replace(/-/g, "").toLowerCase()
-        // const resourceGroupHash = hashValue(resourceGroup)
         return resourceGroup + "-" + vnetName + "-" + item
     }
 
-    // const resourceGroupHash = hashValue(resourceGroup)
+    // handle uniqueness for private dns zone links
+    if (s.includes("/virtualNetworkLinks/")) {
+        const zoneName = splitArr[8]
+        const linkDnsToken = s.split("/virtualNetworkLinks/")[1]
+        return resourceGroup + "-" + item + "-" + zoneName + "-" + linkDnsToken.replace(/-/g, "").toLowerCase()
+    }
+    
 
     return resourceGroup + "-" + item
 }
@@ -697,12 +702,70 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
         }
     ))
 
+    const privateDnsZones: NodeData[] = azureData.privateDnsZones.map((dnsZone) => (
+        {
+            id: shortId(dnsZone.Id),
+            height: 150,
+            width: 400,
+            data: {
+                type: 'service',
+                category: 'networking',
+                tier: LayoutZone.HYBRID_CONNECTION,
+                region: dnsZone.Location,
+                servicename: 'privatednszone',
+                label: dnsZone.Name,
+                info: dnsZone.Properties.numberOfRecordSets + " record sets",
+                url: 'images/Networking/dns.svg'
+            }
+        }
+    ))
+
+    const dnsForwardingRulesets: NodeData[] = azureData.dnsForwardingRulesets.map((ruleset) => (
+        {
+            id: shortId(ruleset.Id),
+            height: 150,
+            width: 250,
+            layoutOptions: containerlayoutOptions,
+            data: {
+                type: 'container',
+                category: 'networking',
+                tier: LayoutZone.REGION,
+                region: ruleset.Location,
+                servicename: 'dnsforwardingruleset',
+                label: ruleset.Name,
+                url: 'images/Networking/dnsforwardingruleset.svg'
+            }
+        }
+    ))
+
+    const dnsForwardingRulesetRules: NodeData[] = azureData.dnsForwardingRulesetRules.map((rule) => (
+        {
+            id: shortId(rule.Id),
+            parent: shortId(rule.Id.split("/forwardingRules/")[0]),
+            height: 75,
+            width: 300,
+            data: {
+                type: 'service',
+                category: 'networking',
+                tier: '',
+                region: '',
+                servicename: 'dnsforwardingrulesetrule',
+                label: rule.DomainName,
+                info: `${rule.TargetDnsServer[0].IPAddress}:${rule.TargetDnsServer[0].Port}`,
+                url: 'images/Networking/dnsforwardingrulesetrule.svg'
+            }
+        }
+    ))
+
+
+
     const nodeData = [
         ...vnets, ...subnets, ...nsgs, ...routeTables, ...vmsDns, ...virtualMachines, ...vmScaleSets,
         ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
         ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations,
-        ...bastionHosts, ...containerRegistries, ...keyVaults
+        ...bastionHosts, ...containerRegistries, ...keyVaults,
+        ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules
     ]
 
     return nodeData
@@ -972,14 +1035,41 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'dns'
             }
-        }))).flat()
+                }))).flat()
+    
+    
+    const privateDnsZoneLinks: EdgeData[] = azureData.privateDnsZoneLinks.map((link) => (
+        {
+            id: shortId(link.Id),
+            from: shortId(link.Id.split("/virtualNetworkLinks/")[0]),
+            to: shortId(link.Properties.virtualNetwork.id),
+            className: 'edge-dns',
+            data: {
+                type: 'privatednszonelink'
+            }
+        }
+    ))
+
+    const dnsForwardingRulesetLinks: EdgeData[] = azureData.dnsForwardingRulesetLinks.map((link) => (
+        {
+            id: shortId(link.Id),
+            from: shortId(link.Id.split("/virtualNetworkLinks/")[0]),
+            to: shortId(link.VirtualNetworkId),
+            className: 'edge-dns',
+            data: {
+                type: 'dnsforwardingrulesetlink'
+            }
+        }
+    ))
+
 
     const edgeData = [
         ...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss,
         ...cosmosPrivateEndpointConnections, ...eventHubPrivateEndpointConnections, ...serviceBusPrivateEndpointConnections,
         ...keyVaultPrivateEndpointConnections, ...containerRegistryPrivateEndpointConnections, ...appServicePrivateEndpointConnections,
         ...storageVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules,
-        ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings, ...dnsConnections
+        ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings,
+        ...dnsConnections, ...privateDnsZoneLinks, ...dnsForwardingRulesetLinks
     ]
     
     return edgeData

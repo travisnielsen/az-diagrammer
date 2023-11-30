@@ -14,7 +14,7 @@ export interface DnsForwardingRulesetRule extends AzureBase {
     SystemDataLastModifiedAt: string;
     SystemDataLastModifiedBy?: null;
     SystemDataLastModifiedByType?: object | null;
-    TargetDnsServer?: (TargetDnsServerEntity)[] | null;
+    TargetDnsServer: (TargetDnsServerEntity)[];
     Type: string;
   }
 

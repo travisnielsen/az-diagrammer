@@ -122,6 +122,16 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
 
   const hubNetIDs: string[] = []
 
+  // regional services parent assignment
+  const regionalServices = nodeData.filter(n => n.data.tier === LayoutZone.REGION)
+  regionalServices.forEach(n => {
+    const region = n.data.region
+    const regionContainer = nodeData.find(nf => nf.data.category === "region" && nf.data.region === region)
+    if (regionContainer) {
+      n.parent = regionContainer.id
+    }
+  })
+
   // service layout container assignments
   // separate vnets into core (hub) and workload (spoke) vnets. Add spoke vnets as child nodes to 'container-network-workload' for layout purposes
   const vnetNodes = nodeData.filter(n => n.data.servicename === "vnet")
@@ -148,7 +158,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   })
 
   // place expressroute circuits into the global container and set tier to 'hybrid connection'
-  const expressrouteNodes = nodeData.filter(n => n.data.servicename === "expressroutecircuit")
+  const expressrouteNodes = nodeData.filter(n => n.data.servicename === "expressroutecircuit" || n.data.servicename === "privatednszone")
   expressrouteNodes.forEach(n => {
     n.parent = 'global';
     n.data.tier = LayoutZone.HYBRID_CONNECTION;
@@ -166,7 +176,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
 
   // some VNETS may not have a gateway subnet but still should be placed in the NETWORKCORE layout zone. These are typically 'bridge' VNETs
   // I identify them as VNETS Nodes that have multiple egdes (peering), which is due to the circular / redundant bi-directional VNET peering objects in the source data
-  const nodeIdsTo = edgeData.map(e => e.to)
+  const nodeIdsTo = edgeData.filter(e => e.data?.type === "vnetpeering").map(e => e.to)
   const nodesWithMultipleEdges = nodeIdsTo.filter(n => nodeIdsTo.filter(e => e === n).length > 1)
 
   nodesWithMultipleEdges.forEach(n => {
