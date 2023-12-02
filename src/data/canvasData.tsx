@@ -826,7 +826,7 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             
             return distinctIds.map(id => (
                 {
-                    id: lb.Name + shortId(id),
+                    id: lb.Name + shortId(id) + '-to-' + shortId(lb.Id),
                     from: shortId(id),
                     to: shortId(lb.Id),
                     text: "load balancing",
