@@ -4,9 +4,21 @@ import { LoadAzureData } from './loadAzureData'
 import { collapseContainer } from '../utility/diagramUtils';
 import { LayoutZone } from '../types/LayoutZone';
 import { DiagramConfiguration } from "../types/DiagramConfiguration";
+import { DemoData } from './demo/DemoData';
 
 export const loadCanvasData = async (config: DiagramConfiguration): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
 
+  if (config.connectionString.toLowerCase() === 'demo') {
+    console.info("Loading demo data")
+    const demoData = new DemoData()
+    const canvasNodesVisible: NodeData[] = demoData.NodesVislbe
+    const canvasNodesHidden: NodeData[] = demoData.NodesHidden
+    const canvasEdgesVisible: EdgeData[] = demoData.EdgesVisible
+    const canvasEdgesHidden: EdgeData[] = demoData.EdgesHidden
+    return [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden]
+  }
+
+  console.info("Loading data from configuration: " + config.name);
   const azureData = await LoadAzureData(config.connectionString, config.containerName, config.folderName);
 
   if (!azureData) {

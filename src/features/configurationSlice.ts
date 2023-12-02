@@ -6,14 +6,14 @@ interface Connections {
 }
 
 const demoConnection: DiagramConfiguration = {
-    id: 'demo',
-    name: 'Demo',
-    subscriptionId: '',
+    id: 'demo-contoso',
+    name: 'Contoso (demo)',
+    subscriptionId: '293bbd05-3a7f-4d5c-9bef-9f7919b36306',
     excludeTags: '',
     connectionString: 'demo',
-    containerName: '',
-    folderName: '',
-    selected: false
+    containerName: 'demo',
+    folderName: 'demo',
+    selected: true
 }
 
 const initialState: Connections = {

@@ -48,6 +48,11 @@ const ConfigurationButton = () => {
         
         if (selectedConfiguration.name && selectedConfiguration.name !== "Select connection...") {
 
+            if (selectedConfiguration.connectionString.toLowerCase() === "demo" && inProgress === "none") {
+                fetchData();
+                return;
+            }
+
             if (selectedConfiguration.connectionString.includes("SharedAccessSignature") && inProgress === "none") {
                 fetchData();
                 return;

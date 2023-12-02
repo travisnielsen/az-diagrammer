@@ -5,29 +5,21 @@ import { AzureData } from "../types/azure/AzureData";
 export const LoadAzureData = async (connectionString: string, containerName: string, folderName?: string) => {
         
     let azureData: AzureData = new AzureData();
+    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    const containerClient = blobServiceClient.getContainerClient(containerName);
 
-    if (connectionString.toLowerCase() === 'demo') {
+    const fileNames = await getBlobFiles(containerClient, folderName).catch((err) => {
+        console.error(err);
+    });
 
-        // const demoData = await import('../data/aks.json');
-
-
-    } else {
-
-        const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-        const containerClient = blobServiceClient.getContainerClient(containerName);
-    
-        const fileNames = await getBlobFiles(containerClient, folderName).catch((err) => {
-            console.error(err);
-        });
-
-        if (fileNames) {
-            for (const fileName of fileNames) {
-                await getAzureDataFromBlob(fileName, containerClient, folderName);
-            }
-        } else {
-            console.log("no blob files found")
+    if (fileNames) {
+        for (const fileName of fileNames) {
+            await getAzureDataFromBlob(fileName, containerClient, folderName);
         }
+    } else {
+        console.log("no blob files found")
     }
+    
 
     return azureData;
 
