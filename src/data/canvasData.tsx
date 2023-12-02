@@ -129,7 +129,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'container',
                 category: 'networking',
-                tier: LayoutZone.NETWORKCORE,
+                layoutZone: LayoutZone.NETWORKCORE,
                 region: vnet.Location,
                 servicename: 'vnet',
                 label: vnet.Name,
@@ -362,7 +362,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'networking',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: lb.Location,
                 servicename: 'loadbalancer',
                 label: lb.Name,
@@ -425,7 +425,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'storage',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: storage.Location,
                 servicename: 'storage',
                 label: storage.Name,
@@ -444,7 +444,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'databases',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(cosmos.Location),
                 servicename: 'cosmosdb',
                 label: cosmos.Name,
@@ -464,7 +464,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'container',
                 category: 'analytics',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: ehCluster.Location,
                 servicename: 'eventhubcluster',
                 label: ehCluster.Name,
@@ -484,7 +484,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'analytics',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(ehNamespace.Location),
                 servicename: 'eventhub',
                 label: ehNamespace.Name,
@@ -504,7 +504,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'analytics',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(ehNamespace.Location),
                 servicename: 'eventhub',
                 label: ehNamespace.Name,
@@ -523,7 +523,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'integration',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: getRegionIdFromFriendlyName(sbNamespace.Location),
                 servicename: 'servicebus',
                 label: sbNamespace.Name,
@@ -543,7 +543,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
                 data: {
                     type: 'container',
                     category: 'compute',
-                    tier: LayoutZone.PAAS,
+                    layoutZone: LayoutZone.PAAS,
                     region: getRegionIdFromFriendlyName(servicePlan.Location),
                     servicename: 'appserviceplan',
                     label: servicePlan.Name,
@@ -563,7 +563,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
                 data: {
                     type: 'service',
                     category: 'compute',
-                    tier: LayoutZone.PAAS,
+                    layoutZone: LayoutZone.PAAS,
                     region: getRegionIdFromFriendlyName(funcApp.Location),
                     servicename: 'function',
                     label: funcApp.Name,
@@ -618,7 +618,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'networking',
-                tier: LayoutZone.INGRESS,
+                layoutZone: LayoutZone.INGRESS,
                 region: 'global',
                 servicename: 'expressroutecircuit',
                 label: er.Name,
@@ -636,7 +636,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'networking',
-                tier: LayoutZone.INGRESS,
+                layoutZone: LayoutZone.INGRESS,
                 region: 'global',
                 servicename: 'location',
                 label: er.Properties.serviceProviderProperties.peeringLocation,
@@ -673,7 +673,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'compute',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: registry.Location,
                 servicename: 'containerregistry',
                 label: registry.Name,
@@ -692,7 +692,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'security',
-                tier: LayoutZone.PAAS,
+                layoutZone: LayoutZone.PAAS,
                 region: keyVault.Location,
                 servicename: 'keyvault',
                 label: keyVault.Name,
@@ -710,7 +710,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'networking',
-                tier: LayoutZone.HYBRID_CONNECTION,
+                layoutZone: LayoutZone.HYBRID_CONNECTION,
                 region: dnsZone.Location,
                 servicename: 'privatednszone',
                 label: dnsZone.Name,
@@ -729,7 +729,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'container',
                 category: 'networking',
-                tier: LayoutZone.REGION,
+                layoutZone: LayoutZone.NETWORKCORE,
                 region: ruleset.Location,
                 servicename: 'dnsforwardingruleset',
                 label: ruleset.Name,
@@ -747,7 +747,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             data: {
                 type: 'service',
                 category: 'networking',
-                tier: '',
+                layoutZone: LayoutZone.NETWORKCORE,
                 region: '',
                 servicename: 'dnsforwardingrulesetrule',
                 label: rule.DomainName,

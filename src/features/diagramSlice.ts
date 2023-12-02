@@ -34,7 +34,7 @@ export const diagramSlice = createSlice({
             let displayNodes: NodeData[] = [];
             let displayEdges: EdgeData[] = [];
 
-            if (selectedNode.data.tier === LayoutZone.PAAS) {
+            if (selectedNode.data.layoutZone === LayoutZone.PAAS) {
                 [displayNodes, displayEdges] = getConnectionGraphPaaS(current(selectedNode), current(state.value.visibleNodes), current(state.value.visibleEdges));
             } else {
                 [displayNodes, displayEdges] = getConnectionGraphVnetInjected(current(selectedNode), current(state.value.visibleNodes), current(state.value.visibleEdges));

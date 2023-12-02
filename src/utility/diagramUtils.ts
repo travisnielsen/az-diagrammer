@@ -103,6 +103,10 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: No
 
     const parentNodes: NodeData[] = getParentNodes(selectedNode, nodes);
 
+    // get parent container for nodes in the PAAS layout zone
+    const paasNodes: NodeData[] = connectedSelectedNodeNodes.filter(node => node.data.layoutZone === LayoutZone.PAAS);
+    const paasParentNodes: NodeData[] = paasNodes.map(node => getParentNodes(node, nodes)).flat();
+
     // get peer nodes in subnet
     const parentSubnet: NodeData | any = parentNodes.find(node => node.data.servicename === 'subnet');
     const peerNodes: NodeData[] = getChildrenNodes(parentSubnet, nodes).filter((peerNode: { id: string; }) => peerNode.id != selectedNode.id);
@@ -110,12 +114,12 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: No
     // get nodes connected to parent nodes and their parent containers
     const connectedParentNodeEdges: EdgeData[] = getEdgesForNode(parentNodes, edges);
     const connectedParentNodeNodes: NodeData[] = getNodesForEdges(connectedParentNodeEdges, nodes);
-    const connectedNodesParentNodes: NodeData[] =  connectedParentNodeNodes.map(node => getParentNodes(node, nodes)).flat();
-
-
+    const connectedNodesParentNodes: NodeData[] = connectedParentNodeNodes.map(node => getParentNodes(node, nodes)).flat();
+    const connectedNodesChildren: NodeData[] = connectedParentNodeNodes.filter(n => n.data.servicename !== 'vnet').map(node => getChildrenNodes(node, nodes)).flat();
+    
     const connectedVnetNodes = connectedParentNodeNodes.filter(node => node.data.servicename === 'vnet').filter((node: { id: string; }) => !parentNodes.some((parentNode: { id: string; }) => parentNode.id === node.id));
     const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(connectedVnetNodes, nodes, edges);
-    const filteredNodes = [selectedNode, ...parentNodes, ...peerNodes, ...connectedParentNodeNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes].flat();
+    const filteredNodes = [selectedNode, ...parentNodes, ...paasParentNodes, ...peerNodes, ...connectedParentNodeNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes, ...connectedNodesChildren].flat();
     const filteredNodesUnique = [...new Set(filteredNodes)];
     const filteredEdges = [connectedParentNodeEdges, ...hybridNetworkingEdges, ...connectedSelectedNodeEdges].flat();
 
@@ -228,7 +232,19 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
     let peeringLocationNodes: NodeData[] = [];
     let peeringLocationEdges: EdgeData[] = [];
 
-    vnetNodes.map(node => { hubVnetNodes.push(node); });
+    hubVnetNodes.push(...vnetNodes);
+
+    // check if there is another hub vnet in the topology and add it
+    hubVnetNodes.map(node => {
+        const connectedEdges: EdgeData[] = edges.filter(edge => edge.to === node.id);
+        const connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, nodes);
+        hubVnetEdges.push(...connectedEdges);
+
+        connectedNodes.map(node => {
+            if (!hubVnetNodes.some((hubVnetNode: { id: string; }) => hubVnetNode.id === node.id)) { hubVnetNodes.push(node); }
+        });
+    });
+
     const hubVnetChildren: NodeData[] = hubVnetNodes.map((node: NodeData) => getChildrenNodes(node, nodes)).flat();
 
     // get objects that connect to vnet gateways
@@ -306,7 +322,7 @@ const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData
  */
 const getEmptyPaasContainers: any = (nodes: NodeData[]) => {
     const emptyPaasContainers = nodes.filter(node => {
-        if (node.data.type === 'container' && node.data.tier === LayoutZone.PAAS ) {
+        if (node.data.type === 'container' && node.data.layoutZone === LayoutZone.PAAS ) {
             // return true if container has no children
             const children = getChildrenNodes(node, nodes);
             if (children.length === 0) {
@@ -328,7 +344,7 @@ const getEmptyPaasContainers: any = (nodes: NodeData[]) => {
 const getParentPaasContainer = (node: NodeData, hiddenNodes: NodeData[]) => {
 
     const parentNode = hiddenNodes.filter(hiddenNode => { 
-        if (hiddenNode.id === node.parent && hiddenNode.data.tier === LayoutZone.PAAS && hiddenNode.data.type === 'container') {
+        if (hiddenNode.id === node.parent && hiddenNode.data.layoutZone === LayoutZone.PAAS && hiddenNode.data.type === 'container') {
             return true;
         }
         return false;

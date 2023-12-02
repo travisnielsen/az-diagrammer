@@ -123,7 +123,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   const hubNetIDs: string[] = []
 
   // regional services parent assignment
-  const regionalServices = nodeData.filter(n => n.data.tier === LayoutZone.REGION)
+  const regionalServices = nodeData.filter(n => n.data.layoutZone === LayoutZone.REGION || n.data.layoutZone === LayoutZone.NETWORKCORE)
   regionalServices.forEach(n => {
     const region = n.data.region
     const regionContainer = nodeData.find(nf => nf.data.category === "region" && nf.data.region === region)
@@ -141,17 +141,17 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     const hasGatewaySubnet = childNodes.findIndex(nf => nf.data.label === "GatewaySubnet") > 0
 
     if (hasGatewaySubnet) {
-      n.data.tier = LayoutZone.NETWORKCORE
+      n.data.layoutZone = LayoutZone.NETWORKCORE
       n.parent = n.data.region
       n.data.role = "hub"
       hubNetIDs.push(n.id)
     } else {
-      n.data.tier = LayoutZone.NETWORKWORKLOAD
+      n.data.layoutZone = LayoutZone.NETWORKWORKLOAD
       n.parent = `container-network-workload-${n.data.region}`
     }
   })
 
-  const paasNodes = nodeData.filter(n => n.data.tier === LayoutZone.PAAS)
+  const paasNodes = nodeData.filter(n => n.data.layoutZone === LayoutZone.PAAS)
   paasNodes.forEach(n => {
       if (!n.parent)  // set top nodes only
         n.parent = `container-paas-${n.data.region}`
@@ -161,7 +161,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   const expressrouteNodes = nodeData.filter(n => n.data.servicename === "expressroutecircuit" || n.data.servicename === "privatednszone")
   expressrouteNodes.forEach(n => {
     n.parent = 'global';
-    n.data.tier = LayoutZone.HYBRID_CONNECTION;
+    n.data.layoutZone = LayoutZone.HYBRID_CONNECTION;
   })
 
   // remove any nodes from nodedata that are in the parent 'global' container that do not have edges
@@ -181,14 +181,14 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
 
   nodesWithMultipleEdges.forEach(n => {
     const node = nodeData.find(nf => nf.id === n)
-    if (node && node.data?.servicename === 'vnet' && node.data.tier !== LayoutZone.NETWORKCORE) {
-      node.data.tier = LayoutZone.NETWORKCORE
+    if (node && node.data?.servicename === 'vnet' && node.data.layoutZone !== LayoutZone.NETWORKCORE) {
+      node.data.layoutZone = LayoutZone.NETWORKCORE
       node.parent = node.data.region
     }
   })
 
   // Remove duplicate / bi-directional VNET peering edges and adjust for peering relationships between vnets in the same layout zone
-  const networkCoreNodes = nodeData.filter(n => n.data.tier === LayoutZone.NETWORKCORE)
+  const networkCoreNodes = nodeData.filter(n => n.data.layoutZone === LayoutZone.NETWORKCORE)
   const networkCoreNodeIds = networkCoreNodes.map(n => n.id)
   const vnetPeeringEdges = edgeData.filter(e => e.data.type === 'vnetpeering')
 
@@ -213,7 +213,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     const fromNodeParent = nodeData.find(n => n.id === fromNode?.parent)
     const fromNodeGrandParent = nodeData.find(n => n.id === fromNodeParent?.parent)
     const toNode = nodeData.find(n => n.id === e.to)
-    if (fromNodeGrandParent?.data.tier === toNode?.data.tier) {
+    if (fromNodeGrandParent?.data.layoutZone === toNode?.data.layoutZone) {
       const index = edgeData.findIndex(ef => ef.id === e.id)
       edgeData.splice(index, 1)
     }
@@ -249,7 +249,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
 
 
   // if there are > 3 items of the same type within a 'compute' or 'analytics' container, replace them with a substitute node
-  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && (n.data.category === 'compute' || n.data.category == 'analytics') )
+  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && (n.data.category === 'compute' || n.data.category === 'analytics') )
     .map(n => n.id)
   containerIds.forEach(id => {
     const childNodes = canvasNodesVisible.filter(n => n.parent === id)
@@ -267,7 +267,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
             type: "container",
             category: "summary",
             region: node.data.region,
-            tier: 'paas',
+            layoutZone: 'paas',
             serviceName: node.data.servicename,
             label: `${nodesOfType.length} ${node.data.servicename}s`,
             url: node.data.url,
@@ -383,7 +383,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   subnetNodes.forEach(n => {
     // collapse subnets except for hub vnets
     const parent = canvasNodesVisible.find(nf => nf.id === n.parent)
-    if (parent && parent.data.tier !== LayoutZone.NETWORKCORE) {
+    if (parent && parent.data.layoutZone !== LayoutZone.NETWORKCORE) {
       [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = collapseContainer(n, canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden)
       n.data.status = "closed"
     }
