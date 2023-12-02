@@ -27,7 +27,6 @@ config.json
 
 # data
 data/*
-src/data/demo/*
 
 *.json
 
