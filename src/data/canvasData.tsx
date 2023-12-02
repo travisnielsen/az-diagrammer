@@ -165,7 +165,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
             .map((subnet) => azureData.networkSecurityGroups.filter((nsg: { Id: any; }) => nsg.Id === subnet.properties.networkSecurityGroup?.id)
                 .map((securityGroup) => (
                     {
-                        id: shortId(securityGroup.Id),
+                        id: shortId(securityGroup.Id) + "-" + shortId(subnet.id),
                         parent: shortId(subnet.id),
                         height: 150,
                         width: 250,
@@ -720,6 +720,44 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
         }
     ))
 
+    /*
+    const dnsPrivateResolvers: NodeData[] = azureData.dnsResolvers.map((dnsResolver) => (
+        {
+            id: shortId(dnsResolver.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'networking',
+                layoutZone: LayoutZone.NETWORKCORE,
+                region: dnsResolver.Location,
+                servicename: 'dnsprivateresolver',
+                label: dnsResolver.Name,
+                info: '',
+                url: 'images/Networking/dnsprivateresolver.svg'
+            }
+        }
+    ))
+    */
+
+    const dnsResolverOutboundEndpoints: NodeData[] = azureData.dnsResolverOutboundEndpoints.map((endpoint) => (
+        {
+            id: shortId(endpoint.Id),
+            parent: shortId(endpoint.Properties.subnet.id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'networking',
+                region: endpoint.Location,
+                servicename: 'dnsresolveroutboundendpoint',
+                label: endpoint.Name,
+                info: 'Outbound traffic for DNS queries',
+                url: 'images/Networking/dnsprivateresolver.svg'
+            }
+        }
+    ))
+
     const dnsForwardingRulesets: NodeData[] = azureData.dnsForwardingRulesets.map((ruleset) => (
         {
             id: shortId(ruleset.Id),
@@ -765,7 +803,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
         ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations,
         ...bastionHosts, ...containerRegistries, ...keyVaults,
-        ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules
+        ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules, ...dnsResolverOutboundEndpoints
     ]
 
     return nodeData
@@ -1062,6 +1100,18 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
         }
     ))
 
+    const dnsResolverOutboundEndpointLinks: EdgeData[] = azureData.dnsForwardingRulesets.map((rs) => rs.Properties.dnsResolverOutboundEndpoints
+        .map((ep) => (
+            {
+                id: shortId(rs.Id) + "-to-" + shortId(ep.id),
+                from: shortId(rs.Id),
+                to: shortId(ep.id),
+                className: 'edge-dns',
+                data: {
+                    type: 'dnsresolveroutboundendpoint'
+                }
+            }
+        ))).flat()
 
     const edgeData = [
         ...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss,
@@ -1069,7 +1119,7 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
         ...keyVaultPrivateEndpointConnections, ...containerRegistryPrivateEndpointConnections, ...appServicePrivateEndpointConnections,
         ...storageVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules,
         ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings,
-        ...dnsConnections, ...privateDnsZoneLinks, ...dnsForwardingRulesetLinks
+        ...dnsConnections, ...privateDnsZoneLinks, ...dnsForwardingRulesetLinks, ...dnsResolverOutboundEndpointLinks
     ]
     
     return edgeData

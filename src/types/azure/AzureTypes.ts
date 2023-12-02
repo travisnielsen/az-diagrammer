@@ -10,6 +10,7 @@ export type { DnsForwardingRuleset } from "./DnsForwardingRuleset";
 export type { DnsForwardingRulesetLink } from "./DnsForwardingRulesetLink";
 export type { DnsForwardingRulesetRule } from "./DnsForwardingRulesetRule";
 export type { DnsResolver } from "./DnsResolver";
+export type { DnsResolverOutboundEndpoint } from "./DnsResolverOutboundEndpoint";
 export type { EventHubCluster } from "./EventHubCluster";
 export type { EventHubNamespace } from "./EventHubNamespace";
 export type { ExpressRouteCircuit } from "./ExpressRouteCircuit";

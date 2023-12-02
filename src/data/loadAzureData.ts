@@ -206,6 +206,10 @@ export const LoadAzureData = async (connectionString: string, containerName: str
                 const dnsResolvers: AzureTypes.DnsResolver[]  = await blobToJSONArray(blobString);
                 azureData.dnsResolvers = dnsResolvers;
                 break;
+            case "dnsresolveroutboundendpoints.json":
+                const dnsResolverOutboundEndpoints: AzureTypes.DnsResolverOutboundEndpoint[]  = await blobToJSONArray(blobString);
+                azureData.dnsResolverOutboundEndpoints = dnsResolverOutboundEndpoints;
+                break;
             case "keyvaults.json":
                 const keyVaults: AzureTypes.KeyVault[]  = await blobToJSONArray(blobString);
                 azureData.keyVaults = keyVaults;

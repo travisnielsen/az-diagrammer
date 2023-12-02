@@ -13,6 +13,7 @@ export class AzureData {
     dnsForwardingRulesetLinks: AzureTypes.DnsForwardingRulesetLink[] = [];
     dnsForwardingRulesetRules: AzureTypes.DnsForwardingRulesetRule[] = [];
     dnsResolvers: AzureTypes.DnsResolver[] = [];
+    dnsResolverOutboundEndpoints: AzureTypes.DnsResolverOutboundEndpoint[] = [];
     eventHubClusters: AzureTypes.EventHubCluster[] = [];
     eventHubNamespaces: AzureTypes.EventHubNamespace[] = [];
     eventHubNetworkRuleSets: AzureTypes.NetworkRuleSet[] = [];

@@ -1,3 +1,6 @@
+# install DNS Resolver module
+Install-Module -Name Az.DnsResolver -Force
+
 # get connection context
 $contextInfo = Get-Content config.json | ConvertFrom-Json
 Connect-AzAccount -Tenant $contextInfo.tenantId
@@ -195,6 +198,7 @@ $dictServices.GetEnumerator() | ForEach-Object {
 
     switch ($_.Key)
     {
+        "Microsoft.Network/dnsResolvers/outboundEndpoints" { $filename = "dnsResolverOutboundEndpoints"; Break }
         "Microsoft.Network/dnsForwardingRulesets//forwardingRule" { $filename = "dnsForwardingRulesetRules"; Break }
         "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks" { $filename = "dnsForwardingRulesetLinks"; Break }
         "Microsoft.Network/privateDnsZones/virtualNetworkLinks" { $filename = "privateDnsZoneLinks"; Break }

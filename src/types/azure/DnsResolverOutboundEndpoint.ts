@@ -1,6 +1,6 @@
 import { AzureBase } from "./AzureBase";
 
-export interface DnsForwardingRuleset extends AzureBase {
+export interface DnsResolverOutboundEndpoint extends AzureBase {
     ResourceId: string;
     Id: string;
     Identity?: null;
@@ -24,11 +24,11 @@ export interface DnsForwardingRuleset extends AzureBase {
     ETag: string;
   }
   interface Properties {
-    dnsResolverOutboundEndpoints: (DnsResolverOutboundEndpointsEntity)[];
+    subnet: Subnet;
     provisioningState: string;
     resourceGuid: string;
   }
-  interface DnsResolverOutboundEndpointsEntity {
+  interface Subnet {
     id: string;
   }
   
