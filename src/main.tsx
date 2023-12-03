@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
+import ReactDOM from 'react-dom'
 import App from './App.tsx'
 import './index.css'
 
@@ -30,10 +30,12 @@ msalInstance.addEventCallback((event: EventMessage) => {
   }
 });
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root');
+ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <App pca={msalInstance} />
     </Provider>
   </React.StrictMode>,
-)
+  root
+);
