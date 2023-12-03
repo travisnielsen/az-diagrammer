@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Form, ModalProps } from "react-bootstrap";
-import { removeConfiguration, updateConfiguration } from "../features/configurationSlice";
+import { removeConfiguration, updateConfiguration } from "../store/configurationSlice";
 import { useAppDispatch } from "../hooks";
 
 

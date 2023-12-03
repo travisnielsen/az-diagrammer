@@ -1,5 +1,5 @@
 import { Button, Form, Modal, ModalProps } from "react-bootstrap";
-import { addConfiguration } from "../features/configurationSlice";
+import { addConfiguration } from "../store/configurationSlice";
 import { useAppDispatch } from '../hooks'
 import { useState } from "react";
 

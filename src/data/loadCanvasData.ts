@@ -6,7 +6,7 @@ import { LayoutZone } from '../types/LayoutZone';
 import { DiagramConfiguration } from "../types/DiagramConfiguration";
 import { DemoData } from './demo/DemoData';
 
-export const loadCanvasData = async (config: DiagramConfiguration): Promise<[NodeData<any>[], NodeData<any>[], EdgeData<any>[], EdgeData<any>[]]> => {
+export const loadCanvasData = async (config: DiagramConfiguration): Promise<[NodeData[], NodeData[], EdgeData[], EdgeData[]]> => {
 
   if (config.connectionString.toLowerCase() === 'demo') {
     console.info("Loading demo data")
@@ -30,7 +30,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     return [nodeDataVisible, nodeDataHidden, edgeDataVisible, edgeDataHidden]
   }
 
-  const nodeData = getNodeData(azureData, config);
+  const nodeData = getNodeData(azureData);
   const edgeData = getEdgeData(azureData, config); 
   
   /*
@@ -237,7 +237,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   const edgeIdsFrom = edgeData.map(e => e.from)
   const edgeIdsTo = edgeData.map(e => e.to)
   const edgeIds = [...new Set([...edgeIdsFrom, ...edgeIdsTo])]
-  var canvasNodesVisible = nodeData.filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
+  let canvasNodesVisible = nodeData.filter(n => edgeIds.includes(n.id) || n.data.type === "container" || n.parent != null)
 
   // remove empty containers
   // canvasNodesVisible = canvasNodesVisible.filter(n => n.data.type === "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
@@ -248,9 +248,9 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   // remove items in paasNodesDisconnected from canvasNodesVisible
   // canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnectedIds.includes(n.id))
 
-  var canvasEdgesVisible = edgeData.filter(e => edgeIds.includes(e.from || '') && edgeIds.includes(e.to || ''))
-  var canvasEdgesHidden = edgeData.filter(e => !canvasEdgesVisible.includes(e))
-  var canvasNodesHidden: NodeData[] = []
+  let canvasEdgesVisible = edgeData.filter(e => edgeIds.includes(e.from || '') && edgeIds.includes(e.to || ''))
+  let canvasEdgesHidden = edgeData.filter(e => !canvasEdgesVisible.includes(e))
+  let canvasNodesHidden: NodeData[] = []
 
   // if there are > 3 items of the same type within a 'compute' or 'analytics' container, replace them with a substitute node
   const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && (n.data.category === 'compute' || n.data.category === 'analytics') )

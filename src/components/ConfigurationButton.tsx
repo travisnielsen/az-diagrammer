@@ -4,12 +4,11 @@ import AddConfiguration from './AddConfiguration';
 import EditConfigurations from './EditConfigurations';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { DiagramConfiguration } from '../types/DiagramConfiguration';
-import { setSelectedConfiguration } from '../features/configurationSlice';
-import { setVisibleNodes, setVisibleEdges, setHiddenNodes, setHiddenEdges } from '../features/diagramSlice'
+import { setSelectedConfiguration } from '../store/configurationSlice';
+import { setVisibleNodes, setVisibleEdges, setHiddenNodes, setHiddenEdges } from '../store/diagramSlice'
 import { loadCanvasData } from '../data/loadCanvasData';
 import { useMsal, useAccount } from "@azure/msal-react";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
-import { NodeData } from 'reaflow';
 
 const ConfigurationButton = () => {
 
@@ -20,11 +19,13 @@ const ConfigurationButton = () => {
     const [modalShow, setModalShow] = useState(false);
     const [editConfigurationModal, setModalShowEditConfigurations] = useState(false);
 
-    const selectedConfiguration: DiagramConfiguration = useAppSelector((state: any) => {
-        if (state.configurations.value.filter((c: { selected: any; }) => c.selected).length === 0) {
+    const selectedConfiguration: DiagramConfiguration = useAppSelector((state) => {
+        /*
+        if (state.configurations.value.filter((c: { selected }) => c.selected).length === 0) {
             return "Select connection...";
         }
-        return state.configurations.value.filter((c: { selected: any; }) => c.selected)[0]
+        */
+        return state.configurations.value.filter((c: { selected }) => c.selected)[0]
     })
 
     // called when the selected connection changes
@@ -60,14 +61,14 @@ const ConfigurationButton = () => {
 
             if (account && account.name) {
 
-                let accessToken = "";
+                // let accessToken = "";
 
                 instance.acquireTokenSilent({
                     scopes: protectedResources.azureStorage.scopes,
                     account: account,
                     
-                }).then((response) => {
-                    accessToken = response.accessToken;
+                }).then(() => {
+                    // accessToken = response.accessToken;
                     fetchData();
                     console.log("fetching data");
                 }).catch((error) => {
@@ -76,8 +77,8 @@ const ConfigurationButton = () => {
                         if (account && inProgress === "none") {
                             instance.acquireTokenPopup({
                                 scopes: protectedResources.azureStorage.scopes,
-                            }).then((response) => {
-                                accessToken = response.accessToken;
+                            }).then(() => {
+                                // accessToken = response.accessToken;
                                 fetchData();
                                 console.log("fetching data");
                             }).catch(error => console.log(error));
@@ -89,9 +90,9 @@ const ConfigurationButton = () => {
 
     }, [selectedConfiguration, account, inProgress, instance]);
 
-    const configurations: DiagramConfiguration[] = useAppSelector((state: any) => state.configurations.value)
+    const configurations: DiagramConfiguration[] = useAppSelector((state) => state.configurations.value)
 
-    function handleSelect(e: any, id: string) {
+    function handleSelect(e, id: string) {
         dispatch(setSelectedConfiguration(id))
     }
 

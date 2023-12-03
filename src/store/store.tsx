@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
 import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
-import diagramReducer from './features/diagramSlice'
-import canvasReducer from './features/canvasSlice'
-import connectionsReducer from './features/configurationSlice'
+import diagramReducer from './diagramSlice'
+import canvasReducer from './canvasSlice'
+import connectionsReducer from './configurationSlice'
 import thunk from 'redux-thunk';
 
 const persistConfig = {

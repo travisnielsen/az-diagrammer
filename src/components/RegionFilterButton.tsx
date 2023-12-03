@@ -19,7 +19,7 @@ const MultiSelectDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleOptionChange = (event: { target: { value: string; checked: any; }; }) => {
+  const handleOptionChange = (event: { target: { value: string; checked }; }) => {
     const optionId = parseInt(event.target.value);
     const isChecked = event.target.checked;
 

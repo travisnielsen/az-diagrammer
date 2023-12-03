@@ -1,9 +1,9 @@
-import { Node, NodeData, NodeProps } from 'reaflow';
+import { Node, NodeProps } from 'reaflow';
 import { MouseEventHandler } from 'react';
 import '../App.css';
-import { filterOnSelectedNode, expandCollapseContainer } from '../features/diagramSlice'
+import { filterOnSelectedNode, expandCollapseContainer } from '../store/diagramSlice'
 
-const Nodes = (node: NodeProps, dispatch: any ) => {
+const Nodes = (node: NodeProps, dispatch ) => {
 
   const nodeProps = node;
   const nodeType = nodeProps?.properties?.data?.type;
@@ -35,27 +35,26 @@ const Nodes = (node: NodeProps, dispatch: any ) => {
   
   };
 
-  function onButtonClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+  /*
+  function onButtonClick(event): void {
     throw new Error('Function not implemented.');
   }
+  */
   
-  const onNodeEnter = (event: React.MouseEvent<SVGGElement, MouseEvent>, node: NodeData) => {
+  const onNodeEnter = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
       console.log('onNodeEnter', event.target);
   
-      // @ts-ignore
       // const isNode = event.target?.classList?.contains('node-svg-rect');
       // if (isNode) {
       //   // console.log('Entering node')
       // }
     };
 
-    const onNodeLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>, node: NodeData) => {
+    const onNodeLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
       console.log('onNodeLeave', event.target);
       // console.log('containerRef?.current', containerRef?.current)
   
-      // // @ts-ignore
       // const isChildrenOfNodeContainer = event.target?.closest('.node-container');
-      // // @ts-ignore
       // const isChildrenOfNodeRect = event.target?.closest('.node-svg-rect');
       // const isNode = isChildrenOfNodeContainer || isChildrenOfNodeRect;
       //

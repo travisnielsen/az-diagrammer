@@ -1,5 +1,5 @@
 import { NodeData, EdgeData } from 'reaflow';
-import { PayloadAction, combineReducers, createSlice, current } from '@reduxjs/toolkit'
+import { PayloadAction, createSlice, current } from '@reduxjs/toolkit'
 import { DiagramDataset } from '../types/DiagramDataset';
 import { getConnectionGraphPaaS, getConnectionGraphVnetInjected, collapseContainer, expandContainer } from '../utility/diagramUtils';
 import { LayoutZone } from '../types/LayoutZone';

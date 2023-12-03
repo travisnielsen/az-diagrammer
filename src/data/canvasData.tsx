@@ -1,8 +1,7 @@
 import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow'
 import { AzureData } from '../types/azure/AzureData'
 import { LayoutZone } from '../types/LayoutZone'
-import { DiagramConfiguration, Tags } from '../types/DiagramConfiguration'
-import { sha256 } from 'crypto-hash'
+import { DiagramConfiguration } from '../types/DiagramConfiguration'
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
@@ -11,10 +10,12 @@ const containerlayoutOptions: ElkNodeLayoutOptions = {
 }
 
 // TODO: integrate this async code with synchronous calls from the rest of this code using promises
+/*
 const hashValue = async (s: string) => {
     const hash = await sha256(s);
     return hash.slice(0, 10);
 }
+*/
 
 const shortId = (s: string | undefined | null) => {
     if (s === undefined || s === null) {
@@ -89,13 +90,15 @@ const getRegionIdFromFriendlyName = (name: string) => {
     }
 }
 
-const hasTagFilterMatch = (s: string | undefined, excludeTagValues: Tags ) => {
+/*
+const hasTagFilterMatch = (s: string | undefined) => {
     if (s === undefined) {
         return false
     }
     // TODO: need to solve for tag filtering
     // return excludeTagValues.includes(s)
 }
+*/
 
 const getVmsWithPrivateIp = (azureData: AzureData) => {
     // iterate thoguh all networkInterfaces and get the private IP address. set this as a the PrivateIpAddress property on the matching virtual machine
@@ -109,12 +112,14 @@ const getVmsWithPrivateIp = (azureData: AzureData) => {
     return vms
 }
 
-export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) => {
+export const getNodeData = (azureData: AzureData) => {
 
     // TODO: remove duplicates from this arraoy
+    /*
     const targetFirewallIps = azureData.routeTables
         .map((routeTable) => routeTable.Properties.routes?.filter((route) => route.properties.addressPrefix.includes("0.0.0.0/0"))
-            .map((r: { properties: { nextHopIpAddress: any; }; }) => r.properties.nextHopIpAddress)).flat()
+            .map((r: { properties: { nextHopIpAddress; }; }) => r.properties.nextHopIpAddress)).flat()
+    */
     
     const subnetIds = azureData.virtualNetworks.map((vnet) => vnet.Properties.subnets.map((subnet) => subnet.id)).flat()
     
@@ -161,8 +166,8 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
         }
     ))).flat()
 
-    const nsgs: NodeData[] = azureData.virtualNetworks.map((vnet: { Properties: { subnets: any[]; }; }) => vnet.Properties.subnets
-            .map((subnet) => azureData.networkSecurityGroups.filter((nsg: { Id: any; }) => nsg.Id === subnet.properties.networkSecurityGroup?.id)
+    const nsgs: NodeData[] = azureData.virtualNetworks.map((vnet: { Properties: { subnets }; }) => vnet.Properties.subnets
+            .map((subnet) => azureData.networkSecurityGroups.filter((nsg: { Id }) => nsg.Id === subnet.properties.networkSecurityGroup?.id)
                 .map((securityGroup) => (
                     {
                         id: shortId(securityGroup.Id) + "-" + shortId(subnet.id),
@@ -182,8 +187,8 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
         )))).flat().flat()
 
 
-    const routeTables: NodeData[] = azureData.virtualNetworks.map((vnet: { Properties: { subnets: any[]; }; }) => vnet.Properties.subnets
-        .map((subnet) => azureData.routeTables.filter((route: { Id: any; }) => route.Id === subnet.properties.routeTable?.id)
+    const routeTables: NodeData[] = azureData.virtualNetworks.map((vnet: { Properties: { subnets }; }) => vnet.Properties.subnets
+        .map((subnet) => azureData.routeTables.filter((route: { Id }) => route.Id === subnet.properties.routeTable?.id)
             .map((rt) => (
             {
                 id: shortId(rt.Id),
@@ -590,7 +595,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
                     url: 'images/Networking/networkinterface.svg'
                 } 
             }
-            )).filter((v: { id: any; }, i: any, a: any[]) => a.findIndex((t: { id: any; }) => (t.id === v.id)) === i)
+            )).filter((v: { id }, i, a) => a.findIndex((t: { id }) => (t.id === v.id)) === i)
     
     const privateEndpoints: NodeData[] = azureData.privateEndpoints.map((pe) => (
         {
@@ -644,7 +649,7 @@ export const getNodeData = (azureData: AzureData, config: DiagramConfiguration) 
                 url: 'images/location.svg'
             }
         }
-    )).filter((v: { id: any; }, i: any, a: any[]) => a.findIndex((t: { id: any; }) => (t.id === v.id)) === i)
+    )).filter((v: { id }, i, a) => a.findIndex((t: { id }) => (t.id === v.id)) === i)
 
     const bastionHosts: NodeData[] = azureData.bastions.map((bastion) => (
         {
@@ -1049,11 +1054,11 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
     const expressRoutePeerings: EdgeData[] = azureData.gatewayConnections
         // TODO: Cannot assume tags are present. Need to move this to config or find another way to remove unwanted connections
         // .filter((c) => !hasTagFilterMatch(c.Tags.EnvType))
-        .filter((v, i: any, a: any[]) => a.findIndex((t) => (t.Properties.peer?.id === v.Properties.peer?.id)) === i)
+        .filter((v, i, a) => a.findIndex((t) => (t.Properties.peer?.id === v.Properties.peer?.id)) === i)
         .map((conn) => (
         {
                 id: shortId(conn.Properties.peer?.id) + "-to-peering-location",
-                from: getIdFromText(azureData.expressRouteCircuits.find((er: { Id: any; }) => er.Id === conn.Properties.peer?.id)?.Properties.serviceProviderProperties.peeringLocation),
+                from: getIdFromText(azureData.expressRouteCircuits.find((er: { Id }) => er.Id === conn.Properties.peer?.id)?.Properties.serviceProviderProperties.peeringLocation),
                 to: shortId(conn.Properties.peer?.id),
                 text: '',
                 data: {

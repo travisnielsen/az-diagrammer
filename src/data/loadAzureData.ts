@@ -1,10 +1,9 @@
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
-import * as AzureTypes from '../types/azure/AzureTypes';
 import { AzureData } from "../types/azure/AzureData";
 
 export const LoadAzureData = async (connectionString: string, containerName: string, folderName?: string) => {
         
-    let azureData: AzureData = new AzureData();
+    const azureData: AzureData = new AzureData();
     const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     const containerClient = blobServiceClient.getContainerClient(containerName);
 
@@ -26,7 +25,7 @@ export const LoadAzureData = async (connectionString: string, containerName: str
     // return list of Blob files
     async function getBlobFiles(containerClient: ContainerClient, folderName?: string) {
         let i = 1;
-        let blobNames = [];
+        const blobNames = [];
         let blobs = null
         
         if (folderName) {
@@ -43,9 +42,9 @@ export const LoadAzureData = async (connectionString: string, containerName: str
         return blobNames;
     }
     
-    async function blobToString(blobData: any) {
+    async function blobToString(blobData) {
         const fileReader = new FileReader();
-        return new Promise<any>((resolve, reject) => {
+        return new Promise((resolve, reject) => {
           fileReader.onloadend = (ev) => {
             resolve(ev.target?.result);
           };
@@ -67,7 +66,7 @@ export const LoadAzureData = async (connectionString: string, containerName: str
     async function getAzureDataFromBlob(blobName: string, containerClient: ContainerClient, folderName?: string) {
         const blobClient = await containerClient.getBlobClient(blobName)
         const downloadResponse = await blobClient.download();
-        const blobString = await blobToString(await downloadResponse.blobBody);
+        const blobString: string = await blobToString(await downloadResponse.blobBody) as string;
 
         if (folderName) {
             blobName = blobName.replace(folderName + '/', '');
@@ -75,148 +74,112 @@ export const LoadAzureData = async (connectionString: string, containerName: str
 
         switch (blobName.toLowerCase()) {
             case "subscriptions.json":
-                const subscriptions: AzureTypes.Subscription[] = await blobToJSONArray(blobString);
-                azureData.subscriptions = subscriptions;
+                azureData.subscriptions = await blobToJSONArray(blobString);
                 break;
             case "vnets.json":
-                const virtualNetworks: AzureTypes.VirtualNetwork[] = await blobToJSONArray(blobString);
-                azureData.virtualNetworks = virtualNetworks;
+                azureData.virtualNetworks = await blobToJSONArray(blobString);
                 break;
             case "networksecuritygroups.json":
-                const networkSecurityGroups: AzureTypes.NetworkSecurityGroup[]  = await blobToJSONArray(blobString);
-                azureData.networkSecurityGroups = networkSecurityGroups;
+                azureData.networkSecurityGroups = await blobToJSONArray(blobString);
                 break;
             case "routetables.json":
-                const routeTables: AzureTypes.RouteTable[]  = await blobToJSONArray(blobString);
-                azureData.routeTables = routeTables;
+                azureData.routeTables = await blobToJSONArray(blobString);
                 break;
             case "virtualmachinescalesets.json":
-                const virtualMachineScaleSets: AzureTypes.VirtualMachineScaleSet[]  = await blobToJSONArray(blobString);
-                azureData.virtualMachineScaleSets = virtualMachineScaleSets;
+                azureData.virtualMachineScaleSets = await blobToJSONArray(blobString);
                 break;
             case "virtualmachines.json":
-                const vms: AzureTypes.VirtualMachine[]  = await blobToJSONArray(blobString);
-                azureData.virtualMachines = vms;
+                azureData.virtualMachines = await blobToJSONArray(blobString);
                 break;
             case "virtualmachines-dns.json":
-                const virtualMachines: AzureTypes.VirtualMachine[]  = await blobToJSONArray(blobString);
-                azureData.virtualMachinesDns = virtualMachines;
+                azureData.virtualMachinesDns = await blobToJSONArray(blobString);
                 break;
             case "workspaces.json":
-                const databricksWorkspaces: AzureTypes.DatabricksWorkspace[]  = await blobToJSONArray(blobString);
-                azureData.databricksWorkspaces = databricksWorkspaces;
+                azureData.databricksWorkspaces = await blobToJSONArray(blobString);
                 break;
             case "loadbalancers.json":
-                const loadBalancers: AzureTypes.LoadBalancer[]  = await blobToJSONArray(blobString);
-                azureData.loadBalancers = loadBalancers;
+                azureData.loadBalancers = await blobToJSONArray(blobString);
                 break;
             case "firewalls.json":
-                const azureFirewalls: AzureTypes.AzureFirewall[]  = await blobToJSONArray(blobString);
-                azureData.azureFirewalls = azureFirewalls;
+                azureData.azureFirewalls = await blobToJSONArray(blobString);
                 break;
             case "redis.json":
-                const redisCache: AzureTypes.RedisCache[]  = await blobToJSONArray(blobString);
-                azureData.redisCache = redisCache;
+                azureData.redisCache = await blobToJSONArray(blobString);
                 break;
             case "apimanagement.json":
-                const apiManagement: AzureTypes.ApiManagement[]  = await blobToJSONArray(blobString);
-                azureData.apiManagement = apiManagement;
+                azureData.apiManagement = await blobToJSONArray(blobString);
                 break;
             case "vnetgateways.json":
-                const vnetGateways: AzureTypes.VnetGateway[]  = await blobToJSONArray(blobString);
-                azureData.vnetGateways = vnetGateways;
+                azureData.vnetGateways = await blobToJSONArray(blobString);
                 break;
             case "storageaccounts.json":
-                const storageAccounts: AzureTypes.StorageAccount[]  = await blobToJSONArray(blobString);
-                azureData.storageAccounts = storageAccounts;
+                azureData.storageAccounts = await blobToJSONArray(blobString);
                 break;
             case "cosmosdbaccounts.json":
-                const cosmosAccounts: AzureTypes.CosmosAccount[]  = await blobToJSONArray(blobString);
-                azureData.cosmosAccounts = cosmosAccounts;
+                azureData.cosmosAccounts = await blobToJSONArray(blobString);
                 break;
             case "eventhubclusters.json":
-                const eventHubClusters: AzureTypes.EventHubCluster[]  = await blobToJSONArray(blobString);
-                azureData.eventHubClusters = eventHubClusters;
+                azureData.eventHubClusters = await blobToJSONArray(blobString);
                 break;
             case "eventhubnamespaces.json":
-                const eventHubNamespaces: AzureTypes.EventHubNamespace[]  = await blobToJSONArray(blobString);
-                azureData.eventHubNamespaces = eventHubNamespaces;
+                azureData.eventHubNamespaces = await blobToJSONArray(blobString);
                 break;
             case "eventhubnetworkrulesets.json":
-                const eventHubNetworkRuleSets: AzureTypes.NetworkRuleSet[]  = await blobToJSONArray(blobString);
-                azureData.eventHubNetworkRuleSets = eventHubNetworkRuleSets;
+                azureData.eventHubNetworkRuleSets = await blobToJSONArray(blobString);
                 break;
             case "servicebusnamespaces.json":
-                const serviceBusNamespaces: AzureTypes.ServiceBusNamespace[]  = await blobToJSONArray(blobString);
-                azureData.serviceBusNamespaces = serviceBusNamespaces;
+                azureData.serviceBusNamespaces = await blobToJSONArray(blobString);
                 break;
             case "servicebusnetworkrulesets.json":
-                const serviceBusNetworkRuleSets: AzureTypes.NetworkRuleSet[]  = await blobToJSONArray(blobString);
-                azureData.serviceBusNetworkRuleSets = serviceBusNetworkRuleSets;
+                azureData.serviceBusNetworkRuleSets = await blobToJSONArray(blobString);
                 break;
             case "serverfarms.json":
-                const appServicePlans: AzureTypes.AppServicePlan[]  = await blobToJSONArray(blobString);
-                azureData.appServicePlans = appServicePlans;
+                azureData.appServicePlans = await blobToJSONArray(blobString);
                 break;
             case "sites.json":
-                const appServices: AzureTypes.AppService[]  = await blobToJSONArray(blobString);
-                azureData.appServices = appServices;
+                azureData.appServices = await blobToJSONArray(blobString);
                 break;
             case "networkinterfaces.json":
-                const nics: AzureTypes.NetworkInterface[]  = await blobToJSONArray(blobString);
-                azureData.networkInterfaces = nics;
+                azureData.networkInterfaces = await blobToJSONArray(blobString);
                 break;            
             case "privateendpoints.json":
-                const privateEndpoints: AzureTypes.PrivateEndpoint[]  = await blobToJSONArray(blobString);
-                azureData.privateEndpoints = privateEndpoints;
+                azureData.privateEndpoints = await blobToJSONArray(blobString);
                 break;
             case "expressroutecircuits.json":
-                const expressRouteCircuits: AzureTypes.ExpressRouteCircuit[]  = await blobToJSONArray(blobString);
-                azureData.expressRouteCircuits = expressRouteCircuits;
+                azureData.expressRouteCircuits = await blobToJSONArray(blobString);
                 break;
             case "gatewayconnections.json":
-                const gatewayConnections: AzureTypes.GatewayConnection[]  = await blobToJSONArray(blobString);
-                azureData.gatewayConnections = gatewayConnections;
+                azureData.gatewayConnections = await blobToJSONArray(blobString);
                 break;
             case "bastionhosts.json":
-                const bastionHosts: AzureTypes.BastionHost[]  = await blobToJSONArray(blobString);
-                azureData.bastions = bastionHosts;
+                azureData.bastions = await blobToJSONArray(blobString);
                 break;            
             case "dnsforwardingrulesets.json":
-                const dnsForwardingRulesets: AzureTypes.DnsForwardingRuleset[]  = await blobToJSONArray(blobString);
-                azureData.dnsForwardingRulesets = dnsForwardingRulesets;
+                azureData.dnsForwardingRulesets = await blobToJSONArray(blobString);
                 break;                 
             case "dnsforwardingrulesetrules.json":
-                const dnsForwardingRulesetRules: AzureTypes.DnsForwardingRulesetRule[]  = await blobToJSONArray(blobString);
-                azureData.dnsForwardingRulesetRules = dnsForwardingRulesetRules;
+                azureData.dnsForwardingRulesetRules = await blobToJSONArray(blobString);
                 break;            
             case "dnsforwardingrulesetlinks.json":
-                const dnsForwardingRulesetLinks: AzureTypes.DnsForwardingRulesetLink[]  = await blobToJSONArray(blobString);
-                azureData.dnsForwardingRulesetLinks = dnsForwardingRulesetLinks;
+                azureData.dnsForwardingRulesetLinks = await blobToJSONArray(blobString);
                 break;     
             case "dnsresolvers.json":
-                const dnsResolvers: AzureTypes.DnsResolver[]  = await blobToJSONArray(blobString);
-                azureData.dnsResolvers = dnsResolvers;
+                azureData.dnsResolvers = await blobToJSONArray(blobString);
                 break;
             case "dnsresolveroutboundendpoints.json":
-                const dnsResolverOutboundEndpoints: AzureTypes.DnsResolverOutboundEndpoint[]  = await blobToJSONArray(blobString);
-                azureData.dnsResolverOutboundEndpoints = dnsResolverOutboundEndpoints;
+                azureData.dnsResolverOutboundEndpoints = await blobToJSONArray(blobString);
                 break;
             case "keyvaults.json":
-                const keyVaults: AzureTypes.KeyVault[]  = await blobToJSONArray(blobString);
-                azureData.keyVaults = keyVaults;
+                azureData.keyVaults = await blobToJSONArray(blobString);
                 break;     
             case "privatednszones.json":
-                const privateDnsZones: AzureTypes.PrivateDnsZone[]  = await blobToJSONArray(blobString);
-                azureData.privateDnsZones = privateDnsZones;
+                azureData.privateDnsZones = await blobToJSONArray(blobString);
                 break;   
             case "privatednszonelinks.json":
-                const privateDnsZoneLinks: AzureTypes.PrivateDnsZoneLink[]  = await blobToJSONArray(blobString);
-                azureData.privateDnsZoneLinks = privateDnsZoneLinks;
+                azureData.privateDnsZoneLinks = await blobToJSONArray(blobString);
                 break;
             case "containerregistries.json":
-                const containerRegistries: AzureTypes.ContainerRegistry[]  = await blobToJSONArray(blobString);
-                azureData.containerRegistries = containerRegistries;
+                azureData.containerRegistries = await blobToJSONArray(blobString);
                 break;            
             default:
                 break;

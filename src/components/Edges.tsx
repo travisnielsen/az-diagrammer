@@ -1,9 +1,9 @@
 import { NodeData, Edge, EdgeProps } from 'reaflow';
-import { store } from '../store';
+import { store } from '..//store/store';
 
-const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
+const PrepareEdge = (edge: EdgeProps, handleNodeUpdate ) => {
 
-    const getParentNodes: any = (node: NodeData, nodeData: NodeData[]) => {
+    const getParentNodes = (node: NodeData, nodeData: NodeData[]) => {
         const parentNodes = nodeData.filter(parentNode => {
             if (parentNode.id === node.parent) {
                 return true;
@@ -14,8 +14,6 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
         if (parentNodes.length === 0) {
             return [];
         }
-
-        return [...parentNodes, ...getParentNodes(parentNodes[0], nodeData)];
     }
 
     // returns updated nodeData and edgeData
@@ -65,24 +63,24 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate: Function ) => {
         return { nodes: [...childNodes, ...connectedNodesWithParents], edges: filteredEdgeData, selectedNodeId: selectedNodeId };
     }
 
-    const onEdgeClick = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
+    const onEdgeClick = () => {
         console.log(`edge clicked (${edge.id})`);
         const results = FilterNodesByEdge();
         handleNodeUpdate(results.nodes, results.edges, results.selectedNodeId);
     };
     
-    const onEdgeEnter = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
+    const onEdgeEnter = () => {
         console.log(`edge entered (${edge.id}) from ${edge.source} to ${edge.target}`);
       };
 
-    // @ts-ignore
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     if (edge.data?.type === undefined) {
         return (
             <Edge {...edge} onClick={onEdgeClick} />
         )
     }
 
-    // @ts-ignore
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     switch (edge.data?.type) {
         case 'vnetintegration':
             return (

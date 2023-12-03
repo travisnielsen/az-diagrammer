@@ -1,3 +1,3 @@
-# Azure Diagrams with REAFLOW
+# Azure Diagrammer: Interactive diagrams for complex workloads
 
-This is a sample application that uses the [reaflow diagram engine](https://github.com/reaviz/reaflow) to display workloads deployed to Azure. test
+Coming soon....

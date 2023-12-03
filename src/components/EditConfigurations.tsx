@@ -6,7 +6,7 @@ import EditConfigurationsDetail from "./EditConfigurationsDetail";
 
 const EditConfigurations = (props: ModalProps) => {
 
-    const configurations: DiagramConfiguration[] = useAppSelector((state: any) => state.configurations.value)
+    const configurations: DiagramConfiguration[] = useAppSelector((state) => state.configurations.value)
     const [selectedConfiguration, setSelectedConfiguration] = useState<DiagramConfiguration>(configurations[0]);
 
     const renderedConfigurationItems = configurations.map(configuration => {

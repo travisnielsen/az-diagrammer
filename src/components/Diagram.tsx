@@ -1,24 +1,24 @@
-import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot, useSelection, SelectionResult, CanvasPosition } from 'reaflow';
+import { Canvas, NodeProps, CanvasRef, NodeData, EdgeData, EdgeProps, ElkRoot, useSelection, CanvasPosition } from 'reaflow';
 import Nodes from './Nodes'
 import PrepareEdge from './Edges'
-import { useEffect, useRef, useState } from 'react';
-import { setVisibleNodes, setVisibleEdges } from '../features/diagramSlice'
-import { setPaneHeight, setPaneWidth } from '../features/canvasSlice';
+import { useRef, useState } from 'react';
+import { setVisibleNodes, setVisibleEdges } from '../store/diagramSlice'
+import { setPaneHeight, setPaneWidth } from '../store/canvasSlice';
 import { TransformWrapper, TransformComponent, ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { useAppSelector, useAppDispatch } from '../hooks'
 import '../App.css'
 
-let selectedNodeId = '';
+// let selectedNodeId = '';
 
 const Diagram: React.FC = () => {
   const canvasRef = useRef<CanvasRef>(null);
   const transformComponentRef = useRef<ReactZoomPanPinchRef| null>(null);
   const dispatch = useAppDispatch()
-  const [paneWidth, paneHeight] = useAppSelector((state: any) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
+  const [paneWidth, paneHeight] = useAppSelector((state) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
   const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
-  const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
-  const containerWidth = canvasRef.current?.containerWidth;
-  const [cursorXY, setCursorXY] = useState<[number, number]>([0, 0]);
+  // const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
+  // const containerWidth = canvasRef.current?.containerWidth;
+  const [cursorXY] = useState<[number, number]>([0, 0]);
 
   /**
    * 
@@ -27,13 +27,12 @@ const Diagram: React.FC = () => {
    * @param nodeId sets the visible and hidden nodes when called. Inovkes a method to center on the selected node.
    */
   function handleNodeUpdate(nodes: NodeData[], edges: EdgeData[], nodeId: string) {
-    selectedNodeId = nodeId;
     dispatch(setVisibleNodes(nodes))
     dispatch(setVisibleEdges(edges))
     centerOnSelectedNode(nodeId);
   }
 
-  const selections: SelectionResult = useSelection({
+  useSelection({
     nodes,
     edges,
     selections: [''],
@@ -56,11 +55,11 @@ const Diagram: React.FC = () => {
 
       if (canvasItem) {
 
-        const { x, y, width, height } = canvasItem;
-        const canvasCenterX = canvasWidth / 2;
-        const canvasCenterY = canvasHeight / 2;
-        const canvasItemCenterX = x + (width / 2);
-        const canvasItemCenterY = y + (height / 2);
+        const { x, y } = canvasItem;
+        // const canvasCenterX = canvasWidth / 2;
+        // const canvasCenterY = canvasHeight / 2;
+        // const canvasItemCenterX = x + (width / 2);
+        // const canvasItemCenterY = y + (height / 2);
   
         if (canvasRef?.current?.setScrollXY) {
           canvasRef?.current?.setScrollXY([x, y]);
@@ -71,10 +70,12 @@ const Diagram: React.FC = () => {
     }
   }
 
+  /*
   const onCanvasClick = (event: React.MouseEvent<SVGGElement, MouseEvent>): void => {
     console.log('onCanvasClick', event);
     setCursorXY([event?.clientX, event?.clientY]);
   }
+  */
 
   function handleLayoutChange(layout: ElkRoot) {
 
@@ -86,7 +87,7 @@ const Diagram: React.FC = () => {
     });
 
     const screenWidth = window.screen.width;
-    const screenHeight = window.screen.height;
+    // const screenHeight = window.screen.height;
 
     // keep a minimum pane size
     // if (newHeight < screenHeight) newHeight = screenHeight;
@@ -106,7 +107,7 @@ const Diagram: React.FC = () => {
     }
   }
 
-  var onTransformed = (panPinchRef: ReactZoomPanPinchRef, transformState: { scale: number, positionX: number, positionY: number }) => {
+  const onTransformed = (panPinchRef: ReactZoomPanPinchRef, transformState: { scale: number, positionX: number, positionY: number }) => {
     // This is a hack to prevent the diagram from being dragged too far up.
     const canvasHeight = canvasRef.current?.canvasHeight || 0;
 
