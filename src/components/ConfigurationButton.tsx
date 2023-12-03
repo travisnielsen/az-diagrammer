@@ -88,11 +88,12 @@ const ConfigurationButton = () => {
             }
         }
 
-    }, [selectedConfiguration, account, inProgress, instance]);
+    }, [selectedConfiguration, account, inProgress, instance, dispatch]);
 
     const configurations: DiagramConfiguration[] = useAppSelector((state) => state.configurations.value)
 
     function handleSelect(e, id: string) {
+        console.log("handleSelect", e.target, id);
         dispatch(setSelectedConfiguration(id))
     }
 
