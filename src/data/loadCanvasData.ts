@@ -31,7 +31,11 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   }
 
   const nodeData = getNodeData(azureData);
-  const edgeData = getEdgeData(azureData, config); 
+  const edgeData = getEdgeData(azureData, config).filter(e => e !== undefined);
+
+  // remove any edge in edgeData that is undefined
+
+
   
   /*
   const nodeIsNonEmptyContainer = (node: NodeData) => {
@@ -371,6 +375,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   })
 
   // iterate through all subnets and set data.status to 'closed'.
+  
   const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
   subnetNodes.forEach(n => {
     // collapse subnets except for hub vnets

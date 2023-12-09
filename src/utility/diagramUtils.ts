@@ -1,7 +1,6 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { LayoutZone } from '../types/LayoutZone'
 
-
 /**
  * 
  * @param node 
@@ -18,8 +17,7 @@ export const collapseContainer = (node: NodeData, nodeDataVisible: NodeData[], n
     const externalNodesToHide = getExternalNodesToHide(nodeDataVisible, edgeDataVisible, edgesToHide);
     nodesToHide.push(...externalNodesToHide);
 
-    // NEW: hide empty PaaS containers
-    const emptyPaasContainers = getEmptyPaasContainers(nodeDataVisible);
+    const emptyPaasContainers = getEmptyParentPaasContainer(nodesToHide, nodeDataVisible);
     nodesToHide.push(...emptyPaasContainers);
 
     // TODO: Logic in the above methods is resulting in duplicate nodes. Look into this. Fixed for now by using Set
@@ -304,52 +302,62 @@ const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData
         if (visibleNodes.some((n: { id: string; }) => n.id === node.id)) {
             // node is visible and might need to be hidden
             // get list of edges connected to node that are not in edgesToHide
-            const connectedEdges = visibleEdges.filter(edge => edge.from === node.id || edge.to === node.id).filter((edge: { id: string; }) => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
+            const connectedEdges = visibleEdges.filter(edge => edge.from === node.id || edge.to === node.id)
+                .filter((edge: { id: string; }) => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
+            
             if (connectedEdges.length === 0) {
                 return node;
             }
         }
     }).filter((node) => node !== undefined);
 
-
-    return externalNodesToHide;
-
-}
-
-/**
- * Returns a list of empty PaaS containers
- * @param nodes 
- * @returns 
- */
-const getEmptyPaasContainers = (nodes: NodeData[]) => {
-    const emptyPaasContainers = nodes.filter(node => {
-        if (node.data.type === 'container' && node.data.layoutZone === LayoutZone.PAAS ) {
-            // return true if container has no children
-            const children = getChildrenNodes(node, nodes);
-            if (children.length === 0) {
-                return true;
-            }
+    // get parent node for each item in externalNodesToHide
+    externalNodesToHide.forEach((node) => {
+        const parentNode = getParentPaasContainer(node, visibleNodes);
+        if (parentNode !== undefined) {
+            externalNodesToHide.push(parentNode);
         }
-        return false;
     });
 
-    return emptyPaasContainers;
+
+    return externalNodesToHide;
 }
 
-
 /**
- * Returns a list of empty PaaS containers
+ * Returns the parent PaaS container for a given node
  * @param nodes 
  * @returns 
  */
-const getParentPaasContainer = (node: NodeData, hiddenNodes: NodeData[]) => {
+const getParentPaasContainer = (node: NodeData, nodes: NodeData[]) => {
 
-    const parentNode = hiddenNodes.filter(hiddenNode => { 
-        if (hiddenNode.id === node.parent && hiddenNode.data.layoutZone === LayoutZone.PAAS && hiddenNode.data.type === 'container') {
+    const parentNode = nodes.filter(n => { 
+        if (n.id === node.parent && n.data.layoutZone === LayoutZone.PAAS && n.data.type === 'container') {
             return true;
         }
         return false;
     }).flat();
 
     return parentNode[0];
+}
+
+/**
+ * Returns the nodes that are empty parent 
+ * @param nodesBeingHidden
+ * @param visibleNodes 
+ * @returns 
+ */
+const getEmptyParentPaasContainer = (nodesBeingHidden: NodeData[], visibleNodes: NodeData[]) => {
+    
+        const emptyPaasContainers = visibleNodes.filter(node => {
+            if (node.data.type === 'container' && node.data.layoutZone === LayoutZone.PAAS ) {
+                // return true if container has no children
+                const children = getChildrenNodes(node, visibleNodes).filter((node: { id: string; }) => !nodesBeingHidden.some((n: { id: string; }) => n.id === node.id))
+                if (children.length === 0) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    
+        return emptyPaasContainers;
 }
