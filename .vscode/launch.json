@@ -30,7 +30,26 @@
             "request": "launch",
             "name": "Launch Edge against localhost",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}/src"
-        }
+            "webRoot": "${workspaceFolder}",
+            "sourceMaps": true,
+            "pathMapping": {
+                "http://localhost:3000": "${workspaceFolder}",
+            }
+        },
+        {
+            "name": "Launch Vite DEV server",
+            "request": "launch",
+            "runtimeExecutable": "npx",
+            "runtimeArgs": [
+              "vite",
+            ],
+            "type": "node",
+            "serverReadyAction": {
+              "action": "debugWithEdge",
+              "pattern": "Local: http://localhost:([0-9]+)",
+              "uriFormat": "http://localhost:%s"
+            },
+            "timeout": 10000
+          }
     ]
 }
