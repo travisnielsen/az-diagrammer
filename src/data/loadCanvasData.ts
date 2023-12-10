@@ -33,10 +33,6 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   const nodeData = getNodeData(azureData);
   const edgeData = getEdgeData(azureData, config).filter(e => e !== undefined);
 
-  // remove any edge in edgeData that is undefined
-
-
-  
   /*
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     const filteredServices = ["routetable", "nsg"]
