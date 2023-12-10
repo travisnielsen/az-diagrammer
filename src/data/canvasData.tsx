@@ -623,7 +623,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
-                layoutZone: LayoutZone.INGRESS,
+                layoutZone: LayoutZone.GLOBAL,
                 region: 'global',
                 servicename: 'expressroutecircuit',
                 label: er.Name,
@@ -641,7 +641,7 @@ export const getNodeData = (azureData: AzureData) => {
             data: {
                 type: 'service',
                 category: 'networking',
-                layoutZone: LayoutZone.INGRESS,
+                layoutZone: LayoutZone.EDGE,
                 region: 'global',
                 servicename: 'location',
                 label: er.Properties.serviceProviderProperties.peeringLocation,
@@ -707,20 +707,41 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
+    const privateDnsZoneContainers: NodeData[] = (
+        [
+            {
+                id: 'privatednszone-container',
+                height: 150,
+                width: 250,
+                layoutOptions: containerlayoutOptions,
+                data: {
+                    type: 'container',
+                    category: 'networking',
+                    layoutZone: LayoutZone.GLOBAL,
+                    region: 'global',
+                    servicename: 'privatednszone-container',
+                    label: 'Private DNS Zones',
+                    url: 'images/Networking/dns.svg',
+                    status: 'open'
+                }
+            }
+        ]
+    )
+
     const privateDnsZones: NodeData[] = azureData.privateDnsZones.map((dnsZone) => (
         {
             id: shortId(dnsZone.Id),
-            height: 150,
-            width: 400,
+            parent: 'privatednszone-container',
+            height: 75,
+            width: 350,
             data: {
-                type: 'service',
+                type: 'listitem',
                 category: 'networking',
-                layoutZone: LayoutZone.HYBRID_CONNECTION,
+                layoutZone: LayoutZone.GLOBAL,
                 region: dnsZone.Location,
                 servicename: 'privatednszone',
                 label: dnsZone.Name,
                 info: dnsZone.Properties.numberOfRecordSets + " record sets",
-                url: 'images/Networking/dns.svg'
             }
         }
     ))
@@ -808,7 +829,7 @@ export const getNodeData = (azureData: AzureData) => {
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
         ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations,
         ...bastionHosts, ...containerRegistries, ...keyVaults,
-        ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules, ...dnsResolverOutboundEndpoints
+        ...privateDnsZoneContainers, ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules, ...dnsResolverOutboundEndpoints
     ]
 
     return nodeData

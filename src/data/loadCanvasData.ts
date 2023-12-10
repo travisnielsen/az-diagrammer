@@ -142,7 +142,8 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     const region = n.data.region
     const regionContainer = nodeData.find(nf => nf.data.category === "region" && nf.data.region === region)
     if (regionContainer) {
-      n.parent = regionContainer.id
+      if (!n.parent)
+        n.parent = regionContainer.id
     }
   })
 
@@ -172,14 +173,17 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   })
 
   // place expressroute circuits into the global container and set tier to 'hybrid connection'
-  const expressrouteNodes = nodeData.filter(n => n.data.servicename === "expressroutecircuit" || n.data.servicename === "privatednszone")
-  expressrouteNodes.forEach(n => {
-    n.parent = 'global';
-    n.data.layoutZone = LayoutZone.HYBRID_CONNECTION;
+  const globalServicesNodes = nodeData.filter(n => n.data.layoutZone === LayoutZone.GLOBAL)
+  globalServicesNodes.forEach(n => {
+    if (!n.parent) { // set top nodes only
+      n.parent = 'global';
+      n.data.layoutZone = LayoutZone.GLOBAL;
+    }
+
   })
 
   // remove any nodes from nodedata that are in the parent 'global' container that do not have edges
-  const globalNodes = nodeData.filter(n => n.parent === 'global')
+  const globalNodes = nodeData.filter(n => n.parent === 'global' && n.data.type !== 'container')
   globalNodes.forEach(n => {
     const edges = edgeData.filter(e => e.from === n.id || e.to === n.id)
     if (edges.length === 0) {
