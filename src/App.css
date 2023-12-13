@@ -84,6 +84,7 @@
   stroke: green !important;
   stroke-dasharray: 5;
   animation: dashdraw .5s linear infinite;
+  animation-direction: reverse;
   stroke-width: 1;
 
 }
@@ -95,6 +96,11 @@
 .edge-vnet-peering {
   stroke: purple !important;
   stroke-width: .3cap !important;
+}
+
+.edge-expressroute {
+  stroke: firebrick !important;
+  stroke-width: 1;
 }
 
 .navbar-row-2 {

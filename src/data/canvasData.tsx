@@ -1066,6 +1066,7 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             from: shortId(conn.Properties.peer?.id),
             to: shortId(conn.Properties.virtualNetworkGateway1.id),
             text: "Routing Weight: " + conn.Properties.routingWeight,
+            className: 'edge-expressroute',
             data: {
                     type: 'expressroute'
             }
@@ -1082,6 +1083,7 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
                 from: getIdFromText(azureData.expressRouteCircuits.find((er: { Id }) => er.Id === conn.Properties.peer?.id)?.Properties.serviceProviderProperties.peeringLocation),
                 to: shortId(conn.Properties.peer?.id),
                 text: '',
+                className: 'edge-expressroute',
                 data: {
                     type: 'expressroute'
                 }
