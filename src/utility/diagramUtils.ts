@@ -1,5 +1,6 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { LayoutZone } from '../types/LayoutZone'
+// import { setHiddenEdges } from '../store/diagramSlice';
 
 /**
  * 
@@ -121,6 +122,88 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: No
     const filteredEdges = [connectedParentNodeEdges, ...hybridNetworkingEdges, ...connectedSelectedNodeEdges].flat();
 
     return [filteredNodesUnique, filteredEdges];
+}
+
+/**
+ * Takes a list of nodes and returns a new summary node. Edges are also updated to point to the new summary node
+ * @param nodes
+ * @param edges
+ * @returns An array containing the new nodes, new edges, hidden nodes, and hidden edges
+ */
+export const createSummaryNodes = (nodes: NodeData[], edges: EdgeData[]) => {
+
+    const summaryNodes: NodeData[] = [];
+    const summaryEdges: EdgeData[] = [];
+    const hiddenNodes: NodeData[] = [];
+    const hiddenEdges: EdgeData[] = [];
+    const serviceNames = [...new Set(nodes.map(n => n.data.servicename))]
+
+    serviceNames.forEach(servicename => {
+        const nodesOfType = nodes.filter(n => n.data.servicename === servicename)
+        if (nodesOfType.length > 3) {
+          const node = nodesOfType[0]
+          const newNode = {
+            id: `${node.id}-${node.data.servicename}`,
+            parent: node.parent,
+            height: node.height,
+            width: node.width,
+            data: {
+                type: node.data.type,
+                category: "summary",
+                region: node.data.region,
+                layoutZone: node.data.layoutZone,
+                serviceName: node.data.servicename,
+                label: `${nodesOfType.length} ${node.data.servicename}s`,
+                url: node.data.url,
+                isSubstitute: true
+              }
+            }
+            
+            summaryNodes.push(newNode)
+            
+            nodesOfType.forEach(n => {
+                const edgesToCreateTo = edges.filter(e => e.to === n.id)
+                edgesToCreateTo.forEach(e => {
+                    const newEdge = {
+                        id: `${e.id}-summary`,
+                        from: e.from,
+                        to: newNode.id,
+                        className: e.className,
+                        data: {
+                            type: e.data.type,
+                            category: "summary"
+                        }
+                    }
+                    const existingEdge = summaryEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+                    if (!existingEdge)            
+                        summaryEdges.push(newEdge)
+                    })
+
+                const edgesToCreateFrom = edges.filter(e => e.from === n.id)
+                edgesToCreateFrom.forEach(e => {
+                    const newEdge = {
+                        id: `${e.id}-summary`,
+                        from: newNode.id,
+                        to: e.to,
+                        className: e.className,
+                        data: {
+                            type: e.data.type,
+                            category: "summary"
+                        }
+                    }
+                    const existingEdge = summaryEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+                    if (!existingEdge)
+                        summaryEdges.push(newEdge)
+                    })
+
+                const edgesToRemove = edges.filter(e => e.from === n.id || e.to === n.id)
+                edgesToRemove.forEach(e => { hiddenEdges.push(e) })
+                nodesOfType.forEach(n => { hiddenNodes.push(n) })
+            })
+        }
+    })
+
+    return [summaryNodes, summaryEdges, hiddenNodes, hiddenEdges];
 }
 
 /**
@@ -361,3 +444,5 @@ const getEmptyParentPaasContainer = (nodesBeingHidden: NodeData[], visibleNodes:
     
         return emptyPaasContainers;
 }
+
+
