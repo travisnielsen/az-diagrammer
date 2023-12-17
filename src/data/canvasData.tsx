@@ -940,7 +940,8 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
         {
             id: shortId(pe.id),
             from: shortId(pe.properties.privateEndpoint.id),
-            to: shortId(cosmos.Id),
+                to: shortId(cosmos.Id),
+            className: 'edge-privateendpoint-connection',
             text: '',
             data: {
                 type: 'privateendpoint-connection'
@@ -951,71 +952,76 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
     
     const eventHubPrivateEndpointConnections: EdgeData[] = azureData.eventHubNamespaces.filter((eh) => eh.Properties.privateEndpointConnections !== undefined)
         .map((eh) => eh.Properties.privateEndpointConnections?.map((pe) => (
-        {
-            id: shortId(pe.id),
-            from: shortId(pe.properties.privateEndpoint.id),
-            to: shortId(eh.Id),
-            text: '',
-            data: {
-                type: 'privateendpoint-connection'
+            {
+                id: shortId(pe.id),
+                from: shortId(pe.properties.privateEndpoint.id),
+                to: shortId(eh.Id),
+                className: 'edge-privateendpoint-connection',
+                text: '',
+                data: {
+                    type: 'privateendpoint-connection'
                 }
-        }
+            }
         ))).flat().filter((data) => data !== undefined) as EdgeData[];
     
     
     const serviceBusPrivateEndpointConnections: EdgeData[] = azureData.serviceBusNamespaces.filter((sb) => sb.Properties.privateEndpointConnections !== undefined)
         .map((sb) => sb.Properties.privateEndpointConnections?.map((pe) => (
-        {
-            id: shortId(pe.id),
-            from: shortId(pe.properties.privateEndpoint.id),
-            to: shortId(sb.Id),
-            text: '',
-            data: {
-                type: 'privateendpoint-connection'
-                }
-        }
+            {
+                id: shortId(pe.id),
+                from: shortId(pe.properties.privateEndpoint.id),
+                to: shortId(sb.Id),
+                className: 'edge-privateendpoint-connection',
+                text: '',
+                data: {
+                    type: 'privateendpoint-connection'
+                    }
+            }
         ))).flat().filter((data) => data !== undefined) as EdgeData[];
     
     
     const keyVaultPrivateEndpointConnections = azureData.keyVaults.filter((kv) => kv.Properties.privateEndpointConnections !== undefined)
         .map((kv) => kv.Properties.privateEndpointConnections?.map((pe) => (
-        {
-            id: shortId(pe.id),
-            from: shortId(pe.properties.privateEndpoint.id),
-            to: shortId(kv.Id),
-            text: '',
-            data: {
-                type: 'privateendpoint-connection'
-                }
+            {
+                id: shortId(pe.id),
+                from: shortId(pe.properties.privateEndpoint.id),
+                to: shortId(kv.Id),
+                className: 'edge-privateendpoint-connection',
+                text: '',
+                data: {
+                    type: 'privateendpoint-connection'
+                    }
         }
         ))).flat().filter((data) => data !== undefined) as EdgeData[];
     
     
     const containerRegistryPrivateEndpointConnections = azureData.containerRegistries.filter((cr) => cr.Properties.privateEndpointConnections !== undefined)
         .map((cr) => cr.Properties.privateEndpointConnections?.map((pe) => (
-        {
-            id: shortId(pe.id),
-            from: shortId(pe.properties.privateEndpoint.id),
-            to: shortId(cr.Id),
-            text: '',
-            data: {
-                type: 'privateendpoint-connection'
-                }
-        }
+            {
+                id: shortId(pe.id),
+                from: shortId(pe.properties.privateEndpoint.id),
+                to: shortId(cr.Id),
+                className: 'edge-privateendpoint-connection',
+                text: '',
+                data: {
+                    type: 'privateendpoint-connection'
+                    }
+            }
         ))).flat().filter((data) => data !== undefined) as EdgeData[];
     
     
     const appServicePrivateEndpointConnections = azureData.appServices.filter((app) => app.Properties.privateEndpointConnections !== undefined)
         .map((app) => app.Properties.privateEndpointConnections?.map((pe) => (
-        {
-            id: shortId(pe.id),
-            from: shortId(pe.properties.privateEndpoint.id),
-            to: shortId(app.Id),
-            text: '',
-            data: {
-                type: 'privateendpoint-connection'
-                }
-        }
+            {
+                id: shortId(pe.id),
+                from: shortId(pe.properties.privateEndpoint.id),
+                to: shortId(app.Id),
+                className: 'edge-privateendpoint-connection',
+                text: '',
+                data: {
+                    type: 'privateendpoint-connection'
+                    }
+            }
         ))).flat().filter((data) => data !== undefined) as EdgeData[];    
     
     
@@ -1053,7 +1059,8 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             {
                 id: shortId(appService.Id) + '-to-' + shortId(appService.Properties.virtualNetworkSubnetId),
                 from: shortId(appService.Properties.virtualNetworkSubnetId) + "-appServiceDelegation",
-                to: shortId(appService.Id), 
+                to: shortId(appService.Id),
+                className: 'edge-appsvc-vnetintegration',
                 data: {
                     type: 'vnetintegration'
                 }

@@ -40,7 +40,15 @@ export const collapseContainer = (node: NodeData, nodeDataVisible: NodeData[], n
  */
 export const expandContainer = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
-    const nodesToDisplay = getChildrenNodes(node, nodeDataHidden);
+    let nodesToDisplay = getChildrenNodes(node, nodeDataHidden);
+
+    // if a summary node exists, filter out the the actual nodes
+    const summaryNodes = nodesToDisplay.filter(node => node.data.category === 'summary');
+    if (summaryNodes.length > 0) {
+        const summaryNodeType = summaryNodes[0].data.servicename;
+        nodesToDisplay = nodesToDisplay.filter(node => node.data.servicename !== summaryNodeType || node.data.category === 'summary');
+    }
+
     const edgesToDisplay = getEdgesForNode(nodesToDisplay, edgeDataHidden);
 
     const externalNodesToDisplay = getNodesForEdges(edgesToDisplay, nodeDataHidden).map((node) => {
@@ -71,52 +79,79 @@ export const expandContainer = (node: NodeData, nodeDataVisible: NodeData[], nod
 /**
  * Returns the connection graph for a selected PaaS service
  * @param selectedNode 
- * @param nodes 
- * @param edges 
+ * @param visibleNodes 
+ * @param visibleEdges
+ * @param hiddenNodes
+ * @param hiddenEdges 
  * @returns A tuple containing the filtered nodes and edges
  */
-export const getConnectionGraphPaaS = (selectedNode: NodeData, nodes: NodeData[], edges: EdgeData[]): [NodeData[], EdgeData[]] => {
+export const getConnectionGraphPaaS = (selectedNode: NodeData, visibleNodes: NodeData[], visibleEdges: EdgeData[], hiddenNodes: NodeData[], hiddenEdges: EdgeData[]): [NodeData[], EdgeData[]] => {
 
-    const connectedEdges: NodeData[] = getEdgesForNode([selectedNode], edges);
-    const connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, nodes);
-    const connectedNodesParents = [...new Set(connectedNodes.map((node: NodeData) => getParentNodes(node, nodes)).flat())];
-    const connectedNodesChildren = connectedNodes.map((node: NodeData) => getChildrenNodes(node, nodes)).flat();
-    // const vnetNodes = connectedNodesParents.filter(node => node.data.servicename === 'vnet');
-    // const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(vnetNodes, nodes, edges);
-    const filteredEdges = [connectedEdges].flat();
-    const filteredNodes = [connectedNodes, ...connectedNodesParents, ...connectedNodesChildren].flat();
+    const allNodes = [...visibleNodes, ...hiddenNodes];
+    const allEdges = [...visibleEdges, ...hiddenEdges];
+
+    let connectedEdges: NodeData[] = getEdgesForNode([selectedNode], allEdges);
+    let connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, allNodes);
+
+    // remove 'summary' items
+    connectedNodes = connectedNodes.filter(node => node.data.category !== 'summary');
+    connectedEdges = connectedEdges.filter(edge => edge.data.category !== 'summary');
+
+    const connectedNodesParents = [...new Set(connectedNodes.map((node: NodeData) => getParentNodes(node, allNodes)).flat())];
+    const connectedNodesChildren = connectedNodes.map((node: NodeData) => getChildrenNodes(node, allNodes)).flat();
+
+    const vnetNodes = connectedNodesParents.filter(node => node.data.servicename === 'vnet');
+    const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(vnetNodes, visibleNodes, hiddenNodes, visibleEdges, hiddenEdges);
+
+    const filteredEdges = [...new Set([...connectedEdges, ...hybridNetworkingEdges])];
+    const filteredNodes = [...new Set([...connectedNodes, ...connectedNodesParents, ...connectedNodesChildren, ...hybridNetworkingNodes])];
+
+    // get nodes with servicename === subnet that have children nodes
+    const subnetNodes = filteredNodes.filter(node => node.data.servicename === 'subnet');
+    const subnetNodesWithChildren = subnetNodes.filter(node => getChildrenNodes(node, filteredNodes).length > 0);
+
+    subnetNodesWithChildren.forEach(node => {
+        node.data.status = 'open';
+    })
+
     return [filteredNodes, filteredEdges];
 }
 
 /**
  * Returns the connection graph for a selected VNet injected service
  * @param selectedNode 
- * @param nodes 
- * @param edges 
+ * @param visibleNodes
+ * @param visibleEdges
+ * @param hiddenNodes
+ * @param hiddenEdges
  * @returns A tuple containing the filtered nodes and edges
  */
-export const getConnectionGraphVnetInjected = (selectedNode: NodeData, nodes: NodeData[], edges: EdgeData[]) => {
-    const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNode([selectedNode], edges);
-    const connectedSelectedNodeNodes: NodeData[] = getNodesForEdges(connectedSelectedNodeEdges, nodes);
+export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNodes: NodeData[], visibleEdges: EdgeData[], hiddenNodes: NodeData[], hiddenEdges: NodeData[]) => {
 
-    const parentNodes: NodeData[] = getParentNodes(selectedNode, nodes);
+    const allNodes = [...visibleNodes, ...hiddenNodes];
+    const allEdges = [...visibleEdges, ...hiddenEdges];
+
+    const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNode([selectedNode], allEdges);
+    const connectedSelectedNodeNodes: NodeData[] = getNodesForEdges(connectedSelectedNodeEdges, allNodes);
+
+    const parentNodes: NodeData[] = getParentNodes(selectedNode, allNodes);
 
     // get parent container for nodes in the PAAS layout zone
     const paasNodes: NodeData[] = connectedSelectedNodeNodes.filter(node => node.data.layoutZone === LayoutZone.PAAS);
-    const paasParentNodes: NodeData[] = paasNodes.map(node => getParentNodes(node, nodes)).flat();
+    const paasParentNodes: NodeData[] = paasNodes.map(node => getParentNodes(node, allNodes)).flat();
 
     // get peer nodes in subnet
     const parentSubnet: NodeData = parentNodes.find(node => node.data.servicename === 'subnet');
-    const peerNodes: NodeData[] = getChildrenNodes(parentSubnet, nodes).filter((peerNode: { id: string; }) => peerNode.id != selectedNode.id);
+    const peerNodes: NodeData[] = getChildrenNodes(parentSubnet, allNodes).filter((peerNode: { id: string; }) => peerNode.id != selectedNode.id);
 
     // get nodes connected to parent nodes and their parent containers
-    const connectedParentNodeEdges: EdgeData[] = getEdgesForNode(parentNodes, edges);
-    const connectedParentNodeNodes: NodeData[] = getNodesForEdges(connectedParentNodeEdges, nodes);
-    const connectedNodesParentNodes: NodeData[] = connectedParentNodeNodes.map(node => getParentNodes(node, nodes)).flat();
-    const connectedNodesChildren: NodeData[] = connectedParentNodeNodes.filter(n => n.data.servicename !== 'vnet').map(node => getChildrenNodes(node, nodes)).flat();
+    const connectedParentNodeEdges: EdgeData[] = getEdgesForNode(parentNodes, allEdges);
+    const connectedParentNodeNodes: NodeData[] = getNodesForEdges(connectedParentNodeEdges, allNodes);
+    const connectedNodesParentNodes: NodeData[] = connectedParentNodeNodes.map(node => getParentNodes(node, allNodes)).flat();
+    const connectedNodesChildren: NodeData[] = connectedParentNodeNodes.filter(n => n.data.servicename !== 'vnet').map(node => getChildrenNodes(node, allNodes)).flat();
     
     const connectedVnetNodes = connectedParentNodeNodes.filter(node => node.data.servicename === 'vnet').filter((node: { id: string; }) => !parentNodes.some((parentNode: { id: string; }) => parentNode.id === node.id));
-    const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(connectedVnetNodes, nodes, edges);
+    const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(connectedVnetNodes, visibleNodes, hiddenNodes, visibleEdges, hiddenEdges);
     const filteredNodes = [selectedNode, ...parentNodes, ...paasParentNodes, ...peerNodes, ...connectedParentNodeNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes, ...connectedNodesChildren].flat();
     const filteredNodesUnique = [...new Set(filteredNodes)];
     const filteredEdges = [connectedParentNodeEdges, ...hybridNetworkingEdges, ...connectedSelectedNodeEdges].flat();
@@ -140,67 +175,67 @@ export const createSummaryNodes = (nodes: NodeData[], edges: EdgeData[]) => {
 
     serviceNames.forEach(servicename => {
         const nodesOfType = nodes.filter(n => n.data.servicename === servicename)
-        if (nodesOfType.length > 3) {
-          const node = nodesOfType[0]
-          const newNode = {
-            id: `${node.id}-${node.data.servicename}`,
-            parent: node.parent,
-            height: node.height,
-            width: node.width,
-            data: {
-                type: node.data.type,
-                category: "summary",
-                region: node.data.region,
-                layoutZone: node.data.layoutZone,
-                serviceName: node.data.servicename,
-                label: `${nodesOfType.length} ${node.data.servicename}s`,
-                url: node.data.url,
-                isSubstitute: true
-              }
+        const node = nodesOfType[0]
+
+        const newNode = {
+        id: `${node.parent}-${node.data.servicename}-summary`,
+        parent: node.parent,
+        height: node.height,
+        width: node.width,
+        data: {
+            type: node.data.type,
+            category: "summary",
+            region: node.data.region,
+            layoutZone: node.data.layoutZone,
+            servicename: node.data.servicename,
+            label: `${nodesOfType.length} ${node.data.servicename}s`,
+            url: node.data.url,
+            isSubstitute: true
             }
-            
-            summaryNodes.push(newNode)
-            
-            nodesOfType.forEach(n => {
-                const edgesToCreateTo = edges.filter(e => e.to === n.id)
-                edgesToCreateTo.forEach(e => {
-                    const newEdge = {
-                        id: `${e.id}-summary`,
-                        from: e.from,
-                        to: newNode.id,
-                        className: e.className,
-                        data: {
-                            type: e.data.type,
-                            category: "summary"
-                        }
-                    }
-                    const existingEdge = summaryEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
-                    if (!existingEdge)            
-                        summaryEdges.push(newEdge)
-                    })
-
-                const edgesToCreateFrom = edges.filter(e => e.from === n.id)
-                edgesToCreateFrom.forEach(e => {
-                    const newEdge = {
-                        id: `${e.id}-summary`,
-                        from: newNode.id,
-                        to: e.to,
-                        className: e.className,
-                        data: {
-                            type: e.data.type,
-                            category: "summary"
-                        }
-                    }
-                    const existingEdge = summaryEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
-                    if (!existingEdge)
-                        summaryEdges.push(newEdge)
-                    })
-
-                const edgesToRemove = edges.filter(e => e.from === n.id || e.to === n.id)
-                edgesToRemove.forEach(e => { hiddenEdges.push(e) })
-                nodesOfType.forEach(n => { hiddenNodes.push(n) })
-            })
         }
+        
+        summaryNodes.push(newNode)
+        
+        nodesOfType.forEach(n => {
+            const edgesToCreateTo = edges.filter(e => e.to === n.id)
+            edgesToCreateTo.forEach(e => {
+                const newEdge = {
+                    id: `${e.id}-summary`,
+                    from: e.from,
+                    to: newNode.id,
+                    className: e.className,
+                    data: {
+                        type: e.data.type,
+                        category: "summary"
+                    }
+                }
+                const existingEdge = summaryEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+                if (!existingEdge)            
+                    summaryEdges.push(newEdge)
+                })
+
+            const edgesToCreateFrom = edges.filter(e => e.from === n.id)
+            edgesToCreateFrom.forEach(e => {
+                const newEdge = {
+                    id: `${e.id}-summary`,
+                    from: newNode.id,
+                    to: e.to,
+                    className: e.className,
+                    data: {
+                        type: e.data.type,
+                        category: "summary"
+                    }
+                }
+                const existingEdge = summaryEdges.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
+                if (!existingEdge)
+                    summaryEdges.push(newEdge)
+                })
+
+            const edgesToRemove = edges.filter(e => e.from === n.id || e.to === n.id)
+            edgesToRemove.forEach(e => { hiddenEdges.push(e) })
+            nodesOfType.forEach(n => { hiddenNodes.push(n) })
+        })
+        
     })
 
     return [summaryNodes, summaryEdges, hiddenNodes, hiddenEdges];
@@ -247,10 +282,22 @@ const getParentNode = (node: NodeData, nodeData: NodeData[]) => {
 /**
  * This is a recursive function that returns all descendant nodes of a given node
  * @param node 
- * @param nodeData 
- * @returns A list of all child nodes, including all descendants
+ * @param nodeData
+ * @param singleLevel If true, only return the immediate children of the node
+ * @returns A list of all child nodes
  */
-const getChildrenNodes = (node: NodeData, nodeData: NodeData[]) => {
+const getChildrenNodes = (node: NodeData, nodeData: NodeData[], singleLevel: boolean = false) => {
+
+    if (singleLevel) {
+        const childrenNodes = nodeData.filter(n => {
+            if (n.parent === node.id) {
+                return true;
+            }
+            return false;
+        });
+        return childrenNodes;
+    }
+
     const childrenNodes = nodeData.filter(n => {
         if (n.parent === node.id) {
             return true;
@@ -305,8 +352,11 @@ const getEdgesForNode = (nodes: NodeData[], edgeData: EdgeData[]) => {
     return [...new Set(connectedEdges)];
 }
 
-const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], edges: EdgeData[]) => {
+const getHybridNetworkingObjects = (vnetNodes: NodeData[], visibleNoddes: NodeData[], hiddenNodes: NodeData[], visibleEdges: EdgeData[], hiddenEdges: EdgeData[]) => {
+// const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], edges: EdgeData[]) => {
 
+    const nodes = [...visibleNoddes, ...hiddenNodes];
+    const edges = [...visibleEdges, ...hiddenEdges];
     const hubVnetNodes: NodeData[] = [];
     const hubVnetEdges: EdgeData[] = [];
     const hybridNetworkConnectionNodes: NodeData[] = [];
@@ -314,23 +364,23 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
     const peeringLocationNodes: NodeData[] = [];
     const peeringLocationEdges: EdgeData[] = [];
 
+    // get any VNET with a peering connection with a 'to' referencing an item in vnetNodes
+    const vnetIds = vnetNodes.map(node => node.id);
+    const peeringEdges = edges.filter(edge => edge.data.type === 'vnetpeering' && vnetIds.includes(edge.to));
+    const peeringNodes = getNodesForEdges(peeringEdges, nodes).filter((node: { id: string; }) => !vnetNodes.some((vnetNode: { id: string; }) => vnetNode.id === node.id)).flat();
+    const peeringEdgesToPeeringNodes = edges.filter(edge => edge.data.type === 'vnetpeering' && peeringNodes.some((peeringNode: { id: string; }) => peeringNode.id === edge.to));
+
     hubVnetNodes.push(...vnetNodes);
+    hubVnetEdges.push(...peeringEdges);
+    hubVnetNodes.push(...peeringNodes);
+    hubVnetEdges.push(...peeringEdgesToPeeringNodes);
 
-    // check if there is another hub vnet in the topology and add it
-    hubVnetNodes.map(node => {
-        const connectedEdges: EdgeData[] = edges.filter(edge => edge.to === node.id);
-        const connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, nodes);
-        hubVnetEdges.push(...connectedEdges);
-
-        connectedNodes.map(node => {
-            if (!hubVnetNodes.some((hubVnetNode: { id: string; }) => hubVnetNode.id === node.id)) { hubVnetNodes.push(node); }
-        });
-    });
-
-    const hubVnetChildren: NodeData[] = hubVnetNodes.map((node: NodeData) => getChildrenNodes(node, nodes)).flat();
+    const hubVnetChildren: NodeData[] = hubVnetNodes.filter(n => n.data.layoutZone === LayoutZone.NETWORKCORE).map((node: NodeData) => getChildrenNodes(node, nodes, true)).flat();
 
     // get objects that connect to vnet gateways
-    const vnetGatewayNodes = hubVnetChildren.filter(node => node.data.servicename === 'vpngateway');
+    const gatewaySubnet: NodeData = hubVnetChildren.filter(n => n.data.label === "GatewaySubnet")[0];
+    const gatewaySubnetNodes: NodeData[] = getChildrenNodes(gatewaySubnet, nodes, true);
+    const vnetGatewayNodes = gatewaySubnetNodes.filter(node => node.data.servicename === 'vpngateway');
 
     vnetGatewayNodes.map(node => {
         const connectedEdges: EdgeData[] = edges.filter(edge => edge.to === node.id);
@@ -350,13 +400,14 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
                         hybridNetworkConnectionNodes.push(n);
                     }
                 });
-                
             }
         });
     });
+    
 
-    // get objects that connect to hybrid network connections
-    hybridNetworkConnectionNodes.map(node => {
+    // get objects that connect to vpn / expressroute
+    
+    hybridNetworkConnectionNodes.filter(n => n.data?.servicename === 'expressroutecircuit').map(node => {
         const connectedEdges: EdgeData[] = edges.filter(edge => edge.to === node.id);
         const connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, nodes)
             .filter((node: { id: string; }) => !hybridNetworkConnectionNodes.some((connectionObject: { id: string; }) => connectionObject.id === node.id)).flat();
@@ -366,6 +417,7 @@ const getHybridNetworkingObjects = (vnetNodes: NodeData[], nodes: NodeData[], ed
             if (!peeringLocationNodes.some((peeringLocation: { id: string; }) => peeringLocation.id === node.id)) { peeringLocationNodes.push(node); }
         });
     });
+    
 
     const hybridNetworkingNodes: NodeData[] = [...hubVnetNodes, ...hubVnetChildren, ...hybridNetworkConnectionNodes, ...peeringLocationNodes].flat();
     const hybridNetworkingEdges: EdgeData[] = [...hubVnetEdges, ...hybridNetworkConnectionEdges, ...peeringLocationEdges].flat();

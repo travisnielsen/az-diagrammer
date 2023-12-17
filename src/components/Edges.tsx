@@ -84,7 +84,7 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate ) => {
     switch (edge.data?.type) {
         case 'vnetintegration':
             return (
-                <Edge {...edge} style={{ stroke: 'blue' }} className='edge' onClick={onEdgeClick} />
+                <Edge {...edge} className={edge.className } onClick={onEdgeClick} />
             )
         case 'vnetpeering':
             return (

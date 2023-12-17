@@ -103,6 +103,21 @@
   stroke-width: 1;
 }
 
+.edge-privateendpoint-connection {
+  stroke: cornflowerblue !important;
+  stroke-width: 1;
+  stroke-dasharray: 6;
+  animation: dashdraw .5s linear infinite;
+}
+
+.edge-appsvc-vnetintegration {
+  stroke: orange !important;
+  stroke-width: 4;
+  stroke-dasharray: 6;
+  animation: dashdraw .5s linear infinite;
+  animation-direction: reverse;
+}
+
 .navbar-row-2 {
   margin-top: 10px;
 }

@@ -279,6 +279,9 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   canvasNodesVisible = canvasNodesVisible.filter(n => !hiddenNodes.includes(n))
   canvasEdgesVisible = canvasEdgesVisible.filter(e => !hiddenEdges.includes(e))
 
+  canvasNodesHidden = canvasNodesHidden.concat(hiddenNodes)
+  canvasEdgesHidden = canvasEdgesHidden.concat(hiddenEdges)
+
   // Set parent nodes to edges to address layout issues with deep nesting. See: https://github.com/reaviz/reaflow/issues/87
   const combinedNodes = canvasNodesVisible.concat(canvasNodesHidden);
   const combinedEdges = canvasEdgesVisible.concat(canvasEdgesHidden);
