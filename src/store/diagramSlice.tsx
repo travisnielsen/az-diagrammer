@@ -30,7 +30,7 @@ export const diagramSlice = createSlice({
         },
         filterOnSelectedNode: (state, action: PayloadAction<string>) => {
             const selectedNodeId = action.payload;
-            const selectedNode: NodeData = state.value.visibleNodes.find(node => node.id === selectedNodeId) || { id: '' };
+            const selectedNode: NodeData = state.value.visibleNodes.find(node => node.id === selectedNodeId) || state.value.hiddenNodes.find(node => node.id === selectedNodeId);
             let displayNodes: NodeData[] = [];
             let displayEdges: EdgeData[] = [];
 

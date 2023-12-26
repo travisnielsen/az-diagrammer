@@ -1,10 +1,9 @@
-import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
 import Navbar from 'react-bootstrap/Navbar';
 import ConfigurationButton from './ConfigurationButton';
 import SignInAccountButton from './SignInAccountButton';
 import RegionFilterButton from './RegionFilterButton';
+import SearchBar from './SearchBar';
 import '../App.css';
 
 const TopNav = () => {
@@ -35,18 +34,7 @@ const TopNav = () => {
           <RegionFilterButton />
         </Navbar.Collapse>
             
-        <Navbar.Collapse className="justify-content-end">
-          <Form className="d-flex">
-            <Form.Control
-              type="search"
-              placeholder="Search"
-              className="me-2"
-              aria-label="Search"
-              size="sm"
-            />
-            <Button variant="outline-success" size='sm'>Search</Button>
-          </Form>
-        </Navbar.Collapse>
+        <SearchBar />
 
       </Navbar.Collapse>
 
