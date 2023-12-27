@@ -131,7 +131,7 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNo
     const allNodes = [...visibleNodes, ...hiddenNodes];
     const allEdges = [...visibleEdges, ...hiddenEdges];
 
-    const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNode([selectedNode], allEdges);
+    const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNode([selectedNode], allEdges, true);
     const connectedSelectedNodeNodes: NodeData[] = getNodesForEdges(connectedSelectedNodeEdges, allNodes);
 
     const parentNodes: NodeData[] = getParentNodes(selectedNode, allNodes);
@@ -145,7 +145,7 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNo
     const peerNodes: NodeData[] = getChildrenNodes(parentSubnet, allNodes).filter((peerNode: { id: string; }) => peerNode.id != selectedNode.id);
 
     // get nodes connected to parent nodes and their parent containers
-    const connectedParentNodeEdges: EdgeData[] = getEdgesForNode(parentNodes, allEdges);
+    const connectedParentNodeEdges: EdgeData[] = getEdgesForNode(parentNodes, allEdges, true);
     const connectedParentNodeNodes: NodeData[] = getNodesForEdges(connectedParentNodeEdges, allNodes);
     const connectedNodesParentNodes: NodeData[] = connectedParentNodeNodes.map(node => getParentNodes(node, allNodes)).flat();
     const connectedNodesChildren: NodeData[] = connectedParentNodeNodes.filter(n => n.data.servicename !== 'vnet').map(node => getChildrenNodes(node, allNodes)).flat();
@@ -155,8 +155,9 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNo
     const filteredNodes = [selectedNode, ...parentNodes, ...paasParentNodes, ...peerNodes, ...connectedParentNodeNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes, ...connectedNodesChildren].flat();
     const filteredNodesUnique = [...new Set(filteredNodes)];
     const filteredEdges = [connectedParentNodeEdges, ...hybridNetworkingEdges, ...connectedSelectedNodeEdges].flat();
+    const filteredEdgesUnique = [...new Set(filteredEdges)];
 
-    return [filteredNodesUnique, filteredEdges];
+    return [filteredNodesUnique, filteredEdgesUnique];
 }
 
 /**
@@ -338,10 +339,13 @@ const getNodesForEdges = (edges: EdgeData[], nodeData: NodeData[]) => {
     return [...new Set(connectedNodes)];
 }
 
-const getEdgesForNode = (nodes: NodeData[], edgeData: EdgeData[]) => {
+const getEdgesForNode = (nodes: NodeData[], edgeData: EdgeData[], excludeSummaryEdges: boolean = false) => {
     const connectedEdges = nodes.map(node => {
         const connectedEdge = edgeData.filter(edge => {
             if (edge.from === node.id || edge.to === node.id) {
+                if (excludeSummaryEdges && edge.data.category === 'summary') {
+                    return false;
+                }
                 return true;
             }
             return false;
