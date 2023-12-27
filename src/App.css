@@ -86,7 +86,13 @@
   animation: dashdraw .5s linear infinite;
   animation-direction: reverse;
   stroke-width: 1;
+}
 
+.edge-dns-reverse {
+  stroke: green !important;
+  stroke-dasharray: 5;
+  animation: dashdraw .5s linear infinite;
+  stroke-width: 1;
 }
 
 @keyframes dashdraw {

@@ -1141,7 +1141,7 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
                 id: shortId(rs.Id) + "-to-" + shortId(ep.id),
                 from: shortId(rs.Id),
                 to: shortId(ep.id),
-                className: 'edge-dns',
+                className: 'edge-dns-reverse',
                 data: {
                     type: 'dnsresolveroutboundendpoint'
                 }
