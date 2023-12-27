@@ -16,7 +16,9 @@ const TopNav = () => {
       
       <Container>
 
-      <Navbar.Collapse id="basic-navbar-nav">
+          <Navbar.Collapse id="basic-navbar-nav">
+            
+          <SearchBar />
 
         <Navbar.Collapse className="justify-content-end">
           <SignInAccountButton />
@@ -25,17 +27,14 @@ const TopNav = () => {
 
       <Navbar.Collapse className="navbar-row-2" id="basic-navbar-nav">
 
-        <span className="navbar-row-2-label">Connection:</span>
+
+          <span className="navbar-row-2-label">Connection:</span>
           <ConfigurationButton />
-            
-        <Navbar.Collapse>
           <span className="navbar-row-2-spacer"></span>
           <span className="navbar-row-2-label">Regions:</span>
           <RegionFilterButton />
-        </Navbar.Collapse>
-            
-        <SearchBar />
 
+            
       </Navbar.Collapse>
 
       </Container>

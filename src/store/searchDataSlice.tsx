@@ -18,7 +18,7 @@ export const searchDataSlice = createSlice({
             const searchItems = []
             action.payload.forEach((node: NodeData) => {
                 if (node.data.type === "service") {
-                    searchItems.push({ name: node.data.label, value: node.id })
+                    searchItems.push({ name: node.data.label, value: node.id, icon: node.data.url })
                 }
             })
 
