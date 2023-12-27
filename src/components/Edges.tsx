@@ -1,5 +1,6 @@
 import { NodeData, Edge, EdgeProps } from 'reaflow';
 import { store } from '..//store/store';
+import { MouseEventHandler } from 'react';
 
 const PrepareEdge = (edge: EdgeProps, handleNodeUpdate ) => {
 
@@ -84,15 +85,15 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate ) => {
     switch (edge.data?.type) {
         case 'vnetintegration':
             return (
-                <Edge {...edge} className={edge.className } onClick={onEdgeClick} />
+                <Edge {...edge} className={edge.className } onClick={onEdgeClick} onEnter={onEdgeEnter} />
             )
         case 'vnetpeering':
             return (
-                <Edge {...edge} className={edge.className } onClick={onEdgeClick} />
+                <Edge {...edge} className={edge.className } onClick={onEdgeClick} onEnter={onEdgeEnter} />
             )           
         case 'dns':
             return (
-                <Edge {...edge} className={edge.className } onClick={onEdgeClick} />
+                <Edge {...edge} className={edge.className } onClick={onEdgeClick as MouseEventHandler} onEnter={onEdgeEnter}/>
             ) 
         default:
             return (

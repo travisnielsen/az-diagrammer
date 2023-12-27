@@ -80,6 +80,11 @@
   height: 100%;
 }
 
+.edge-hover {
+  stroke: aqua !important;
+  stroke-width: 2px !important;
+}
+
 .edge-dns {
   stroke: green !important;
   stroke-dasharray: 5;

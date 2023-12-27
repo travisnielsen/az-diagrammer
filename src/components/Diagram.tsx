@@ -14,9 +14,11 @@ const Diagram: React.FC = () => {
   const canvasRef = useRef<CanvasRef>(null);
   const transformComponentRef = useRef<ReactZoomPanPinchRef| null>(null);
   const dispatch = useAppDispatch()
-  const [paneWidth, paneHeight] = useAppSelector((state) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
-  const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
-  // const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
+  const paneWidth = useAppSelector((state) => { return state.canvas.value.paneWidth })
+  const paneHeight = useAppSelector((state) => { return state.canvas.value.paneHeight })
+  const nodes = useAppSelector((state) => { return state.diagram.value.visibleNodes })
+  const edges = useAppSelector((state) => { return state.diagram.value.visibleEdges })
+
   // const containerWidth = canvasRef.current?.containerWidth;
   const [cursorXY] = useState<[number, number]>([0, 0]);
 

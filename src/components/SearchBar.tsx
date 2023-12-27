@@ -18,10 +18,9 @@ const SearchBar = () => {
 
   const renderedListItems = (props, option, _snapshot, className) => {
     return (
-      <button {...props} className={className} type="button">
+      <button {...props} className={className} type="button" >
         <span>
           <img src={option.icon} alt="" height="28" width="28" className='select-search-listicon' />
-          {option.name}
         </span>
         <span>{option.name}</span>
       </button>
@@ -32,23 +31,23 @@ const SearchBar = () => {
     return state.searchdata.value
   })
 
-    return (
-      <Navbar.Collapse className="justify-content-end">
-        <Form className="d-flex" >
-          <SelectSearch
-            value={value}
-            options={searchData}
-            onChange={(selectedValue) => updateValue(selectedValue as string)}
-            search
-            filterOptions={[fuzzySearch]}
-            renderOption={renderedListItems}
-            placeholder="Search"
-            autoComplete='on'
-            className="select-search" >
-          </SelectSearch>
-        </Form>
-      </Navbar.Collapse>
-    )
+  return (
+    <Navbar.Collapse className="justify-content-end">
+      <Form className="d-flex" >
+        <SelectSearch
+          value={value}
+          options={searchData}
+          onChange={(selectedValue) => updateValue(selectedValue as string)}
+          search
+          filterOptions={[fuzzySearch]}
+          renderOption={renderedListItems}
+          placeholder="Search"
+          autoComplete='on'
+          className="select-search" >
+        </SelectSearch>
+      </Form>
+    </Navbar.Collapse>
+  )
 
 }
 
