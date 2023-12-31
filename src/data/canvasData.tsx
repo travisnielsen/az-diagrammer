@@ -2,6 +2,7 @@ import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow'
 import { AzureData } from '../types/azure/AzureData'
 import { LayoutZone } from '../types/LayoutZone'
 import { DiagramConfiguration } from '../types/DiagramConfiguration'
+// import { DiagramNode } from '../types/DiagramNode'
 
 const containerlayoutOptions: ElkNodeLayoutOptions = {
     'portConstraints': 'FREE',
@@ -110,6 +111,18 @@ const getVmsWithPrivateIp = (azureData: AzureData) => {
         return vm
     })
     return vms
+}
+
+const getFromResourceIdforPublicIp = (publicIpId: string) => {
+    const resourceDelimiters = ['/bastionHostIpConfigurations/', '/azureFirewallIpConfigurations/', '/ipConfigurations/', '/frontendIPConfigurations/']
+    const resourceDelimiter = resourceDelimiters.find((delimiter) => publicIpId.includes(delimiter))
+
+    if (resourceDelimiter === undefined) {
+        return ""
+    }
+
+    const resourceId = publicIpId.split(resourceDelimiter)[0]
+    return resourceId
 }
 
 export const getNodeData = (azureData: AzureData) => {
@@ -242,7 +255,7 @@ export const getNodeData = (azureData: AzureData) => {
                 label: vm.Name,
                 info: vm.Properties.hardwareProfile.vmSize,
                 url: 'images/Compute/virtualmachine.svg',
-                ipAddressPrivate: ni.Properties?.ipConfigurations[0].properties.privateIPAddress
+                privateIpAddress: ni.Properties?.ipConfigurations[0].properties.privateIPAddress
             }
         }
     )))).flat()
@@ -396,8 +409,9 @@ export const getNodeData = (azureData: AzureData) => {
                 region: firewall.Location,
                 servicename: 'firewall',
                 label: firewall.Name,
+                privateIpAddress: firewall.Properties.ipConfigurations[0].properties.privateIPAddress,
                 info: firewall.Properties.ipConfigurations[0].properties.privateIPAddress,
-                url: 'images/Networking/firewall.svg'
+                url: 'images/Networking/firewall.svg',
               }
         }
     ))
@@ -821,6 +835,24 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
+    const publicIpAddresses: NodeData[] = azureData.publicIpAddresses.map((ip) => (
+        {
+            id: shortId(ip.Id),
+            height: 150,
+            width: 250,
+            data: {
+                type: 'service',
+                category: 'networking',
+                layoutZone: LayoutZone.PAAS,
+                region: ip.Location,
+                servicename: 'publicipaddress',
+                label: ip.Name,
+                info: ip.Properties.publicIPAddressVersion,
+                url: 'images/Networking/publicipaddress.svg'
+            }
+        }
+    ))
+
 
 
     const nodeData = [
@@ -829,7 +861,8 @@ export const getNodeData = (azureData: AzureData) => {
         ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
         ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations,
         ...bastionHosts, ...containerRegistries, ...keyVaults,
-        ...privateDnsZoneContainers, ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules, ...dnsResolverOutboundEndpoints
+        ...privateDnsZoneContainers, ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules, ...dnsResolverOutboundEndpoints,
+        ...publicIpAddresses
     ]
 
     return nodeData
@@ -1147,6 +1180,18 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
                 }
             }
         ))).flat()
+    
+    const publicIpAddressLinks: EdgeData[] = azureData.publicIpAddresses.map((ip) => (
+        {
+            id: shortId(ip.Id),
+            from: shortId(getFromResourceIdforPublicIp(ip.Properties.ipConfiguration.id)),
+            to: shortId(ip.Id),
+            className: 'edge-publicipaddress',
+            data: {
+                type: 'publicipaddress'
+            }
+        }
+    ))
 
     const edgeData = [
         ...vnetPeerings, ...loadBalancingPrivateVmss, ...loadBalancingPublicVmss,
@@ -1154,7 +1199,8 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
         ...keyVaultPrivateEndpointConnections, ...containerRegistryPrivateEndpointConnections, ...appServicePrivateEndpointConnections,
         ...storageVnetRules, ...eventHubNetworkRules, ...serviceBusNetworkRules,
         ...appServiceVnetIntegration, ...expressRouteConnections, ...expressRoutePeerings,
-        ...dnsConnections, ...privateDnsZoneLinks, ...dnsForwardingRulesetLinks, ...dnsResolverOutboundEndpointLinks
+        ...dnsConnections, ...privateDnsZoneLinks, ...dnsForwardingRulesetLinks, ...dnsResolverOutboundEndpointLinks,
+        ...publicIpAddressLinks
     ]
     
     return edgeData

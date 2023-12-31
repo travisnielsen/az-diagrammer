@@ -180,7 +180,10 @@ export const LoadAzureData = async (connectionString: string, containerName: str
                 break;
             case "containerregistries.json":
                 azureData.containerRegistries = await blobToJSONArray(blobString);
-                break;            
+                break;
+            case "publicipaddresses.json":
+                azureData.publicIpAddresses = await blobToJSONArray(blobString);
+                break;
             default:
                 break;
         }

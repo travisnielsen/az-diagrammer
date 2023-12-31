@@ -23,6 +23,7 @@ export type { NetworkSecurityGroup } from "./NetworkSecurityGroup";
 export type { PrivateDnsZone } from "./PrivateDnsZone";
 export type { PrivateDnsZoneLink } from "./PrivateDnsZoneLink";
 export type { PrivateEndpoint } from "./PrivateEndpoint";
+export type { PublicIpAddress } from "./PublicIpAddress";
 export type { RedisCache } from "./RedisCache";
 export type { RouteTable } from "./RouteTable";
 export type { ServiceBusNamespace } from "./ServiceBusNamespace";

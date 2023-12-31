@@ -63,6 +63,10 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   }
 
   const regions = [...new Set(nodeData.map(n => n.data.region))]
+  const index = regions.indexOf('');
+  if (index > -1) {
+    regions.splice(index, 1);
+  }
 
   // overall parent container for all diagram elements
   nodeData.push({
@@ -92,7 +96,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   regions.forEach(region => {
     const regionNameLowerCase = region.toLowerCase()
     const existingNode = nodeData.find(n => n.data.category === "region" && n.data.region === regionNameLowerCase)
-    if (!existingNode && region !== "global" && region !== '') {
+    if (!existingNode && region !== "global" && region) {
       const newNode = {
         id: regionNameLowerCase,
         parent: 'topContainer',
@@ -166,6 +170,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     }
   })
 
+  // PaaS nodes
   const paasNodes = nodeData.filter(n => n.data.layoutZone === LayoutZone.PAAS)
   paasNodes.forEach(n => {
     if (!n.parent)  // set top nodes only
@@ -258,7 +263,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
 
   // if there are > 3 items of the same type within a container, replace them with a substitute node
   const nodesToReplaceWithSummaryNode: NodeData[] = [];
-  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container").map(n => n.id)
+  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && n.data.category !== 'layout').map(n => n.id)
 
   containerIds.forEach(id => {
     const childNodes = canvasNodesVisible.filter(n => n.parent === id)

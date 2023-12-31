@@ -26,6 +26,7 @@ export class AzureData {
     privateDnsZones: AzureTypes.PrivateDnsZone[] = [];
     privateDnsZoneLinks: AzureTypes.PrivateDnsZoneLink[] = [];
     privateEndpoints: AzureTypes.PrivateEndpoint[] = [];
+    publicIpAddresses: AzureTypes.PublicIpAddress[] = [];
     redisCache: AzureTypes.RedisCache[] = [];
     routeTables: AzureTypes.RouteTable[] = [];
     serviceBusNamespaces: AzureTypes.ServiceBusNamespace[] = [];
