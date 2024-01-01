@@ -206,6 +206,12 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNo
     const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNodes([selectedNode], allEdges, true);
     const connectedSelectedNodeNodes: NodeData[] = getNodesForEdges(connectedSelectedNodeEdges, allNodes);
 
+    const downstreamEdges: EdgeData[] = getEdgesForNodes(connectedSelectedNodeNodes, allEdges, true).filter(edge => !connectedSelectedNodeEdges.some((e: { id: string; }) => e.id === edge.id));
+    const downstreamNodes: NodeData[] = getNodesForEdges(downstreamEdges, allNodes);
+
+    connectedSelectedNodeEdges.push(...downstreamEdges);
+    connectedSelectedNodeNodes.push(...downstreamNodes);
+
     const parentNodes: NodeData[] = getParentNodes(selectedNode, allNodes);
 
     // get parent container for nodes in the PAAS layout zone
