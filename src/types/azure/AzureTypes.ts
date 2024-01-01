@@ -2,6 +2,7 @@ export type { ApiManagement } from "./ApiManagement";
 export type { AppService } from "./AppService";
 export type { AppServicePlan } from "./AppServicePlan";
 export type { AzureFirewall } from "./AzureFirewall";
+export type { AzureKubernetesService } from "./AzureKubernetesService";
 export type { BastionHost } from "./BastionHost";
 export type { ContainerRegistry } from "./ContainerRegistry";
 export type { CosmosAccount } from "./CosmosAccount";

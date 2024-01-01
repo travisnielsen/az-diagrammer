@@ -184,6 +184,9 @@ export const LoadAzureData = async (connectionString: string, containerName: str
             case "publicipaddresses.json":
                 azureData.publicIpAddresses = await blobToJSONArray(blobString);
                 break;
+            case "aks.json":
+                azureData.aksClusters = await blobToJSONArray(blobString);
+                break;
             default:
                 break;
         }

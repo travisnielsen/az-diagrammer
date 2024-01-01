@@ -1,5 +1,6 @@
 import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow';
-import { getNodeData, getEdgeData } from './canvasData'
+import { getNodeData } from './nodeData'
+import { getEdgeData } from './edgeData'
 import { LoadAzureData } from './loadAzureData'
 import { collapseContainer, createSummaryNodes } from '../utility/diagramUtils';
 import { LayoutZone } from '../types/LayoutZone';

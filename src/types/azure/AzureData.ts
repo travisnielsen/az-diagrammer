@@ -5,6 +5,7 @@ export class AzureData {
     appServicePlans: AzureTypes.AppServicePlan[] = [];
     appServices: AzureTypes.AppService[] = [];
     azureFirewalls: AzureTypes.AzureFirewall[] = [];
+    aksClusters: AzureTypes.AzureKubernetesService[] = [];
     bastions: AzureTypes.BastionHost[] = [];
     containerRegistries: AzureTypes.ContainerRegistry[] = [];
     cosmosAccounts: AzureTypes.CosmosAccount[] = [];
