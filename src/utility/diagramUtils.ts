@@ -14,7 +14,15 @@ import { LayoutZone } from '../types/LayoutZone'
 export const collapseContainer = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
     const nodesToHide = getChildrenNodes(node, nodeDataVisible);
-    const edgesToHide = getEdgesForNode(nodesToHide, edgeDataVisible);    
+    const edgesToHide = getEdgesForNodes(nodesToHide, edgeDataVisible);
+
+    // remove peer nodes from display. We only want to see them when the container is expanded
+    
+    const edgesForContainer = getEdgesForNodes([...new Set([node])], edgeDataVisible, true);
+    edgesForContainer.forEach(edge => {
+        edgesToHide.push(edge);
+    })
+
     const externalNodesToHide = getExternalNodesToHide(nodeDataVisible, edgeDataVisible, edgesToHide);
     nodesToHide.push(...externalNodesToHide);
 
@@ -26,6 +34,34 @@ export const collapseContainer = (node: NodeData, nodeDataVisible: NodeData[], n
     const displayNodes = nodeDataVisible.filter(node => !nodesToHide.some((n: { id: string; }) => n.id === node.id));
     const hiddenEdges = [...edgeDataHidden, ...edgesToHide];
     const displayEdges = edgeDataVisible.filter(edge => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
+
+    // cleanup for edges that are connected to nodes that are no longer visible
+    // Example: external load balancer node as source connection for a public IP address node
+
+    const edgesWithoutVisibleNodesFrom = displayEdges.filter(edge => !displayNodes.some((node: { id: string; }) => node.id === edge.from));
+    edgesWithoutVisibleNodesFrom.forEach(edge => {
+        const connectedNodes = getNodesForEdges([edge], displayNodes);
+
+        connectedNodes.forEach(node => {
+            hiddenNodes.push(node);
+            hiddenEdges.push(edge);
+
+            // remove node from displayNodes
+            displayNodes.forEach((displayNode, index) => {
+                if (displayNode.id === node.id) {
+                    displayNodes.splice(index, 1);
+                }
+            });
+
+            // remove edge from displayEdges
+            displayEdges.forEach((displayEdge, index) => {
+                if (displayEdge.id === edge.id) {
+                    displayEdges.splice(index, 1);
+                }
+            });
+        });
+    })
+
     return [displayNodes, hiddenNodes, displayEdges, hiddenEdges];
 }
 
@@ -49,7 +85,16 @@ export const expandContainer = (node: NodeData, nodeDataVisible: NodeData[], nod
         nodesToDisplay = nodesToDisplay.filter(node => node.data.servicename !== summaryNodeType || node.data.category === 'summary');
     }
 
-    const edgesToDisplay = getEdgesForNode(nodesToDisplay, edgeDataHidden);
+    const edgesToDisplay = getEdgesForNodes(nodesToDisplay, edgeDataHidden);
+
+    // add peer nodes of the contianer to display
+    const edgesForContainer = getEdgesForNodes([...new Set([node])], edgeDataHidden, true);
+
+    edgesForContainer.forEach(edge => {
+        if (!edgesToDisplay.some((e: { id: string; }) => e.id === edge.id)) {
+            edgesToDisplay.push(edge);
+        }
+    })
 
     const externalNodesToDisplay = getNodesForEdges(edgesToDisplay, nodeDataHidden).map((node) => {
         if (!nodesToDisplay.some((n: { id: string; }) => n.id === node.id)) {
@@ -66,12 +111,39 @@ export const expandContainer = (node: NodeData, nodeDataVisible: NodeData[], nod
         }
     });
 
-
     const hiddenNodes = nodeDataHidden.filter(node => !nodesToDisplay.some((n: { id: string; }) => n.id === node.id));
     const displayNodes = [...nodeDataVisible, ...nodesToDisplay];
-
     const hiddenEdges = edgeDataHidden.filter(edge => !edgesToDisplay.some((e: { id: string; }) => e.id === edge.id));
     const displayEdges = [...edgeDataVisible, ...edgesToDisplay];
+
+    // Add any nodes that are connected to the nodes that are being displayed
+    // Example: external load balancer node as source connection for a public IP address node
+
+    const edgesToDisplayFromHidden = hiddenEdges.filter(edge => nodesToDisplay.some((node: { id: string; }) => node.id === edge.from));
+
+    edgesToDisplayFromHidden.forEach(edge => {
+        const connectedNodes = getNodesForEdges([edge], hiddenNodes);
+
+        connectedNodes.forEach(node => {
+            displayNodes.push(node);
+            displayEdges.push(edge);
+
+            // remove node from hiddenNodes
+            hiddenNodes.forEach((hiddenNode, index) => {
+                if (hiddenNode.id === node.id) {
+                    hiddenNodes.splice(index, 1);
+                }
+            });
+
+            // remove edge from hiddenEdges
+            hiddenEdges.forEach((hiddenEdge, index) => {
+                if (hiddenEdge.id === edge.id) {
+                    hiddenEdges.splice(index, 1);
+                }
+            });
+
+        });
+    })
 
     return [displayNodes, hiddenNodes, displayEdges, hiddenEdges];
 }
@@ -90,7 +162,7 @@ export const getConnectionGraphPaaS = (selectedNode: NodeData, visibleNodes: Nod
     const allNodes = [...visibleNodes, ...hiddenNodes];
     const allEdges = [...visibleEdges, ...hiddenEdges];
 
-    let connectedEdges: NodeData[] = getEdgesForNode([selectedNode], allEdges);
+    let connectedEdges: NodeData[] = getEdgesForNodes([selectedNode], allEdges);
     let connectedNodes: NodeData[] = getNodesForEdges(connectedEdges, allNodes);
 
     // remove 'summary' items
@@ -131,7 +203,7 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNo
     const allNodes = [...visibleNodes, ...hiddenNodes];
     const allEdges = [...visibleEdges, ...hiddenEdges];
 
-    const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNode([selectedNode], allEdges, true);
+    const connectedSelectedNodeEdges: EdgeData[] = getEdgesForNodes([selectedNode], allEdges, true);
     const connectedSelectedNodeNodes: NodeData[] = getNodesForEdges(connectedSelectedNodeEdges, allNodes);
 
     const parentNodes: NodeData[] = getParentNodes(selectedNode, allNodes);
@@ -145,7 +217,7 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNo
     const peerNodes: NodeData[] = getChildrenNodes(parentSubnet, allNodes).filter((peerNode: { id: string; }) => peerNode.id != selectedNode.id);
 
     // get nodes connected to parent nodes and their parent containers
-    const connectedParentNodeEdges: EdgeData[] = getEdgesForNode(parentNodes, allEdges, true);
+    const connectedParentNodeEdges: EdgeData[] = getEdgesForNodes(parentNodes, allEdges, true);
     const connectedParentNodeNodes: NodeData[] = getNodesForEdges(connectedParentNodeEdges, allNodes);
     const connectedNodesParentNodes: NodeData[] = connectedParentNodeNodes.map(node => getParentNodes(node, allNodes)).flat();
     const connectedNodesChildren: NodeData[] = connectedParentNodeNodes.filter(n => n.data.servicename !== 'vnet').map(node => getChildrenNodes(node, allNodes)).flat();
@@ -339,7 +411,7 @@ const getNodesForEdges = (edges: EdgeData[], nodeData: NodeData[]) => {
     return [...new Set(connectedNodes)];
 }
 
-const getEdgesForNode = (nodes: NodeData[], edgeData: EdgeData[], excludeSummaryEdges: boolean = false) => {
+const getEdgesForNodes = (nodes: NodeData[], edgeData: EdgeData[], excludeSummaryEdges: boolean = false) => {
     const connectedEdges = nodes.map(node => {
         const connectedEdge = edgeData.filter(edge => {
             if (edge.from === node.id || edge.to === node.id) {
@@ -441,12 +513,29 @@ const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData
         if (visibleNodes.some((n: { id: string; }) => n.id === node.id)) {
             // node is visible and might need to be hidden
             // get list of edges connected to node that are not in edgesToHide
+
             const connectedEdges = visibleEdges.filter(edge => edge.from === node.id || edge.to === node.id)
                 .filter((edge: { id: string; }) => !edgesToHide.some((e: { id: string; }) => e.id === edge.id));
             
             if (connectedEdges.length === 0) {
-                return node;
+                if (node.data.type !== 'container')
+                    return node;
             }
+
+            // nodes might be connected to downstream nodes that are not in the list of nodes to hide.
+            // Example: external load balancer connected to a public IP address
+            if (connectedEdges.length === 1) {
+
+                if (edgesToHide.some((edge: EdgeData<unknown>) => edge.to === node.id)) {
+
+                    const connectedEdgesFromNode = visibleEdges.filter(edge => edge.from === node.id);
+
+                    if (connectedEdgesFromNode.length > 0) {
+                        return node;
+                    }
+                }
+            }
+
         }
     }).filter((node) => node !== undefined);
 
@@ -457,7 +546,6 @@ const getExternalNodesToHide = (visibleNodes: NodeData[], visibleEdges: EdgeData
             externalNodesToHide.push(parentNode);
         }
     });
-
 
     return externalNodesToHide;
 }

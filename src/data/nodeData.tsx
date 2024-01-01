@@ -749,13 +749,11 @@ export const getNodeData = (azureData: AzureData) => {
     ))
 
     const nodeData = [
-        ...vnets, ...subnets, ...nsgs, ...routeTables, ...vmsDns, ...virtualMachines, ...vmScaleSets,
-        ...dataBricksPublic, ...dataBricksPrivate, ...loadBalancersPrivate, ...loadBalancersPublic, ...firewalls, ...gateways,
-        ...storageAccounts, ...cosmosAccounts, ...eventHubClusters, ...eventHuNamespacesDedicated, ...eventHuNamespaces, ...serviceBusNamespaces, ...redisCache,
-        ...apiManagementInternal, ...appServicePlans, ...functionApps, ...appServiceVnetIntegration, ...privateEndpoints, ...expressRoutes, ...peeringLocations,
-        ...bastionHosts, ...containerRegistries, ...keyVaults,
-        ...privateDnsZoneContainers, ...privateDnsZones, ...dnsForwardingRulesets, ...dnsForwardingRulesetRules, ...dnsResolverOutboundEndpoints,
-        ...publicIpAddresses, ...aksInstances
+        ...aksInstances, ...apiManagementInternal, ...appServicePlans, ...appServiceVnetIntegration, ...bastionHosts, ...containerRegistries, ...cosmosAccounts,
+        ...dataBricksPrivate, ...dataBricksPublic, ...dnsForwardingRulesetRules, ...dnsForwardingRulesets, ...dnsResolverOutboundEndpoints, ...eventHuNamespaces,
+        ...eventHuNamespacesDedicated, ...eventHubClusters, ...expressRoutes, ...firewalls, ...functionApps, ...gateways, ...keyVaults, ...loadBalancersPrivate,
+        ...loadBalancersPublic, ...nsgs, ...peeringLocations, ...privateDnsZoneContainers, ...privateDnsZones, ...privateEndpoints, ...publicIpAddresses,
+        ...redisCache, ...routeTables, ...serviceBusNamespaces, ...storageAccounts, ...subnets, ...vmsDns, ...virtualMachines, ...vmScaleSets, ...vnets
     ]
 
     return nodeData
