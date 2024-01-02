@@ -72,6 +72,10 @@ export const LoadAzureData = async (connectionString: string, containerName: str
             blobName = blobName.replace(folderName + '/', '');
         }
 
+        if (blobString === 'null\n') {
+            return;
+        } 
+
         switch (blobName.toLowerCase()) {
             case "subscriptions.json":
                 azureData.subscriptions = await blobToJSONArray(blobString);
@@ -90,9 +94,6 @@ export const LoadAzureData = async (connectionString: string, containerName: str
                 break;
             case "virtualmachines.json":
                 azureData.virtualMachines = await blobToJSONArray(blobString);
-                break;
-            case "virtualmachines-dns.json":
-                azureData.virtualMachinesDns = await blobToJSONArray(blobString);
                 break;
             case "workspaces.json":
                 azureData.databricksWorkspaces = await blobToJSONArray(blobString);

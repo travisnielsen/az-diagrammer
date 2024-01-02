@@ -33,7 +33,7 @@ interface Properties {
     publicIPAllocationMethod: string;
     idleTimeoutInMinutes: number;
     ipTags?: (null)[] | null;
-    ipConfiguration: IpConfiguration;
+    ipConfiguration?: IpConfiguration;
 }
   
 interface IpConfiguration {

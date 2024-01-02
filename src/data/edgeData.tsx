@@ -73,7 +73,7 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
         .map((storage) => storage.Properties.networkAcls.virtualNetworkRules.filter((rule) => utils.getSubscriptionGuidFromId(rule.id) === utils.getSubscriptionGuidFromId(storage.Id))
             .map((vnetRule: { id: string | undefined; }) => (
                 {
-                    id: utils.shortId(vnetRule.id + "-to-" + utils.shortId(storage.Id)),
+                    id: 'storage-serviceendpointrule-' + utils.shortId(vnetRule.id + "-to-" + utils.shortId(storage.Id)),
                     from: utils.shortId(vnetRule.id),
                     to: utils.shortId(storage.Id),
                     text: '',
@@ -187,9 +187,10 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
         ))).flat().filter((data) => data !== undefined) as EdgeData[];    
         
     const eventHubNetworkRules: EdgeData[] = azureData.eventHubNetworkRuleSets.map((ehruleset) => ehruleset.VirtualNetworkRule
+        .filter((rule) => rule.SubnetId.includes(config.subscriptionId))
         .map((rule) => (
             {
-                id: utils.shortId(rule.SubnetId) + '-to-' + utils.shortId(utils.getParentIdForRulesetId(ehruleset.Id)),
+                id: 'eventhub-serviceendpointrule-' + utils.shortId(rule.SubnetId) + '-to-' + utils.shortId(utils.getParentIdForRulesetId(ehruleset.Id)),
                 from: utils.shortId(rule.SubnetId),
                 to: utils.shortId(utils.getParentIdForRulesetId(ehruleset.Id)),
                 text: '',
@@ -201,9 +202,10 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
     ).flat()
     
     const serviceBusNetworkRules: EdgeData[] = azureData.serviceBusNetworkRuleSets.map((sbruleset) => sbruleset.VirtualNetworkRule
+        .filter((rule) => rule.SubnetId.includes(config.subscriptionId))
         .map((rule) => (
             {
-                id: utils.shortId(rule.SubnetId) + '-to-' + utils.shortId(utils.getParentIdForRulesetId(sbruleset.Id)),
+                id: 'servicebus-serviceendpointrule-' + utils.shortId(rule.SubnetId) + '-to-' + utils.shortId(utils.getParentIdForRulesetId(sbruleset.Id)),
                 from: utils.shortId(rule.SubnetId),
                 to: utils.shortId(utils.getParentIdForRulesetId(sbruleset.Id)),
                 text: '',
@@ -227,9 +229,12 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             }
         ))
     
-    const expressRouteConnections: EdgeData[] = azureData.gatewayConnections.filter(c => c.Properties.connectionType === "ExpressRoute").map((conn) => (
+    const expressRouteConnections: EdgeData[] = azureData.gatewayConnections
+        .filter(c => c.Properties.connectionType === "ExpressRoute")
+        .filter(c => utils.vnetGatewaysIdExistsInDiagram(c.Properties.virtualNetworkGateway1.id, azureData))
+        .map((conn) => (
         {
-            id: utils.shortId(conn.Id),
+            id: 'expressrouteconnection-' + utils.shortId(conn.Id),
             from: utils.shortId(conn.Properties.peer?.id),
             to: utils.shortId(conn.Properties.virtualNetworkGateway1.id),
             text: "Routing Weight: " + conn.Properties.routingWeight,
@@ -243,6 +248,8 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
     const expressRoutePeerings: EdgeData[] = azureData.gatewayConnections
         // TODO: Cannot assume tags are present. Need to move this to config or find another way to remove unwanted connections
         // .filter((c) => !hasTagFilterMatch(c.Tags.EnvType))
+        .filter((c) => c.Properties.connectionType === "ExpressRoute")
+        .filter((c) => c.Properties.peer !== undefined)
         .filter((v, i, a) => a.findIndex((t) => (t.Properties.peer?.id === v.Properties.peer?.id)) === i)
         .map((conn) => (
         {
@@ -307,7 +314,9 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             }
         ))).flat()
     
-    const publicIpAddressLinks: EdgeData[] = azureData.publicIpAddresses.map((ip) => (
+    const publicIpAddressLinks: EdgeData[] = azureData.publicIpAddresses
+        .filter((ipAddress) => ipAddress.Properties.ipConfiguration !== undefined)
+        .map((ip) => (
         {
             id: utils.shortId(ip.Id),
             from: utils.shortId(utils.getFromResourceIdforPublicIp(ip.Properties.ipConfiguration.id)),

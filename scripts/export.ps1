@@ -1,8 +1,13 @@
+param (
+    [Parameter(Mandatory=$true, HelpMessage="Enter the name of the configuration file")]
+    [string]$configFile
+)
+
 # install DNS Resolver module
 Install-Module -Name Az.DnsResolver -Force
 
 # get connection context
-$contextInfo = Get-Content config.json | ConvertFrom-Json
+$contextInfo = Get-Content $configFile | ConvertFrom-Json
 Connect-AzAccount -Tenant $contextInfo.tenantId
 $azContext = Get-AzContext
 $outFolder = "..//data/" + $contextInfo.subscriptionName
@@ -106,8 +111,9 @@ foreach ($subscription in $subscriptions) {
         if ($nic) {
             $vmId = $nic.virtualMachine.id
             $vm = Get-AzResource -ResourceId $vmId -ExpandProperties
+            $nicStandardExport = Get-AzResource -ResourceId $nic.id -ExpandProperties
             $listDnsServers.Add($vm)
-            $listDnsVmNics.Add($nic)
+            $listDnsVmNics.Add($nicStandardExport)
         }
         
     }
@@ -180,6 +186,12 @@ foreach ($service in $services) {
 # Write out data
 #
 
+# append items in $listDnsServers to $dictServices["Microsoft.Compute/virtualMachines"]
+$dictServices["Microsoft.Compute/virtualMachines"] += $listDnsServers
+
+# append items in $listDnsVmNics to $dictServices["Microsoft.Network/networkInterfaces"]
+$dictServices["Microsoft.Network/networkInterfaces"] += $listDnsVmNics
+
 New-Item -Path "..//data/${outFolder}" -ItemType Directory -ErrorAction Ignore
 
 ConvertTo-Json -InputObject $listSubscriptionInfo -Depth 20 | Out-File "..//data/${outFolder}/subscriptions.json"
@@ -190,6 +202,8 @@ ConvertTo-Json -InputObject $listNatGateways -Depth 20 | Out-File "..//data/${ou
 ConvertTo-Json -InputObject $listVnetGateways -Depth 20 | Out-File "..//data/${outFolder}/vnetGateways.json"
 ConvertTo-Json -InputObject $listGatewayConnections -Depth 20 | Out-File "..//data/${outFolder}/gatewayConnections.json"
 ConvertTo-Json -InputObject $listExpressRouteCircuits -Depth 20 | Out-File "..//data/${outFolder}/expressRouteCircuits.json"
+
+# TODO: remove this export once you confirm DNS VM data is merged into the regular VM export (see lines 188 - 192)
 ConvertTo-Json -InputObject $listDnsServers -Depth 20 | Out-File "..//data/${outFolder}/virtualMachines-dns.json"
 ConvertTo-Json -InputObject $listDnsVmNics -Depth 20 | Out-File "..//data/${outFolder}/networkInterfaces-dns.json"
 

@@ -26,6 +26,7 @@ dist-ssr
 *.local
 
 # export script
+/scripts/*.json
 config.json
 
 # data

@@ -120,7 +120,9 @@ export const getNodeData = (azureData: AzureData) => {
     )))).flat()
 
 
-    const virtualMachines: NodeData[] = azureData.virtualMachines.map((vm) => (azureData.networkInterfaces.filter((ni) => ni.Properties.virtualMachine?.id.toLowerCase() === vm.Id.toLowerCase()).map((ni) => (
+    const virtualMachines: NodeData[] = azureData.virtualMachines.map((vm) => (azureData.networkInterfaces
+        .filter((ni) => ni.Properties.virtualMachine?.id.toLowerCase() === vm.Id.toLowerCase())
+        .map((ni) => (
         {
             id: utils.shortId(vm.Id),
             parent: utils.shortId(ni.Properties?.ipConfigurations[0].properties.subnet.id),
@@ -748,12 +750,15 @@ export const getNodeData = (azureData: AzureData) => {
         }
     ))
 
+    // TODO: This is a temporary fix. For some reasons, virtual machines can be duplicated. Need to investigate why.
+    const virtualMachinesDeDuplicated = virtualMachines.filter((v: { id }, i, a) => a.findIndex((t: { id }) => (t.id === v.id)) === i)
+
     const nodeData = [
         ...aksInstances, ...apiManagementInternal, ...appServicePlans, ...appServiceVnetIntegration, ...bastionHosts, ...containerRegistries, ...cosmosAccounts,
         ...dataBricksPrivate, ...dataBricksPublic, ...dnsForwardingRulesetRules, ...dnsForwardingRulesets, ...dnsResolverOutboundEndpoints, ...eventHuNamespaces,
         ...eventHuNamespacesDedicated, ...eventHubClusters, ...expressRoutes, ...firewalls, ...functionApps, ...gateways, ...keyVaults, ...loadBalancersPrivate,
         ...loadBalancersPublic, ...nsgs, ...peeringLocations, ...privateDnsZoneContainers, ...privateDnsZones, ...privateEndpoints, ...publicIpAddresses,
-        ...redisCache, ...routeTables, ...serviceBusNamespaces, ...storageAccounts, ...subnets, ...vmsDns, ...virtualMachines, ...vmScaleSets, ...vnets
+        ...redisCache, ...routeTables, ...serviceBusNamespaces, ...storageAccounts, ...subnets, ...vmsDns, ...virtualMachinesDeDuplicated, ...vmScaleSets, ...vnets
     ]
 
     return nodeData

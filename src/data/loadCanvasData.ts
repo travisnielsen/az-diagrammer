@@ -34,6 +34,9 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   const nodeData = getNodeData(azureData);
   const edgeData = getEdgeData(azureData, config).filter(e => e !== undefined);
 
+  // const testEdge = edgeData.filter(e => e.id === "eventhub-serviceendpointrule-rpuprodinthsdeastus2vnet02rg-rpuprodinthsdeastus2vnet02-rpuprodinthsdeastus2vnet02akssn01-to-idiprodcusrg-default")
+  // console.log(testEdge);
+
   /*
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     const filteredServices = ["routetable", "nsg"]

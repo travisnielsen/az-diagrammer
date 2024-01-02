@@ -46,7 +46,7 @@ export const getSubscriptionGuidFromId = (resourceId: string) => {
 }
 
 export const getParentIdForRulesetId = (s: string) => {
-    const id = s.split("/networkRuleSets/")[0]
+    const id = s.toLowerCase().split("/networkrulesets/")[0]
     return id
 }
 
@@ -116,6 +116,22 @@ export const getAgentPoolShortIdFromSubnetId = (agentPoolName: string, subnetId:
     return shortId(vmssMatch.Id)
 }
 
+export const vnetGatewaysIdExistsInDiagram = (gatewayId: string, azureData: AzureData) => {
+    const subnetIds = azureData.virtualNetworks.map((vnet) => vnet.Properties.subnets.map((subnet) => subnet.id)).flat()
+    const gateway = azureData.vnetGateways.find((vnetGateway) => vnetGateway.Id === gatewayId)
+
+    if (gateway === undefined) {
+        return false
+    }
+
+    const subnetId = gateway.Properties.ipConfigurations.map(config => config.properties.subnet.id).flat()[0]
+
+    if (subnetIds.includes(subnetId)) {
+        return true
+    }
+
+    return false
+}
 
 // TODO: integrate this async code with synchronous calls from the rest of this code using promises
 /*

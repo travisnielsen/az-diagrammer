@@ -3,7 +3,7 @@ import { AzureBase } from "./AzureBase";
 export interface VirtualMachine extends AzureBase {
   ResourceId: string;
   Id: string;
-  Identity?: null;
+  Identity?: Identity;
   Kind?: null;
   Location: string;
   ManagedBy?: null;
@@ -24,6 +24,14 @@ export interface VirtualMachine extends AzureBase {
   ETag?: null;
   PrivateIpAddress?: string;
   }
+
+interface Identity {
+  PrincipalId?: null;
+  TenantId?: null;
+  Type: string;
+  UserAssignedIdentities?: null;
+}
+
 interface Properties {
     hardwareProfile: HardwareProfile;
     provisioningState: string;
@@ -31,8 +39,8 @@ interface Properties {
     storageProfile: StorageProfile;
     osProfile: OsProfile;
     networkProfile: NetworkProfile;
-    diagnosticsProfile: DiagnosticsProfile;
-    timeCreated: string;
+    diagnosticsProfile?: DiagnosticsProfile;
+    timeCreated?: string;
   }
 interface HardwareProfile {
     vmSize: string;
@@ -79,9 +87,20 @@ interface OsProfile {
   }
 interface LinuxConfiguration {
     disablePasswordAuthentication: boolean;
+    ssh?: Ssh;
     provisionVMAgent: boolean;
     patchSettings: PatchSettings;
+    enableVMAgentPlatformUpdates?: boolean;
   }
+interface Ssh {
+  publicKeys?: (PublicKeysEntity)[] | null;
+}
+
+interface PublicKeysEntity {
+  path: string;
+  keyData: string;
+}
+
 interface PatchSettings {
     patchMode: string;
     assessmentMode: string;
@@ -91,6 +110,11 @@ interface NetworkProfile {
   }
 interface NetworkInterfacesEntity {
     id: string;
+    properties?: Properties1;
+  }
+ interface Properties1 {
+    primary: boolean;
+    deleteOption: string;
   }
 interface DiagnosticsProfile {
     bootDiagnostics: BootDiagnostics;
