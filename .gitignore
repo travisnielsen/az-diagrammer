@@ -28,6 +28,7 @@ dist-ssr
 # export script
 /scripts/*.json
 config.json
+!scripts/democonfig.json
 
 # data
 data/*
