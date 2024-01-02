@@ -100,6 +100,8 @@ $listVnetGateways = New-Object -TypeName 'System.Collections.ArrayList'
 $listExpressRouteCircuits = New-Object -TypeName 'System.Collections.ArrayList'
 $listDnsVmNics = New-Object -TypeName 'System.Collections.ArrayList'
 $listDnsServers = New-Object -TypeName 'System.Collections.ArrayList'
+$listPrivateDnsZones = New-Object -TypeName 'System.Collections.ArrayList'
+$listPrivateDnsZoneLinks = New-Object -TypeName 'System.Collections.ArrayList'
 
 foreach ($subscription in $subscriptions) {
     Set-AzContext -Subscription $subscription
@@ -123,6 +125,8 @@ foreach ($subscription in $subscriptions) {
     Get-AzResource -ResourceType "Microsoft.Network/natGateways" -ExpandProperties | ForEach-Object { $listNatGateways.Add($_) }
     Get-AzResource -ResourceType "Microsoft.Network/virtualNetworkGateways" -ExpandProperties | ForEach-Object { $listVnetGateways.Add($_) }
     Get-AzResource -ResourceType "Microsoft.Network/expressRouteCircuits" -ExpandProperties | ForEach-Object { $listExpressRouteCircuits.Add($_) }
+    Get-AzResource -ResourceType "Microsoft.Network/privateDnsZones" -ExpandProperties | ForEach-Object { $listPrivateDnsZones.Add($_) }
+    Get-AzResource -ResourceType "Microsoft.Network/privateDnsZones/virtualNetworkLinks" -ExpandProperties | ForEach-Object { $listPrivateDnsZoneLinks.Add($_) }
 }
 
 #
@@ -134,8 +138,14 @@ $services = $contextInfo.services
 $dictServices = @{}
 
 foreach ($service in $services) {
-    $items = Get-AzResource -ResourceType "${service}" -ExpandProperties
-    # $dictServices.add( $service, $items)
+    $items = Get-AzResource -ResourceType "${service}" -ExpandProperties -ErrorVariable err -ErrorAction SilentlyContinue
+
+    if ($err) {
+        Write-Host "Error getting ${service} resources: $err" -ForegroundColor DarkYellow 
+        continue
+    }
+
+    $dictServices.add( $service, $items)
 
     # get vnet links for DNS forwarding rulesets
     if ($service -eq "Microsoft.Network/dnsForwardingRulesets") {
@@ -150,14 +160,14 @@ foreach ($service in $services) {
             Get-AzDnsForwardingRulesetVirtualNetworkLink -DnsForwardingRulesetName $dnsForwardingRuleset.Name -ResourceGroupName $dnsForwardingRuleset.ResourceGroupName | ForEach-Object { $dnsForwardingRulesetLinks.Add($_) }
         }
 
-        $dictServices.add("Microsoft.Network/dnsForwardingRulesets", $items)
-        $dictServices.add("Microsoft.Network/dnsForwardingRulesets//forwardingRule", $dnsForwardingRuleSetRules)
+        # $dictServices.add("Microsoft.Network/dnsForwardingRulesets", $items)
+        $dictServices.add("Microsoft.Network/dnsForwardingRulesets/forwardingRule", $dnsForwardingRuleSetRules)
         $dictServices.add("Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks", $dnsForwardingRulesetLinks)
 
     }
 
     # get network rules for Event Hub and Service Bus
-    elseif ($service -eq "Microsoft.EventHub/namespaces" -or $service -eq "Microsoft.ServiceBus/namespaces") {
+    if ($service -eq "Microsoft.EventHub/namespaces" -or $service -eq "Microsoft.ServiceBus/namespaces") {
 
         $networkRuleSets = New-Object -TypeName 'System.Collections.ArrayList'
         $namespace = ""
@@ -176,9 +186,6 @@ foreach ($service in $services) {
         }
 
         $dictServices.add($namespace, $networkRuleSets)
-    }
-    else {
-        $dictServices.add($service, $items)
     }
 }
 
@@ -202,6 +209,8 @@ ConvertTo-Json -InputObject $listNatGateways -Depth 20 | Out-File "..//data/${ou
 ConvertTo-Json -InputObject $listVnetGateways -Depth 20 | Out-File "..//data/${outFolder}/vnetGateways.json"
 ConvertTo-Json -InputObject $listGatewayConnections -Depth 20 | Out-File "..//data/${outFolder}/gatewayConnections.json"
 ConvertTo-Json -InputObject $listExpressRouteCircuits -Depth 20 | Out-File "..//data/${outFolder}/expressRouteCircuits.json"
+ConvertTo-Json -InputObject $listPrivateDnsZones -Depth 20 | Out-File "..//data/${outFolder}/privateDnsZones.json"
+ConvertTo-Json -InputObject $listPrivateDnsZoneLinks -Depth 20 | Out-File "..//data/${outFolder}/privateDnsZoneLinks.json"
 
 # TODO: remove this export once you confirm DNS VM data is merged into the regular VM export (see lines 188 - 192)
 ConvertTo-Json -InputObject $listDnsServers -Depth 20 | Out-File "..//data/${outFolder}/virtualMachines-dns.json"
@@ -220,10 +229,10 @@ $dictServices.GetEnumerator() | ForEach-Object {
         "Microsoft.ContainerRegistry/registries" { $filename = "containerRegistries"; Break }
         "Microsoft.OperationalInsights/workspaces" { $filename = "logAnalyticsWorkspaces"; Break }
         "Microsoft.KeyVault/vaults" { $filename = "keyVaults"; Break }
-        "Microsoft.ServiceBus/namespaces" { $filename = "serviceBusNamespaces"; Break }
+        "Microsoft.ServiceBus/Namespaces" { $filename = "serviceBusNamespaces"; Break }
         "Microsoft.ServiceBus/namespaces/NetworkRuleSets" { $filename = "serviceBusNetworkRuleSets"; Break }
         "Microsoft.EventHub/clusters" { $filename = "eventHubClusters"; Break }
-        "Microsoft.EventHub/namespaces" { $filename = "eventHubNamespaces"; Break }
+        "Microsoft.EventHub/Namespaces" { $filename = "eventHubNamespaces"; Break }
         "Microsoft.EventHub/namespaces/NetworkRuleSets" { $filename = "eventHubNetworkRuleSets"; Break }
         "Microsoft.ApiManagement/service" { $filename = "apiManagement"; Break }
         "Microsoft.ContainerService/managedClusters" { $filename = "aks"; Break }

@@ -264,20 +264,22 @@ export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) 
             }))
     
     const dnsConnections: EdgeData[] = utils.getVmsWithPrivateIp(azureData)
-        .map((vm) => azureData.virtualNetworks.filter((vnet) => vnet.Properties.dhcpOptions?.dnsServers?.includes(vm.PrivateIpAddress || ''))
+        .map((vm) => azureData.virtualNetworks
+            .filter((vnet) => vnet.Properties.dhcpOptions?.dnsServers?.includes(vm.PrivateIpAddress || ''))
             .map((vnet) => (
         {
             id: utils.shortId(vm.Id) + "-to-" + utils.shortId(vnet.Id),
             from: utils.shortId(vm.Id),
             to: utils.shortId(vnet.Id),
-            text: 'dns',
             className: 'edge-dns',
             data: {
                 type: 'dns'
-            }
-                }))).flat()
+                    }
+        }))).flat()
     
-    const privateDnsZoneLinks: EdgeData[] = azureData.privateDnsZoneLinks.map((link) => (
+    const privateDnsZoneLinks: EdgeData[] = azureData.privateDnsZoneLinks
+        .filter((link) => utils.vnetIdIsInDiagram(link.Properties.virtualNetwork.id, azureData))
+        .map((link) => (
         {
             id: utils.shortId(link.Id),
             from: utils.shortId(link.Id.split("/virtualNetworkLinks/")[0]),

@@ -1,6 +1,5 @@
 import { NodeData, EdgeData } from 'reaflow';
 import { LayoutZone } from '../types/LayoutZone'
-// import { setHiddenEdges } from '../store/diagramSlice';
 
 /**
  * 
@@ -76,7 +75,7 @@ export const collapseContainer = (node: NodeData, nodeDataVisible: NodeData[], n
  */
 export const expandContainer = (node: NodeData, nodeDataVisible: NodeData[], nodeDataHidden: NodeData[], edgeDataVisible: EdgeData[], edgeDataHidden: EdgeData[]) => {
 
-    let nodesToDisplay = getChildrenNodes(node, nodeDataHidden);
+    let nodesToDisplay = getChildrenNodes(node, nodeDataHidden, true);
 
     // if a summary node exists, filter out the the actual nodes
     const summaryNodes = nodesToDisplay.filter(node => node.data.category === 'summary');
@@ -118,8 +117,11 @@ export const expandContainer = (node: NodeData, nodeDataVisible: NodeData[], nod
 
     // Add any nodes that are connected to the nodes that are being displayed
     // Example: external load balancer node as source connection for a public IP address node
-
-    const edgesToDisplayFromHidden = hiddenEdges.filter(edge => nodesToDisplay.some((node: { id: string; }) => node.id === edge.from));
+    const edgesToDisplayFromHidden = hiddenEdges
+        .filter(edge => nodesToDisplay.some((node: { id: string; }) => node.id === edge.from))
+        // exclude edges that are associated with a summary edge
+        // expand / collape container will only show summary nodes
+        .filter(edge => edge.data.hasSummary !== true); 
 
     edgesToDisplayFromHidden.forEach(edge => {
         const connectedNodes = getNodesForEdges([edge], hiddenNodes);
@@ -145,7 +147,14 @@ export const expandContainer = (node: NodeData, nodeDataVisible: NodeData[], nod
         });
     })
 
-    return [displayNodes, hiddenNodes, displayEdges, hiddenEdges];
+    const displayNodesDeDuped = [...new Set(displayNodes)];
+    const displayEdgesDeDuped = [...new Set(displayEdges)];
+    const hiddenNodesDeDuped = [...new Set(hiddenNodes)];
+    const hiddenEdgesDeDuped = [...new Set(hiddenEdges)];
+
+    // TODO: this method is resulting in duplicate nodes and edges. Look into this. Fixed for now by using Set
+    return [displayNodesDeDuped, hiddenNodesDeDuped, displayEdgesDeDuped, hiddenEdgesDeDuped];
+
 }
 
 /**
@@ -311,8 +320,14 @@ export const createSummaryNodes = (nodes: NodeData[], edges: EdgeData[]) => {
                 })
 
             const edgesToRemove = edges.filter(e => e.from === n.id || e.to === n.id)
-            edgesToRemove.forEach(e => { hiddenEdges.push(e) })
-            nodesOfType.forEach(n => { hiddenNodes.push(n) })
+            edgesToRemove.forEach(e => {
+                e.data.hasSummary = true
+                hiddenEdges.push(e)
+            })
+            nodesOfType.forEach(n => {
+                n.data.hasSummary = true
+                hiddenNodes.push(n)
+            })
         })
         
     })
@@ -404,6 +419,7 @@ const getChildrenNodes = (node: NodeData, nodeData: NodeData[], singleLevel: boo
  * @returns A list of nodes connected to the edges
  */
 const getNodesForEdges = (edges: EdgeData[], nodeData: NodeData[]) => {
+
     const connectedNodes = edges.map(edge => {
         const connectedNode = nodeData.filter(node => {
             if (node.id === edge.from || node.id === edge.to) {
@@ -431,7 +447,13 @@ const getEdgesForNodes = (nodes: NodeData[], edgeData: EdgeData[], excludeSummar
         return connectedEdge;
     }).flat();
 
-    return [...new Set(connectedEdges)];
+    let filteredEdges = connectedEdges;
+
+    // if we summary edges are included, filter out non-summary edges
+    if (!excludeSummaryEdges) {
+        filteredEdges = connectedEdges.filter(edge => edge.data.hasSummary !== true);
+    }
+    return [...new Set(filteredEdges)];
 }
 
 const getHybridNetworkingObjects = (vnetNodes: NodeData[], visibleNoddes: NodeData[], hiddenNodes: NodeData[], visibleEdges: EdgeData[], hiddenEdges: EdgeData[]) => {

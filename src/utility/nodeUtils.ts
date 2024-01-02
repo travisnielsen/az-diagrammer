@@ -60,10 +60,10 @@ export const getIdFromText = (s: string | undefined) => {
 
 export const getVmsWithPrivateIp = (azureData: AzureData) => {
     // iterate thoguh all networkInterfaces and get the private IP address. set this as a the PrivateIpAddress property on the matching virtual machine
-    const vms = azureData.virtualMachinesDns.map((vm) => {
-        const networkInterface = azureData.networkInterfaces.find((ni) => ni.VirtualMachine?.id === vm.Id)
+    const vms = azureData.virtualMachines.map((vm) => {
+        const networkInterface = azureData.networkInterfaces.find((ni) => ni.Properties.virtualMachine.id === vm.Id)
         if (networkInterface !== undefined) {
-            vm.PrivateIpAddress = networkInterface.IpConfigurations[0].PrivateIpAddress
+            vm.PrivateIpAddress = networkInterface.Properties.ipConfigurations[0].properties.privateIPAddress
         }
         return vm
     })
@@ -131,6 +131,11 @@ export const vnetGatewaysIdExistsInDiagram = (gatewayId: string, azureData: Azur
     }
 
     return false
+}
+
+export const vnetIdIsInDiagram = (vnetId: string, azureData: AzureData) => {
+    const vnetIds = azureData.virtualNetworks.map((vnet) => vnet.Id)
+    return vnetIds.includes(vnetId)
 }
 
 // TODO: integrate this async code with synchronous calls from the rest of this code using promises

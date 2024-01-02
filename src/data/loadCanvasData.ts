@@ -256,10 +256,8 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   // canvasNodesVisible = canvasNodesVisible.filter(n => n.data.type === "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
   // remove paasNodes that do not have connections
-  // const paasNodesDisconnectedIds = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
-
-  // remove items in paasNodesDisconnected from canvasNodesVisible
-  // canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnectedIds.includes(n.id))
+  const paasNodesDisconnectedIds = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
+  canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnectedIds.includes(n.id))
 
   let canvasEdgesVisible = edgeData.filter(e => edgeIds.includes(e.from || '') && edgeIds.includes(e.to || ''))
   let canvasEdgesHidden = edgeData.filter(e => !canvasEdgesVisible.includes(e))
