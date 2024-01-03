@@ -61,7 +61,7 @@ export const getIdFromText = (s: string | undefined) => {
 export const getVmsWithPrivateIp = (azureData: AzureData) => {
     // iterate thoguh all networkInterfaces and get the private IP address. set this as a the PrivateIpAddress property on the matching virtual machine
     const vms = azureData.virtualMachines.map((vm) => {
-        const networkInterface = azureData.networkInterfaces.find((ni) => ni.Properties.virtualMachine.id === vm.Id)
+        const networkInterface = azureData.networkInterfaces.find((ni) => ni.Properties.virtualMachine?.id === vm.Id)
         if (networkInterface !== undefined) {
             vm.PrivateIpAddress = networkInterface.Properties.ipConfigurations[0].properties.privateIPAddress
         }
