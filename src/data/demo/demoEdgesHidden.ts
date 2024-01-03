@@ -2,140 +2,493 @@ import { EdgeData } from 'reaflow';
 
 export const demoEdgesHidden: EdgeData[] = [
     {
-        "id": "contosocoredns-dnsforwardrulesetcontoso-to-contosocoredns-dnsresolverhuboutbound",
-        "from": "contosocoredns-dnsforwardrulesetcontoso",
-        "to": "contosocoredns-dnsresolverhuboutbound",
-        "className": "edge-dns",
-        "data": {
-            "type": "dnsresolveroutboundendpoint"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencushublink-privatelink.azure.com-contosocorencushublink",
+      from: "contosocoredns-privatelink.azure.com",
+      to: "contosocorenetwork-contosocorencushub",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncuspeehproducerb6e81b12b6154269a817ea4a401ebebc",
-        "from": "contosocorenetwork-contosoislandncuspeehproducer",
-        "to": "contosoislandworkload-contosoislandncusfaehproducer",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencusspokelink-privatelink.azure.com-contosocorencusspokelink",
+      from: "contosocoredns-privatelink.azure.com",
+      to: "contosocorenetwork-contosocorencusspoke",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "kubernetescontosoislandncusaksnode-aksagentpool21326252vmss-to-contosoislandncusaksnode-kubernetes",
-        "from": "contosoislandncusaksnode-aksagentpool21326252vmss",
-        "to": "contosoislandncusaksnode-kubernetes",
-        "text": "load balancing",
-        "data": {
-            "type": "loadbalancing"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencushublink-privatelink.azurewebsites.net-contosocorencushublink",
+      from: "contosocoredns-privatelink.azurewebsites.net",
+      to: "contosocorenetwork-contosocorencushub",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncusacr.b8132657aac543d0b295f80e13a1382e",
-        "from": "contosoislandnetwork-contosoislandncuspeacr",
-        "to": "contosoislandworkload-contosoislandncusacr",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencusspokelink-privatelink.azurewebsites.net-contosocorencusspokelink",
+      from: "contosocoredns-privatelink.azurewebsites.net",
+      to: "contosocorenetwork-contosocorencusspoke",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncuspecosmos",
-        "from": "contosoislandnetwork-contosoislandncuspecosmos",
-        "to": "contosoislandworkload-contosoislandncusacdb",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencushublink-privatelink.blob.core.windows.net-contosocorencushublink",
+      from: "contosocoredns-privatelink.blob.core.windows.net",
+      to: "contosocorenetwork-contosocorencushub",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncuspeehconsumerea1d3693d79b4ad7b4542ee41d2b9353",
-        "from": "contosoislandnetwork-contosoislandncuspeehconsumer",
-        "to": "contosoislandworkload-contosoislandncusfaehconsumer",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencusspokelink-privatelink.blob.core.windows.net-contosocorencusspokelink",
+      from: "contosocoredns-privatelink.blob.core.windows.net",
+      to: "contosocorenetwork-contosocorencusspoke",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-b25cd6b5b0c34f3e95f518ab4738f8f5",
-        "from": "contosoislandnetwork-contosoislandncuspeehns",
-        "to": "contosoislandworkload-contosoislandncusehns",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencushublink-privatelink.database.windows.net-contosocorencushublink",
+      from: "contosocoredns-privatelink.database.windows.net",
+      to: "contosocorenetwork-contosocorencushub",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncuspeehproducer46bd341730c243a9ae51069889af1b28",
-        "from": "contosoislandnetwork-contosoislandncuspeehproducer",
-        "to": "contosoislandworkload-contosoislandncusfaehproducer",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencusspokelink-privatelink.database.windows.net-contosocorencusspokelink",
+      from: "contosocoredns-privatelink.database.windows.net",
+      to: "contosocorenetwork-contosocorencusspoke",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncuspekv",
-        "from": "contosoislandnetwork-contosoislandncuspekv",
-        "to": "contosoislandworkload-contosoislandncuskv",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencushublink-privatelink.datafactory.azure.net-contosocorencushublink",
+      from: "contosocoredns-privatelink.datafactory.azure.net",
+      to: "contosocorenetwork-contosocorencushub",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncuspesbconsumer5a3341e5a27f4c849c90cb83a3a25089",
-        "from": "contosoislandnetwork-contosoislandncuspesbconsumer",
-        "to": "contosoislandworkload-contosoislandncusfasbconsumer",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosocoredns-contosocorencusspokelink-privatelink.datafactory.azure.net-contosocorencusspokelink",
+      from: "contosocoredns-privatelink.datafactory.azure.net",
+      to: "contosocorenetwork-contosocorencusspoke",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-afd56fe2ea6443c9881daa89eeae01e6",
-        "from": "contosoislandnetwork-contosoislandncuspesbns",
-        "to": "contosoislandworkload-contosoislandncussbns",
-        "text": "",
-        "data": {
-            "type": "privateendpoint-connection"
-        },
-        "parent": "northcentralus"
+      id: "contosoislanddns-contosoislandncusworkloadlink-privatelink.azurecr.io-contosoislandncusworkloadlink",
+      from: "contosoislanddns-privatelink.azurecr.io",
+      to: "contosoislandnetwork-contosoislandncusworkload",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncusfaehproducer-to-contosoislandnetwork-contosoislandncusworkload-ehproducer",
-        "from": "contosoislandnetwork-contosoislandncusworkload-ehproducer-appServiceDelegation",
-        "to": "contosoislandworkload-contosoislandncusfaehproducer",
-        "data": {
-            "type": "vnetintegration"
-        },
-        "parent": "northcentralus"
+      id: "contosoislanddns-contosoislandncusworkloadlink-privatelink.azurewebsites.net-contosoislandncusworkloadlink",
+      from: "contosoislanddns-privatelink.azurewebsites.net",
+      to: "contosoislandnetwork-contosoislandncusworkload",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncusfaehconsumer-to-contosoislandnetwork-contosoislandncusworkload-ehconsumer",
-        "from": "contosoislandnetwork-contosoislandncusworkload-ehconsumer-appServiceDelegation",
-        "to": "contosoislandworkload-contosoislandncusfaehconsumer",
-        "data": {
-            "type": "vnetintegration"
-        },
-        "parent": "northcentralus"
+      id: "contosoislanddns-contosoislandncusworkloadlink-privatelink.documents.azure.com-contosoislandncusworkloadlink",
+      from: "contosoislanddns-privatelink.documents.azure.com",
+      to: "contosoislandnetwork-contosoislandncusworkload",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
     },
     {
-        "id": "contosoislandworkload-contosoislandncusfasbconsumer-to-contosoislandnetwork-contosoislandncusworkload-sbconsumer",
-        "from": "contosoislandnetwork-contosoislandncusworkload-sbconsumer-appServiceDelegation",
-        "to": "contosoislandworkload-contosoislandncusfasbconsumer",
-        "data": {
-            "type": "vnetintegration"
-        },
-        "parent": "northcentralus"
-    }
-]
+      id: "contosoislanddns-contosoislandncusworkloadlink-privatelink.servicebus.windows.net-contosoislandncusworkloadlink",
+      from: "contosoislanddns-privatelink.servicebus.windows.net",
+      to: "contosoislandnetwork-contosoislandncusworkload",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
+    },
+    {
+      id: "contosoislanddns-contosoislandncusworkloadlink-privatelink.vaultcore.azure.net-contosoislandncusworkloadlink",
+      from: "contosoislanddns-privatelink.vaultcore.azure.net",
+      to: "contosoislandnetwork-contosoislandncusworkload",
+      className: "edge-dns",
+      data: {
+        type: "privatednszonelink",
+        hasSummary: true,
+      },
+      parent: "topContainer",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncusacr.b8132657aac543d0b295f80e13a1382e",
+      from: "contosoislandnetwork-contosoislandncuspeacr",
+      to: "contosoislandworkload-contosoislandncusacr",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspecosmos",
+      from: "contosoislandnetwork-contosoislandncuspecosmos",
+      to: "contosoislandworkload-contosoislandncusacdb",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspeehconsumerea1d3693d79b4ad7b4542ee41d2b9353",
+      from: "contosoislandnetwork-contosoislandncuspeehconsumer",
+      to: "contosoislandworkload-contosoislandncusfaehconsumer",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-b25cd6b5b0c34f3e95f518ab4738f8f5",
+      from: "contosoislandnetwork-contosoislandncuspeehns",
+      to: "contosoislandworkload-contosoislandncusehns",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspeehproducer46bd341730c243a9ae51069889af1b28",
+      from: "contosoislandnetwork-contosoislandncuspeehproducer",
+      to: "contosoislandworkload-contosoislandncusfaehproducer",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspekv",
+      from: "contosoislandnetwork-contosoislandncuspekv",
+      to: "contosoislandworkload-contosoislandncuskv",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspesbconsumer5a3341e5a27f4c849c90cb83a3a25089",
+      from: "contosoislandnetwork-contosoislandncuspesbconsumer",
+      to: "contosoislandworkload-contosoislandncusfasbconsumer",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-afd56fe2ea6443c9881daa89eeae01e6",
+      from: "contosoislandnetwork-contosoislandncuspesbns",
+      to: "contosoislandworkload-contosoislandncussbns",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+        hasSummary: true,
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosocorenetwork-contosocorencusbridgeazfwip",
+      from: "contosocorenetwork-contosocorencusbridgeazfw",
+      to: "contosocorenetwork-contosocorencusbridgeazfwip",
+      className: "edge-publicipaddress",
+      data: {
+        type: "publicipaddress",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosocorenetwork-contosocorencusbastionip",
+      from: "contosocorenetwork-contosocorencusbastion",
+      to: "contosocorenetwork-contosocorencusbastionip",
+      className: "edge-publicipaddress",
+      data: {
+        type: "publicipaddress",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosocorenetwork-contosocorencushubazfwip",
+      from: "contosocorenetwork-contosocorencushubazfw",
+      to: "contosocorenetwork-contosocorencushubazfwip",
+      className: "edge-publicipaddress",
+      data: {
+        type: "publicipaddress",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosocoredns-dnsforwardrulesetcontoso-to-contosocoredns-dnsresolverhuboutbound",
+      from: "contosocoredns-dnsforwardrulesetcontoso",
+      to: "contosocoredns-dnsresolverhuboutbound",
+      className: "edge-dns-reverse",
+      data: {
+        type: "dnsresolveroutboundendpoint",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspeehproducerb6e81b12b6154269a817ea4a401ebebc",
+      from: "contosocorenetwork-contosoislandncuspeehproducer",
+      to: "contosoislandworkload-contosoislandncusfaehproducer",
+      className: "edge-privateendpoint-connection",
+      text: "",
+      data: {
+        type: "privateendpoint-connection",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "kubernetescontosoislandncusaksnode-aksagentpool21326252vmss-to-contosoislandncusaksnode-kubernetes",
+      from: "contosoislandncusaksnode-aksagentpool21326252vmss",
+      to: "contosoislandncusaksnode-kubernetes",
+      text: "load balancing",
+      data: {
+        type: "loadbalancing",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "akslink-agentpool-to-contosoislandworkload-contosoislandncusaks",
+      from: "contosoislandncusaksnode-aksagentpool21326252vmss",
+      to: "contosoislandworkload-contosoislandncusaks",
+      className: "edge-aks",
+      data: {
+        type: "aks",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandncusaksnode-394bac6de106451996b7fe242665b5d3",
+      from: "contosoislandncusaksnode-kubernetes",
+      to: "contosoislandncusaksnode-394bac6de106451996b7fe242665b5d3",
+      className: "edge-publicipaddress",
+      data: {
+        type: "publicipaddress",
+      },
+      parent: "container-paas-northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncusacr.b8132657aac543d0b295f80e13a1382e-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncusacr",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspecosmos-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncusacdb",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspeehconsumerea1d3693d79b4ad7b4542ee41d2b9353-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncusfaehconsumer",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-b25cd6b5b0c34f3e95f518ab4738f8f5-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncusehns",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspeehproducer46bd341730c243a9ae51069889af1b28-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncusfaehproducer",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspekv-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncuskv",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncuspesbconsumer5a3341e5a27f4c849c90cb83a3a25089-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncusfasbconsumer",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-afd56fe2ea6443c9881daa89eeae01e6-summary",
+      from: "contosoislandnetwork-contosoislandncusworkload-privateendpoints-privatelink-summary",
+      to: "contosoislandworkload-contosoislandncussbns",
+      className: "edge-privateendpoint-connection",
+      data: {
+        type: "privateendpoint-connection",
+        category: "summary",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncusfaehproducer-to-contosoislandnetwork-contosoislandncusworkload-ehproducer",
+      from: "contosoislandnetwork-contosoislandncusworkload-ehproducer-appServiceDelegation",
+      to: "contosoislandworkload-contosoislandncusfaehproducer",
+      className: "edge-appsvc-vnetintegration",
+      data: {
+        type: "vnetintegration",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "storage-serviceendpointrule-contosoislandnetwork-contosoislandncusworkload-ehproducertocontosoislandworkloadcontosoislandncussaehpro",
+      from: "contosoislandnetwork-contosoislandncusworkload-ehproducer",
+      to: "contosoislandworkload-contosoislandncussaehpro",
+      text: "",
+      data: {
+        type: "serviceendpointrule",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncusfaehconsumer-to-contosoislandnetwork-contosoislandncusworkload-ehconsumer",
+      from: "contosoislandnetwork-contosoislandncusworkload-ehconsumer-appServiceDelegation",
+      to: "contosoislandworkload-contosoislandncusfaehconsumer",
+      className: "edge-appsvc-vnetintegration",
+      data: {
+        type: "vnetintegration",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "storage-serviceendpointrule-contosoislandnetwork-contosoislandncusworkload-ehconsumertocontosoislandworkloadcontosoislandncussaehcon",
+      from: "contosoislandnetwork-contosoislandncusworkload-ehconsumer",
+      to: "contosoislandworkload-contosoislandncussaehcon",
+      text: "",
+      data: {
+        type: "serviceendpointrule",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "contosoislandworkload-contosoislandncusfasbconsumer-to-contosoislandnetwork-contosoislandncusworkload-sbconsumer",
+      from: "contosoislandnetwork-contosoislandncusworkload-sbconsumer-appServiceDelegation",
+      to: "contosoislandworkload-contosoislandncusfasbconsumer",
+      className: "edge-appsvc-vnetintegration",
+      data: {
+        type: "vnetintegration",
+      },
+      parent: "northcentralus",
+    },
+    {
+      id: "storage-serviceendpointrule-contosoislandnetwork-contosoislandncusworkload-sbconsumertocontosoislandworkloadcontosoislandncussasbcon",
+      from: "contosoislandnetwork-contosoislandncusworkload-sbconsumer",
+      to: "contosoislandworkload-contosoislandncussasbcon",
+      text: "",
+      data: {
+        type: "serviceendpointrule",
+      },
+      parent: "northcentralus",
+    },
+  ]
