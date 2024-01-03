@@ -14,9 +14,11 @@ const Diagram: React.FC = () => {
   const canvasRef = useRef<CanvasRef>(null);
   const transformComponentRef = useRef<ReactZoomPanPinchRef| null>(null);
   const dispatch = useAppDispatch()
-  const [paneWidth, paneHeight] = useAppSelector((state) => [state.canvas.value.paneWidth, state.canvas.value.paneHeight])
-  const [nodes, edges] = useAppSelector((state) => [state.diagram.value.visibleNodes, state.diagram.value.visibleEdges])
-  // const [hiddenNodes, hiddenEdges] = useAppSelector((state) => [state.diagram.value.hiddenNodes, state.diagram.value.hiddenEdges])
+  const paneWidth = useAppSelector((state) => { return state.canvas.value.paneWidth })
+  const paneHeight = useAppSelector((state) => { return state.canvas.value.paneHeight })
+  const nodes = useAppSelector((state) => { return state.diagram.value.visibleNodes })
+  const edges = useAppSelector((state) => { return state.diagram.value.visibleEdges })
+
   // const containerWidth = canvasRef.current?.containerWidth;
   const [cursorXY] = useState<[number, number]>([0, 0]);
 
@@ -82,7 +84,7 @@ const Diagram: React.FC = () => {
     let newHeight = 0;
     let newWidth = 0;
     layout.children?.forEach((node) => {
-      if (node.y + node.height > newHeight) newHeight = node.y + node.height;
+      if (node.y + node.height > newHeight) newHeight = node.y + node.height + 1000;
       if (node.x + node.width > newWidth) newWidth = node.x + node.width;
     });
 
@@ -153,7 +155,7 @@ const Diagram: React.FC = () => {
           />
         </TransformComponent>
       </TransformWrapper>
-      <div style={{ position: 'absolute', bottom: 10, left: 20, zIndex: 999 }} >X: {cursorXY?.[0]} | Y: {cursorXY?.[1]}</div>
+      <div style={{ position: 'absolute', bottom: 10, left: 20, zIndex: 999 }} >X: {cursorXY?.[0]} | Y: {cursorXY?.[1]} | Canvas height: { paneHeight }</div>
     </div>
   )
 }

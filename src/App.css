@@ -80,12 +80,24 @@
   height: 100%;
 }
 
+.edge-hover {
+  stroke: aqua !important;
+  stroke-width: 2px !important;
+}
+
 .edge-dns {
   stroke: green !important;
   stroke-dasharray: 5;
   animation: dashdraw .5s linear infinite;
+  animation-direction: reverse;
   stroke-width: 1;
+}
 
+.edge-dns-reverse {
+  stroke: green !important;
+  stroke-dasharray: 5;
+  animation: dashdraw .5s linear infinite;
+  stroke-width: 1;
 }
 
 @keyframes dashdraw {
@@ -95,6 +107,26 @@
 .edge-vnet-peering {
   stroke: purple !important;
   stroke-width: .3cap !important;
+}
+
+.edge-expressroute {
+  stroke: firebrick !important;
+  stroke-width: 1;
+}
+
+.edge-privateendpoint-connection {
+  stroke: cornflowerblue !important;
+  stroke-width: 1;
+  stroke-dasharray: 6;
+  animation: dashdraw .5s linear infinite;
+}
+
+.edge-appsvc-vnetintegration {
+  stroke: orange !important;
+  stroke-width: 4;
+  stroke-dasharray: 6;
+  animation: dashdraw .5s linear infinite;
+  animation-direction: reverse;
 }
 
 .navbar-row-2 {
@@ -158,3 +190,5 @@
 ::-webkit-scrollbar {
   display: none;
 }
+
+

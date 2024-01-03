@@ -1,7 +1,8 @@
 import { NodeData, EdgeData, ElkNodeLayoutOptions } from 'reaflow';
-import { getNodeData, getEdgeData } from './canvasData'
+import { getNodeData } from './nodeData'
+import { getEdgeData } from './edgeData'
 import { LoadAzureData } from './loadAzureData'
-import { collapseContainer } from '../utility/diagramUtils';
+import { collapseContainer, createSummaryNodes } from '../utility/diagramUtils';
 import { LayoutZone } from '../types/LayoutZone';
 import { DiagramConfiguration } from "../types/DiagramConfiguration";
 import { DemoData } from './demo/DemoData';
@@ -31,8 +32,11 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   }
 
   const nodeData = getNodeData(azureData);
-  const edgeData = getEdgeData(azureData, config); 
-  
+  const edgeData = getEdgeData(azureData, config).filter(e => e !== undefined);
+
+  // const testEdge = edgeData.filter(e => e.id === "eventhub-serviceendpointrule-rpuprodinthsdeastus2vnet02rg-rpuprodinthsdeastus2vnet02-rpuprodinthsdeastus2vnet02akssn01-to-idiprodcusrg-default")
+  // console.log(testEdge);
+
   /*
   const nodeIsNonEmptyContainer = (node: NodeData) => {
     const filteredServices = ["routetable", "nsg"]
@@ -63,6 +67,10 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   }
 
   const regions = [...new Set(nodeData.map(n => n.data.region))]
+  const index = regions.indexOf('');
+  if (index > -1) {
+    regions.splice(index, 1);
+  }
 
   // overall parent container for all diagram elements
   nodeData.push({
@@ -92,7 +100,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   regions.forEach(region => {
     const regionNameLowerCase = region.toLowerCase()
     const existingNode = nodeData.find(n => n.data.category === "region" && n.data.region === regionNameLowerCase)
-    if (!existingNode && region !== "global" && region !== '') {
+    if (!existingNode && region !== "global" && region) {
       const newNode = {
         id: regionNameLowerCase,
         parent: 'topContainer',
@@ -111,7 +119,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   
   // layout containers for network and paas resources
   regions.forEach(region => {
-    nodeData.push( {
+    nodeData.push({
       id: `container-network-workload-${region}`,
       layoutOptions: layoutContainerlayoutOptions,
       parent: region,
@@ -121,7 +129,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
         category: 'layout',
       }
     })
-    nodeData.push( {
+    nodeData.push({
       id: `container-paas-${region}`,
       layoutOptions: layoutContainerlayoutOptions,
       parent: region,
@@ -142,7 +150,8 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     const region = n.data.region
     const regionContainer = nodeData.find(nf => nf.data.category === "region" && nf.data.region === region)
     if (regionContainer) {
-      n.parent = regionContainer.id
+      if (!n.parent)
+        n.parent = regionContainer.id
     }
   })
 
@@ -165,21 +174,25 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
     }
   })
 
+  // PaaS nodes
   const paasNodes = nodeData.filter(n => n.data.layoutZone === LayoutZone.PAAS)
   paasNodes.forEach(n => {
-      if (!n.parent)  // set top nodes only
-        n.parent = `container-paas-${n.data.region}`
+    if (!n.parent)  // set top nodes only
+      n.parent = `container-paas-${n.data.region}`
   })
 
   // place expressroute circuits into the global container and set tier to 'hybrid connection'
-  const expressrouteNodes = nodeData.filter(n => n.data.servicename === "expressroutecircuit" || n.data.servicename === "privatednszone")
-  expressrouteNodes.forEach(n => {
-    n.parent = 'global';
-    n.data.layoutZone = LayoutZone.HYBRID_CONNECTION;
+  const globalServicesNodes = nodeData.filter(n => n.data.layoutZone === LayoutZone.GLOBAL)
+  globalServicesNodes.forEach(n => {
+    if (!n.parent) { // set top nodes only
+      n.parent = 'global';
+      n.data.layoutZone = LayoutZone.GLOBAL;
+    }
+
   })
 
   // remove any nodes from nodedata that are in the parent 'global' container that do not have edges
-  const globalNodes = nodeData.filter(n => n.parent === 'global')
+  const globalNodes = nodeData.filter(n => n.parent === 'global' && n.data.type !== 'container')
   globalNodes.forEach(n => {
     const edges = edgeData.filter(e => e.from === n.id || e.to === n.id)
     if (edges.length === 0) {
@@ -207,7 +220,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   const vnetPeeringEdges = edgeData.filter(e => e.data.type === 'vnetpeering')
 
   vnetPeeringEdges.forEach(e => {
-    if (networkCoreNodeIds.includes((e.to || '') && (e.from || ''))) { 
+    if (networkCoreNodeIds.includes((e.to || '') && (e.from || ''))) {
       if (hubNetIDs.includes(e.to || '')) {
         const index = edgeData.findIndex(ef => ef.id === e.id)
         edgeData.splice(index, 1)
@@ -243,99 +256,38 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   // canvasNodesVisible = canvasNodesVisible.filter(n => n.data.type === "service" || (n.data.type === "container" && nodeIsNonEmptyContainer(n)))
   
   // remove paasNodes that do not have connections
-  // const paasNodesDisconnectedIds = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
-
-  // remove items in paasNodesDisconnected from canvasNodesVisible
-  // canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnectedIds.includes(n.id))
+  const paasNodesDisconnectedIds = paasNodes.filter(n => !edgeIds.includes(n.id) && n.data.type != 'container').map(n => n.id)
+  canvasNodesVisible = canvasNodesVisible.filter(n => !paasNodesDisconnectedIds.includes(n.id))
 
   let canvasEdgesVisible = edgeData.filter(e => edgeIds.includes(e.from || '') && edgeIds.includes(e.to || ''))
   let canvasEdgesHidden = edgeData.filter(e => !canvasEdgesVisible.includes(e))
   let canvasNodesHidden: NodeData[] = []
 
-  // if there are > 3 items of the same type within a 'compute' or 'analytics' container, replace them with a substitute node
-  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && (n.data.category === 'compute' || n.data.category === 'analytics') )
-    .map(n => n.id)
+  // if there are > 3 items of the same type within a container, replace them with a substitute node
+  const nodesToReplaceWithSummaryNode: NodeData[] = [];
+  const containerIds = canvasNodesVisible.filter(n => n.data.type === "container" && n.data.category !== 'layout').map(n => n.id)
 
   containerIds.forEach(id => {
     const childNodes = canvasNodesVisible.filter(n => n.parent === id)
     const childNodeServiceNames = [...new Set(childNodes.map(n => n.data.servicename))]
+    
     childNodeServiceNames.forEach(servicename => {
-      const nodesOfType = childNodes.filter(n => n.data.servicename === servicename)
+      const nodesOfType = childNodes.filter(n => n.data.servicename === servicename && n.data.type !== "container")
       if (nodesOfType.length > 3) {
-        const node = nodesOfType[0]
-        const newNode = {
-          id: `${node.id}-${node.data.servicename}`,
-          parent: node.parent,
-          height: 110,
-          width: 250,
-          data: {
-            type: "container",
-            category: "summary",
-            region: node.data.region,
-            layoutZone: 'paas',
-            serviceName: node.data.servicename,
-            label: `${nodesOfType.length} ${node.data.servicename}s`,
-            url: node.data.url,
-            isSubstitute: true
-          }
-        }
-        canvasNodesVisible.push(newNode)
-     
-        // create edges from nodesOfType to newNode
-        // exampple: collapsed PaaS intem with vnet service endpoint from subnets
-        nodesOfType.forEach(n => {
-          const edgesToCreate = canvasEdgesVisible.filter(e => e.to === n.id)
-          edgesToCreate.forEach(e => {
-              const newEdge = {
-                id: `${e.id}-summary`,
-                from: e.from,
-                to: newNode.id,
-                data: {
-                  type: "summary"
-                }
-            }
-            const existingEdge = canvasEdgesVisible.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
-            if (!existingEdge)            
-              canvasEdgesVisible.push(newEdge)
-          })
-        })
-  
-        nodesOfType.forEach(n => {
-          const edgesToCreate = canvasEdgesVisible.filter(e => e.from === n.id)
-          edgesToCreate.forEach(e => {
-            const newEdge = {
-              id: `${e.id}-summary`,
-              from: newNode.id,
-              to: e.to,
-              data: {
-                type: "summary"
-              }
-            }
-            // only push new edge if canvasEdgesVisible does not contain an edge with the same values for from and to
-            const existingEdge = canvasEdgesVisible.find(ef => ef.from === newEdge.from && ef.to === newEdge.to)
-            if (!existingEdge)
-              canvasEdgesVisible.push(newEdge)
-          })
-        })
-
-        // remove edges from nodesOfType
-        nodesOfType.forEach(n => {
-          const edgesToRemove = canvasEdgesVisible.filter(e => e.from === n.id || e.to === n.id)
-          edgesToRemove.forEach(e => {
-            const index = canvasEdgesVisible.findIndex(ef => ef.id === e.id)
-            canvasEdgesVisible.splice(index, 1)
-          })
-        })
-        
-        // remove nodesOfType from canvasNodesVisible
-        nodesOfType.forEach(n => {
-          const index = canvasNodesVisible.findIndex(nf => nf.id === n.id)
-          canvasNodesVisible.splice(index, 1)
-        })
-  
+        nodesToReplaceWithSummaryNode.push(...nodesOfType)
       }
     })
+    
   })
+
+  const [summaryNodes, summaryEdges, hiddenNodes, hiddenEdges] = createSummaryNodes(nodesToReplaceWithSummaryNode, canvasEdgesVisible)
+  canvasNodesVisible = canvasNodesVisible.concat(summaryNodes)
+  canvasEdgesVisible = canvasEdgesVisible.concat(summaryEdges)
+  canvasNodesVisible = canvasNodesVisible.filter(n => !hiddenNodes.includes(n))
+  canvasEdgesVisible = canvasEdgesVisible.filter(e => !hiddenEdges.includes(e))
+
+  canvasNodesHidden = canvasNodesHidden.concat(hiddenNodes)
+  canvasEdgesHidden = canvasEdgesHidden.concat(hiddenEdges)
 
   // Set parent nodes to edges to address layout issues with deep nesting. See: https://github.com/reaviz/reaflow/issues/87
   const combinedNodes = canvasNodesVisible.concat(canvasNodesHidden);
@@ -371,6 +323,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   })
 
   // iterate through all subnets and set data.status to 'closed'.
+  
   const subnetNodes = canvasNodesVisible.filter(n => n.data.servicename === "subnet")
   subnetNodes.forEach(n => {
     // collapse subnets except for hub vnets

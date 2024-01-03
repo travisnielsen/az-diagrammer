@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { DiagramConfiguration } from '../types/DiagramConfiguration';
 import { setSelectedConfiguration } from '../store/configurationSlice';
 import { setVisibleNodes, setVisibleEdges, setHiddenNodes, setHiddenEdges } from '../store/diagramSlice'
+import { setSearchData } from '../store/searchDataSlice';
 import { loadCanvasData } from '../data/loadCanvasData';
 import { useMsal, useAccount } from "@azure/msal-react";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
@@ -36,7 +37,11 @@ const ConfigurationButton = () => {
             dispatch(setVisibleNodes(canvasNodesVisible));
             dispatch(setVisibleEdges(canvasEdgesVisible));
             dispatch(setHiddenNodes(canvasNodesHidden));
-            dispatch(setHiddenEdges(canvasEdgesHidden));        
+            dispatch(setHiddenEdges(canvasEdgesHidden));
+
+            // combine visible and hidden nodes for search
+            const allNodes = [...canvasNodesVisible, ...canvasNodesHidden]
+            dispatch(setSearchData(allNodes));
         }
 
         const protectedResources = {

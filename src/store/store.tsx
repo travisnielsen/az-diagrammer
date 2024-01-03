@@ -4,6 +4,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import diagramReducer from './diagramSlice'
 import canvasReducer from './canvasSlice'
 import connectionsReducer from './configurationSlice'
+import searchReducer from './searchDataSlice'
 import thunk from 'redux-thunk';
 
 const persistConfig = {
@@ -17,7 +18,8 @@ export const store = configureStore({
   reducer: {
     diagram: diagramReducer,
     canvas: canvasReducer,
-    configurations: persistedConfigurationsReducer
+    configurations: persistedConfigurationsReducer,
+    searchdata: searchReducer
   },
   middleware: [thunk]
 })
