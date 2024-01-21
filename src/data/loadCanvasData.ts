@@ -7,7 +7,7 @@ import { LayoutZone } from '../types/LayoutZone';
 import { DiagramConfiguration } from "../types/DiagramConfiguration";
 import { DemoData } from './demo/DemoData';
 
-export const loadCanvasData = async (config: DiagramConfiguration): Promise<[NodeData[], NodeData[], EdgeData[], EdgeData[]]> => {
+export const loadCanvasData = async (config: DiagramConfiguration, accessToken?: string): Promise<[NodeData[], NodeData[], EdgeData[], EdgeData[]]> => {
 
   if (config.connectionString.toLowerCase() === 'demo') {
     console.info("Loading demo data")
@@ -20,7 +20,7 @@ export const loadCanvasData = async (config: DiagramConfiguration): Promise<[Nod
   }
 
   console.info("Loading data from configuration: " + config.name);
-  const azureData = await LoadAzureData(config.connectionString, config.containerName, config.folderName);
+  const azureData = await LoadAzureData(config.connectionString, config.containerName, config.folderName, accessToken);
 
   if (!azureData) {
     console.log("no azure data found");

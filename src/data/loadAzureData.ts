@@ -1,10 +1,20 @@
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { AzureData } from "../types/azure/AzureData";
+import { AccessTokenCredential } from "../types/AccessTokenCredential";
 
-export const LoadAzureData = async (connectionString: string, containerName: string, folderName?: string) => {
+
+export const LoadAzureData = async (connectionString: string, containerName: string, folderName?: string, accessToken?: string) => {
         
     const azureData: AzureData = new AzureData();
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+
+    let blobServiceClient = null;
+
+    if (accessToken) {
+        blobServiceClient = new BlobServiceClient(connectionString, new AccessTokenCredential(accessToken));
+    } else {
+        blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    }
+
     const containerClient = blobServiceClient.getContainerClient(containerName);
 
     const fileNames = await getBlobFiles(containerClient, folderName).catch((err) => {

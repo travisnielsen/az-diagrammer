@@ -237,8 +237,14 @@ export const getConnectionGraphVnetInjected = (selectedNode: NodeData, visibleNo
     const connectedNodesParentNodes: NodeData[] = connectedParentNodeNodes.map(node => getParentNodes(node, allNodes)).flat();
     const connectedNodesChildren: NodeData[] = connectedParentNodeNodes.filter(n => n.data.servicename !== 'vnet').map(node => getChildrenNodes(node, allNodes)).flat();
     
+    // get hybrid networking objects
     const connectedVnetNodes = connectedParentNodeNodes.filter(node => node.data.servicename === 'vnet').filter((node: { id: string; }) => !parentNodes.some((parentNode: { id: string; }) => parentNode.id === node.id));
-    const [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(connectedVnetNodes, visibleNodes, hiddenNodes, visibleEdges, hiddenEdges);
+    let hybridNetworkingNodes: NodeData[] = [];
+    let hybridNetworkingEdges: EdgeData[] = [];
+    if (connectedVnetNodes.length > 0) {
+        [hybridNetworkingNodes, hybridNetworkingEdges] = getHybridNetworkingObjects(connectedVnetNodes, visibleNodes, hiddenNodes, visibleEdges, hiddenEdges);
+    }
+    
     const filteredNodes = [selectedNode, ...parentNodes, ...paasParentNodes, ...peerNodes, ...connectedParentNodeNodes, ...hybridNetworkingNodes, ...connectedSelectedNodeNodes, ...connectedNodesParentNodes, ...connectedNodesChildren].flat();
     const filteredNodesUnique = [...new Set(filteredNodes)];
     const filteredEdges = [connectedParentNodeEdges, ...hybridNetworkingEdges, ...connectedSelectedNodeEdges].flat();
@@ -381,6 +387,8 @@ const getParentNode = (node: NodeData, nodeData: NodeData[]) => {
  * @returns A list of all child nodes
  */
 const getChildrenNodes = (node: NodeData, nodeData: NodeData[], singleLevel: boolean = false) => {
+
+    if (!node) return;
 
     if (singleLevel) {
         const childrenNodes = nodeData.filter(n => {

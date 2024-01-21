@@ -32,8 +32,8 @@ const ConfigurationButton = () => {
     // called when the selected connection changes
     useEffect(() => {
         
-        const fetchData = async () => {
-            const [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = await loadCanvasData(selectedConfiguration);
+        const fetchData = async (accessToken?: string) => {
+            const [canvasNodesVisible, canvasNodesHidden, canvasEdgesVisible, canvasEdgesHidden] = await loadCanvasData(selectedConfiguration, accessToken);
             dispatch(setVisibleNodes(canvasNodesVisible));
             dispatch(setVisibleEdges(canvasEdgesVisible));
             dispatch(setHiddenNodes(canvasNodesHidden));
@@ -64,17 +64,14 @@ const ConfigurationButton = () => {
                 return;
             }
 
-            if (account && account.name) {
-
-                // let accessToken = "";
+            if (account && account.name && selectedConfiguration.connectionString.toLowerCase().startsWith("https://")) {
 
                 instance.acquireTokenSilent({
                     scopes: protectedResources.azureStorage.scopes,
                     account: account,
                     
-                }).then(() => {
-                    // accessToken = response.accessToken;
-                    fetchData();
+                }).then((response) => {
+                    fetchData(response.accessToken);
                     console.log("fetching data");
                 }).catch((error) => {
                     // in case if silent token acquisition fails, fallback to an interactive method
@@ -82,9 +79,8 @@ const ConfigurationButton = () => {
                         if (account && inProgress === "none") {
                             instance.acquireTokenPopup({
                                 scopes: protectedResources.azureStorage.scopes,
-                            }).then(() => {
-                                // accessToken = response.accessToken;
-                                fetchData();
+                            }).then((response) => {
+                                fetchData(response.accessToken);
                                 console.log("fetching data");
                             }).catch(error => console.log(error));
                         }

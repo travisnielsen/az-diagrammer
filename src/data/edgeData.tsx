@@ -2,6 +2,7 @@ import { EdgeData } from 'reaflow'
 import { AzureData } from '../types/azure/AzureData'
 import { DiagramConfiguration } from '../types/DiagramConfiguration'
 import * as utils from '../utility/nodeUtils'
+import * as edgeUtils from '../utility/edgeUtils'
 
 
 export const getEdgeData = (azureData: AzureData, config: DiagramConfiguration) => {

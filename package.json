@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/identity": "^4.0.0",
     "@azure/msal-browser": "^3.6.0",
     "@azure/msal-react": "^2.0.8",
     "@azure/storage-blob": "^12.17.0",
