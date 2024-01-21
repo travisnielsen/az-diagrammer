@@ -9,7 +9,7 @@ export class AccessTokenCredential implements TokenCredential {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async getToken(scopes: string | string[]): Promise<AccessToken | null> {
+    async getToken(_scopes: string | string[]): Promise<AccessToken | null> {
         return { token: this.token, expiresOnTimestamp: 0 };
     }
 }

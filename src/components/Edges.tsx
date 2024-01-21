@@ -66,8 +66,8 @@ const PrepareEdge = (edge: EdgeProps, handleNodeUpdate ) => {
 
     const onEdgeClick = () => {
         console.log(`edge clicked (${edge.id})`);
-        // const results = FilterNodesByEdge();
-        // handleNodeUpdate(results.nodes, results.edges, results.selectedNodeId);
+        const results = FilterNodesByEdge();
+        handleNodeUpdate(results.nodes, results.edges, results.selectedNodeId);
     };
     
     const onEdgeEnter = () => {
