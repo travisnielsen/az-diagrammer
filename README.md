@@ -8,7 +8,7 @@ Azure Diagrammer is an application that generates a network topology of resource
 
 Options exist for hosting Azure Storage and the web application both remotely and locally. Check out the [demo site](https://azdiagram.nielski.com/), which shows a sample deployment based on the current main branch.
 
-## Diagram Data
+## Diagram Source Data
 
 ### Exporting
 
@@ -64,8 +64,7 @@ Access can also be granted via Entra ID authorization. If using this model, assi
 For testing or development purposes, you may chose to host exported data locally. The following tools are necessary for this:
 
 * [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json&tabs=visual-studio-code%2Cblob-storage) - This is an Azure Storage emulator that runs on Windows, Linux, and MacOS.
-
-* [Azure Storage Explorer](https://azure.microsoft.com/en-us/products/storage/storage-explorer/) - Necessary to configure the local storage and manage files
+* [Azure Storage Explorer](https://azure.microsoft.com/en-us/products/storage/storage-explorer/) - Used to configure the local storage and manage files
 
 Once Azurite is running, a few initial storage configuration steps are required:
 
@@ -73,13 +72,13 @@ Open Azure Storage Explorer and create a CORS policy that allows `http://localho
 
 ![Alt text](/media/core-azurite.png)
 
-Next right-click *Blob Containers* and create a new container and give it a name. Once completed, right click the container and create a new *Shared Access Signature* as shown below:
+The only supported way to authenticate to a local Azurite environment is via Shared Access Signature. Create one in Storage Explorer by right-clicking *Blob Containers* and creating a new container. Once completed, right click the container and create a new *Shared Access Signature* as shown below:
 
 ![Alt text](/media/create-sas.png)
 
 On the next screen, copy and save the values for *URL* and *SAS token*. This will be needed for the application configuration.
 
-## Application
+## Application Hosting
 
 Azure Diagrammer can be hosted locally or remotely as a static web site.
 
@@ -96,7 +95,7 @@ npm install     # for first time use
 npm run dev     # start the Vite dev server
 ```
 
-## Configuration
+## Application Configuration
 
 To configure a diagram, use the *Connection* dropdown menu, click *Add*, and fill in the information. Be sure to specify the container and folder name for your environment. The value for the *Connection String* field will depend on the type of authorization required for the storage account.
 
