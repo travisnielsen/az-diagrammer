@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - main
-    paths: 
-      - 'src/**/*'
-      - 'public/**/*'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'node_modules/**/*'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
