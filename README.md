@@ -70,11 +70,11 @@ Once Azurite is running, a few initial storage configuration steps are required:
 
 Open Azure Storage Explorer and create a CORS policy that allows `http://localhost:3000` on the *Blob Containers* object as shown here:
 
-![Alt text](/media/core-azurite.png)
+![Alt text](/media/cors-azurite.png)
 
 The only supported way to authenticate to a local Azurite environment is via Shared Access Signature. Create one in Storage Explorer by right-clicking *Blob Containers* and creating a new container. Once completed, right click the container and create a new *Shared Access Signature* as shown below:
 
-![Alt text](/media/create-sas.png)
+![Alt text](/media/sas-azurite.png)
 
 On the next screen, copy and save the values for *URL* and *SAS token*. This will be needed for the application configuration.
 
@@ -109,7 +109,6 @@ BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;SharedAccessSignature=[SAS_
 
 # Remote (Azure)
 BlobEndpoint=https://[NAME].blob.core.windows.net/;SharedAccessSignature=[SAS_Token]
-
 ```
 
 ...where `[SAS_TOKEN]` is in the value of the token created earlier (see above). Example: `sv=2022-11-02&st=2024-01-20T19%3A29%3A07Z&se=2034-01-21T19%3A29%...`
