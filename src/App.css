@@ -129,20 +129,36 @@
   animation-direction: reverse;
 }
 
+.navbar-row-1-label {
+  color: white;
+  font-size: 16px;
+}
+
+.navbar-row-1-spacer {
+  margin-left: 8px;
+  margin-right: 8px;
+
+}
+
 .navbar-row-2 {
   margin-top: 10px;
 }
 
 .navbar-row-2-label {
   color: white;
-  font-size: 16px;
-  margin-right: 8px;
+  font-size: 14px;
+  margin-right: 4px;
 }
 
 .navbar-row-2-spacer {
   margin-left: 16px;
   margin-right: 16px;
+}
 
+.navbar-row-2-button {
+  background-color: #000000;
+  border-color: #1b1d3c;
+  color: white;
 }
 
 .layout-container {

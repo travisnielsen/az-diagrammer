@@ -36,10 +36,11 @@ const MultiSelectDropdown = () => {
       <Button
         size="sm"
         style={{width:"100%"}}
-        className="btn btn-secondary dropdown-toggle"
+        className="btn btn-secondary dropdown-toggle navbar-row-2-button"
         type="button"
         id="multiSelectDropdown"
         onClick={toggleDropdown}
+        variant="dark"
       >
         {selectedLabel ? selectedLabel : 'Select options'}
       </Button>

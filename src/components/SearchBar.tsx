@@ -1,6 +1,6 @@
 import SelectSearch from 'react-select-search';
 import fuzzySearch from '../utility/searchUtils';
-import { Form, Navbar } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { useState } from 'react';
 import { filterOnSelectedNode } from '../store/diagramSlice';
@@ -32,7 +32,6 @@ const SearchBar = () => {
   })
 
   return (
-    <Navbar.Collapse className="justify-content-end">
       <Form className="d-flex" >
         <SelectSearch
           value={value}
@@ -46,7 +45,6 @@ const SearchBar = () => {
           className="select-search" >
         </SelectSearch>
       </Form>
-    </Navbar.Collapse>
   )
 
 }
