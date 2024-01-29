@@ -14,7 +14,7 @@ const TopNav = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" /> 
         <Container>
           <Navbar.Collapse id="basic-navbar-nav">
-            <Navbar.Brand href="#home">Azure Diagrammer</Navbar.Brand>              
+            <Navbar.Brand href="#home">AZD</Navbar.Brand>              
             <SearchBar />
             <span className="navbar-row-1-spacer"></span>
             <span className="navbar-row-1-label">Diagram:</span>
