@@ -31,7 +31,7 @@ const EditConfigurations = (props: ModalProps) => {
                         </ListGroup>
                     </Col>
                     <Col xs={8}>
-                      {selectedConfiguration ? <EditConfigurationsDetail key={selectedConfiguration.name} configuration={selectedConfiguration} setmodalshow={props.setmodalshow} /> : <></> }
+                      {selectedConfiguration ? <EditConfigurationsDetail key={selectedConfiguration.name} configuration={selectedConfiguration} setmodalshow={props.setmodalshow} onHide={props.onHide} /> : <></> }
                     </Col>
                 </Row>
             </Container>
