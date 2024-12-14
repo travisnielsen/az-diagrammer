@@ -34,15 +34,20 @@ const SearchBar = () => {
   return (
       <Form className="d-flex" >
         <SelectSearch
-          value={value}
-          options={searchData}
-          onChange={(selectedValue) => updateValue(selectedValue as string)}
-          search
-          filterOptions={[fuzzySearch]}
-          renderOption={renderedListItems}
-          placeholder="Search"
-          autoComplete='on'
-          className="select-search" >
+        value={value}
+        options={searchData}
+        onChange={(selectedValue) => updateValue(selectedValue as string)}
+        search
+        filterOptions={[fuzzySearch]}
+        renderOption={renderedListItems}
+        placeholder="Search"
+        autoComplete='on'
+        className="select-search" onBlur={function (): void {
+          throw new Error('Function not implemented.');
+        } } onFocus={function (): void {
+          throw new Error('Function not implemented.');
+        } }      
+      >
         </SelectSearch>
       </Form>
   )
